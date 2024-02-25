@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-           "cmd_vel_filter = susumu_robo.cmd_vel_filter:main",
+           "ultrasonic_monitor = susumu_robo.ultrasonic_monitor:main",
         ],
     },
 )
