@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-           "ultrasonic_monitor = susumu_robo.ultrasonic_monitor:main",
+           "collision_monitor = susumu_robo.collision_monitor:main",
         ],
     },
 )
