@@ -42,6 +42,15 @@ ros2 run kobuki_velocity_smoother velocity_smoother --ros-args -r /kobuki_veloci
 ros2 run susumu_robo collision_monitor --ros-args -r /collision_monitor/output_velocity:=/cmd_vel
 ```
 
+# ローンチサンプル(teleop_twist_joy, kobuki_velocity_smoother)
+```bash
+ros2 launch teleop_twist_joy teleop-launch.py joy_config:='xbox' joy_vel:=/kobuki_velocity_smoother/input
+```
+
+```bash
+ros2 run kobuki_velocity_smoother velocity_smoother --ros-args -r /kobuki_velocity_smoother/smoothed:=/cmd_vel -p frequency:=5.0
+```
+
 # ローンチサンプル(teleop_twist_joy, susumu_robo)
 ```bash
 ros2 launch teleop_twist_joy teleop-launch.py joy_config:='xbox' joy_vel:=/collision_monitor/input_velocity
@@ -49,6 +58,21 @@ ros2 launch teleop_twist_joy teleop-launch.py joy_config:='xbox' joy_vel:=/colli
 
 ```bash
 ros2 run susumu_robo collision_monitor --ros-args -r /collision_monitor/output_velocity:=/cmd_vel
+```
+
+# ローンチサンプル(teleop_twist_joy only)
+```bash
+ros2 launch teleop_twist_joy teleop-launch.py joy_config:='xbox'
+```
+
+# パラメータ設定(wsフォルダ依存)
+## teleop_twist_joy_node
+```bash
+ros2 param load /teleop_twist_joy_node ~/susumu_robo_ws/src/susumu_robo/param/teleop_twist_joy_node.yaml
+```
+## kobuki_velocity_smoother
+```bash
+ros2 param load /kobuki_velocity_smoother ~/susumu_robo_ws/src/susumu_robo/param/kobuki_velocity_smoother.yaml
 ```
 
 # memo
@@ -88,3 +112,33 @@ ros2 topic pub /ultrasonic1 sensor_msgs/msg/Range "{header: {stamp: {sec: 0, nan
 ros2 topic pub /ultrasonic2 sensor_msgs/msg/Range "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: 'range_sensor'}, radiation_type: 0, field_of_view: 0.0, min_range: 0.0, max_range: 0.0, range: 0.2}" &
 ```
 
+### パッケージ依存関係解決
+```bash
+rosdep install -i --from-path src --rosdistro humble -y
+```
+
+### cd
+```bash
+ros2 run rqt_tf_tree rqt_tf_tree
+```
+
+### tf
+```bash
+ros2 run rqt_tf_tree rqt_tf_tree
+```
+
+インストールされていない場合以下でインストールする
+
+```bash
+sudo apt install ros-humble-rqt-tf-tree
+```
+
+pdfで保存する場合
+```bash
+ros2 run tf2_tools view_frames
+```
+
+TFの情報を表示
+```bash
+ros2 run tf2_ros tf2_monitor 
+```
