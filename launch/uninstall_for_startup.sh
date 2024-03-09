@@ -1,0 +1,2 @@
+ros2 run robot_upstart uninstall ros2_foxglove_bridge
+ros2 run robot_upstart uninstall ros2_teleop_twist_joy
