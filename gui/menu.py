@@ -30,10 +30,12 @@ class MainWindow(QMainWindow):
         # 左レイアウトにボタンを追加
         self._start_fast_lio_button = self._create_button("Start fast_lio launch", left_layout, self.start_fast_lio_launch)
         self._start_rosbag_button = self._create_button("Start recording rosbag", left_layout, self.toggle_rosbag_recording)
+        self._create_button("", left_layout, self.start_dummy)
 
         # 右レイアウトにボタンを追加
         self._start_rqt_button = self._create_button("Start rqt", right_layout, self.start_rqt)
-        self._start_dummy_button = self._create_button("", right_layout, self.start_dummy)
+        self._create_button("", right_layout, self.start_dummy)
+        self._create_button("", right_layout, self.start_dummy)
 
         self._recording = False
         self._bag_file = None
