@@ -34,7 +34,9 @@ class MainWindow(QMainWindow):
 
         self._recording = False
         self._bag_file = None
-        self._process = QProcess()
+        self._process1 = QProcess()
+        self._process2 = QProcess()
+        self._process3 = QProcess()
 
     def _create_button(self, text, layout, on_click) -> QPushButton:
         button = QPushButton(text)
@@ -47,7 +49,8 @@ class MainWindow(QMainWindow):
         pass
 
     def start_fast_lio_launch(self):
-        self._start_process("ros2 launch fast_lio mapping_mid360.launch.py")
+        command = "ros2 launch fast_lio mapping_mid360.launch.py"
+        self._process2.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
 
     def toggle_rosbag_recording(self):
         if not self._recording:
@@ -59,20 +62,19 @@ class MainWindow(QMainWindow):
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self._bag_file = f'{timestamp}.bag'
         command = f"ros2 bag record --all -o {self._bag_file}"
-        self._start_process(command)
+        self._process3.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+
         self._recording = True
         self._start_rosbag_button.setText("Stop recording rosbag")
 
     def stop_rosbag_recording(self):
-        self._process.terminate()
+        self._process3.terminate()
         self._recording = False
         self._start_rosbag_button.setText("Start recording rosbag")
 
     def start_rqt(self):
-        self._start_process("rqt")
-
-    def _start_process(self, command):
-        self._process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+        command = "rqt"
+        self._process1.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
 
 def main():
     app = QApplication(sys.argv)
