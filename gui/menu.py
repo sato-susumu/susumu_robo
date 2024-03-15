@@ -1,13 +1,8 @@
 import sys
-import PySide6
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit
+from PySide6.QtCore import QProcess
 import os
-import subprocess
 import datetime
-
-dirname = os.path.dirname(PySide6.__file__)
-plugin_path = os.path.join(dirname, 'plugins', 'platforms')
-os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
 
 class MainWindow(QMainWindow):
@@ -39,7 +34,7 @@ class MainWindow(QMainWindow):
 
         self._recording = False
         self._bag_file = None
-        self._process = None
+        self._process = QProcess()
 
     def _create_button(self, text, layout, on_click) -> QPushButton:
         button = QPushButton(text)
@@ -52,9 +47,7 @@ class MainWindow(QMainWindow):
         pass
 
     def start_fast_lio_launch(self):
-        subprocess.run(
-            ["/bin/bash", "-c", ". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && "
-                                "ros2 launch fast_lio mapping_mid360.launch.py"])
+        self._start_process("ros2 launch fast_lio mapping_mid360.launch.py")
 
     def toggle_rosbag_recording(self):
         if not self._recording:
@@ -65,9 +58,8 @@ class MainWindow(QMainWindow):
     def start_rosbag_recording(self):
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self._bag_file = f'{timestamp}.bag'
-        self._process = subprocess.Popen(
-            ["/bin/bash", "-c", ". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && "
-                                f"ros2 bag record --all -o {self._bag_file}"])
+        command = f"ros2 bag record --all -o {self._bag_file}"
+        self._start_process(command)
         self._recording = True
         self._start_rosbag_button.setText("Stop recording rosbag")
 
@@ -77,17 +69,16 @@ class MainWindow(QMainWindow):
         self._start_rosbag_button.setText("Start recording rosbag")
 
     def start_rqt(self):
-        subprocess.run(
-            ["/bin/bash", "-c", ". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && "
-                                "rqt"])
+        self._start_process("rqt")
 
+    def _start_process(self, command):
+        self._process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
 
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()
