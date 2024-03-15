@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=ROS2 MENU
+Exec=/home/taro/ros2_ws/src/susumu_robo/gui/menu.sh
+Icon=/usr/share/icons/Humanity/apps/64/access.svg
+Categories=Development
+
