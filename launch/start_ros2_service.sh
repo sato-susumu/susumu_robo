@@ -1,0 +1,6 @@
+sudo systemctl start ros2_collision_monitor
+sudo systemctl start ros2_foxglove_bridge
+sudo systemctl start ros2_kobuki_velocity_smoother
+sudo systemctl start ros2_micro_ros_agent
+sudo systemctl start ros2_teleop_twist_joy
+sudo systemctl start ros2_msg_mid360

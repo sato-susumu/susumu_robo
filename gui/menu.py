@@ -23,16 +23,17 @@ class MainWindow(QMainWindow):
         layout.addLayout(right_layout)
 
         # 左レイアウトにボタンを追加
-        self._start_fast_lio_button = self._create_button("Start fast_lio launch", left_layout, self.start_fast_lio_launch)
+        self._start_fast_lio_button = self._create_button("Start fast_lio", left_layout, self.toggle_fast_lio_launch)
         self._start_rosbag_button = self._create_button("Start recording rosbag", left_layout, self.toggle_rosbag_recording)
         self._create_button("", left_layout, self.start_dummy)
 
         # 右レイアウトにボタンを追加
         self._start_rqt_button = self._create_button("Start rqt", right_layout, self.start_rqt)
         self._create_button("", right_layout, self.start_dummy)
-        self._create_button("", right_layout, self.start_dummy)
+        self._create_button("Start avatar_ros", right_layout, self.start_avatar_ros)
 
         self._recording = False
+        self._fast_lio_launch = False
         self._bag_file = None
         self._process1 = QProcess()
         self._process2 = QProcess()
@@ -48,9 +49,22 @@ class MainWindow(QMainWindow):
     def start_dummy(self):
         pass
 
+    def toggle_fast_lio_launch(self):
+        if not self._fast_lio_launch:
+            self.start_fast_lio_launch()
+        else:
+            self.stop_fast_lio_launch()
+
     def start_fast_lio_launch(self):
-        command = "ros2 launch fast_lio mapping_mid360.launch.py"
+        command = "ros2 launch fast_lio mapping.launch.py"
         self._process2.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+        self._fast_lio_launch = True
+        self._start_fast_lio_button.setText("Stop fast_lio")
+
+    def stop_fast_lio_launch(self):
+        self._process2.terminate()
+        self._fast_lio_launch = False
+        self._start_fast_lio_button.setText("Start fast_lio")
 
     def toggle_rosbag_recording(self):
         if not self._recording:
@@ -75,6 +89,11 @@ class MainWindow(QMainWindow):
     def start_rqt(self):
         command = "rqt"
         self._process1.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+
+    def start_avatar_ros(self):
+        command = "ros2 run avatar_ros avatar_node"
+        self._process1.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+
 
 def main():
     app = QApplication(sys.argv)
