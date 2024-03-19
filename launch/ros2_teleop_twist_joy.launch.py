@@ -1,29 +1,44 @@
+import os
+
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, GroupAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import SetRemap
+
+import launch
+import launch_ros.actions
+
 
 def generate_launch_description():
-    base_launch_share_dir = get_package_share_directory("teleop_twist_joy")
-    susumu_robo_launch_share_dir = get_package_share_directory("susumu_robo")
+    joy_config = launch.substitutions.LaunchConfiguration('joy_config')
+    joy_dev = launch.substitutions.LaunchConfiguration('joy_dev')
 
-    action = GroupAction(
-        actions=[
-            # remap
-            SetRemap(src='/cmd_vel', dst='/kobuki_velocity_smoother/input'),
-            IncludeLaunchDescription(
-                # Pythonで書かれたlaunchファイルをベースにする
-                PythonLaunchDescriptionSource([base_launch_share_dir + "/launch/teleop-launch.py"]),
-                # 引数
-                launch_arguments={
-                   "joy_config": "xbox",
-                   "config_filepath": susumu_robo_launch_share_dir + "/param/teleop_twist_joy_node.yaml",
-                }.items()
+    return launch.LaunchDescription([
+        launch.actions.DeclareLaunchArgument('joy_vel', default_value='/kobuki_velocity_smoother/input'),
+        launch.actions.DeclareLaunchArgument('joy_config', default_value='xbox'),
+        launch.actions.DeclareLaunchArgument('joy_dev', default_value='/dev/input/js0'),
+        launch.actions.DeclareLaunchArgument('config_filepath', default_value=[
+            launch.substitutions.TextSubstitution(text=os.path.join(
+                get_package_share_directory('teleop_twist_joy'), 'config', '')),
+            joy_config, launch.substitutions.TextSubstitution(text='.config.yaml')]),
+
+        launch_ros.actions.Node(
+            package='joy', executable='joy_node', name='joy_node',
+            parameters=[{
+                'dev': joy_dev,
+                'deadzone': 0.3,
+                'autorepeat_rate': 20.0,
+            }]),
+        launch_ros.actions.Node(
+            package='teleop_twist_joy', executable='teleop_node',
+            name='teleop_twist_joy_node',
+            parameters=[
+                launch.substitutions.LaunchConfiguration('config_filepath'),
+                {
+                    "require_enable_button": False,
+                    "scale_angular.yaw": 1.0,
+                    "scale_angular_turbo.yaw": 4.0,
+                    "scale_linear.x": 0.3,
+                    "scale_linear_turbo.x": 1.5,
+                }
+            ],
+            remappings={('/cmd_vel', launch.substitutions.LaunchConfiguration('joy_vel'))},
             ),
-        ]
-    )
-
-    return LaunchDescription([
-        action,
     ])
