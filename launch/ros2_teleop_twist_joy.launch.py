@@ -6,6 +6,7 @@ from launch_ros.actions import SetRemap
 
 def generate_launch_description():
     base_launch_share_dir = get_package_share_directory("teleop_twist_joy")
+    susumu_robo_launch_share_dir = get_package_share_directory("susumu_robo")
 
     action = GroupAction(
         actions=[
@@ -16,9 +17,10 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([base_launch_share_dir + "/launch/teleop-launch.py"]),
                 # 引数
                 launch_arguments={
-                    "joy_config": "xbox",
+                   "joy_config": "xbox",
+                   "config_filepath": susumu_robo_launch_share_dir + "/param/teleop_twist_joy_node.yaml",
                 }.items()
-            )
+            ),
         ]
     )
 
