@@ -5,6 +5,9 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Range
 import copy as copy_module
+from rclpy.qos import QoSProfile
+from rclpy.qos import QoSReliabilityPolicy
+from rclpy.qos import QoSDurabilityPolicy
 
 # 定数の定義
 STOP_THRESHOLD = 0.25  # 停止しきい値 [m]
@@ -21,21 +24,25 @@ class CollisionMonitorNode(Node):
         super().__init__('collision_monitor')
         all_sensor_ids = front_sensor_ids + rear_sensor_ids
         self.range_list = [100.0] * (max(all_sensor_ids) + 1)
-        self.pub = self.create_publisher(Twist, "~/output_velocity", 10)
-        self.sub = self.create_subscription(Twist, "~/input_velocity", self.input_callback, 10)
+        qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            depth=1)
+
+        self.pub = self.create_publisher(Twist, "~/output_velocity", qos)
+        self.sub = self.create_subscription(Twist, "~/input_velocity", self.input_callback, qos)
 
         # センサーの購読設定
         for sensor_id in all_sensor_ids:
-            self.create_subscription(Range, f"/ultrasonic{sensor_id}", self.create_ultrasonic_callback(sensor_id), 10)
+            self.create_subscription(Range, f"/ultrasonic{sensor_id}", self.create_ultrasonic_callback(sensor_id), qos)
 
         self.get_logger().info("CollisionMonitorNode start")
 
     def input_callback(self, sub_msg: Twist):
         pub_msg = copy_module.deepcopy(sub_msg)
-        self.get_logger().info(f"zyusin速度: {pub_msg.linear.x}, {pub_msg.angular.z}")
         self.handle_forward_obstacle_detection(pub_msg)
         self.handle_backward_obstacle_detection(pub_msg)
-        self.get_logger().info(f"速度kekka: {pub_msg.linear.x}, {pub_msg.angular.z}")
+        self.get_logger().info(f"input: {sub_msg.linear.x}, {sub_msg.angular.z} output: {pub_msg.linear.x}, {pub_msg.angular.z}")
         self.pub.publish(pub_msg)
 
     def handle_forward_obstacle_detection(self, pub_msg):
