@@ -11,7 +11,7 @@ def generate_launch_description():
     joy_dev = launch.substitutions.LaunchConfiguration('joy_dev')
 
     return launch.LaunchDescription([
-        launch.actions.DeclareLaunchArgument('joy_vel', default_value='/kobuki_velocity_smoother/input'),
+        launch.actions.DeclareLaunchArgument('joy_vel', default_value='/collision_monitor/input_velocity'),
         launch.actions.DeclareLaunchArgument('joy_config', default_value='xbox'),
         launch.actions.DeclareLaunchArgument('joy_dev', default_value='/dev/input/js0'),
         launch.actions.DeclareLaunchArgument('config_filepath', default_value=[
