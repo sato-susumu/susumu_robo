@@ -6,7 +6,7 @@ import copy
 
 class LaserScanModifier(Node):
     def __init__(self):
-        super().__init__('laser_scan_modifier')
+        super().__init__('laser_scan_test')
         self.display_percentage = 0  # 表示パーセンテージの初期値
 
         qos_profile = QoSProfile(
