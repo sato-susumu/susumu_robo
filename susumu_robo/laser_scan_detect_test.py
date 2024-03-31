@@ -2,11 +2,11 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import LaserScan
-import copy
 import math
 from typing import List, Tuple
 
-class LaserScanModifier(Node):
+
+class LaserScanDetectTest(Node):
     def __init__(self):
         super().__init__('laser_scan_detect_test')
 
@@ -23,8 +23,6 @@ class LaserScanModifier(Node):
             qos_profile)
 
     def scan_callback(self, msg: LaserScan) -> None:
-        modified_scan = copy.deepcopy(msg)
-
         # 判定結果を取得
         front_objects = self.detect_front_objects(msg)
         back_objects = self.detect_back_objects(msg)
@@ -64,7 +62,7 @@ class LaserScanModifier(Node):
 
 def main(args=None) -> None:
     rclpy.init(args=args)
-    laser_scan_modifier = LaserScanModifier()
+    laser_scan_modifier = LaserScanDetectTest()
     rclpy.spin(laser_scan_modifier)
     laser_scan_modifier.destroy_node()
     rclpy.shutdown()
