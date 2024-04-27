@@ -11,9 +11,9 @@ def generate_launch_description():
         Node(
             package='susumu_robo',
             executable='collision_monitor',
-            remappings=[
-                ('/collision_monitor/output_velocity', '/cmd_vel')
-            ],
+#            remappings=[
+#                ('/collision_monitor/output_velocity', '/diffbot_base_controller/cmd_vel')
+#            ],
             output='screen',
         ),
     ])
