@@ -7,3 +7,4 @@ sudo systemctl stop ros2_msg_mid360
 sudo systemctl stop ros2_livox_to_pointcloud2
 sudo systemctl stop ros2_pointcloud_to_laserscan
 sudo systemctl stop ros2_twist_stamper
+sudo systemctl stop ros2_diffdrive_ddsm115
