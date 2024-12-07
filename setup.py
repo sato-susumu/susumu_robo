@@ -27,5 +27,5 @@ setup(
             "collision_monitor = susumu_robo.collision_monitor:main",
             "tenkey_controller = susumu_tenkey_controller.tenkey_controller:main",
         ],
-、、    },
+    },
 )
