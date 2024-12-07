@@ -1,8 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtCore import QProcess
-import os
-import datetime
 
 
 class MainWindow(QMainWindow):
@@ -12,87 +10,129 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("ROS2 GUI App")
         self.setGeometry(100, 100, 800, 600)
 
+        # UIレイアウト構築
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        left_layout = QVBoxLayout()
-        right_layout = QVBoxLayout()
-
         layout = QHBoxLayout(central_widget)
-        layout.addLayout(left_layout)
-        layout.addLayout(right_layout)
+        self.left_layout = QVBoxLayout()
+        self.right_layout = QVBoxLayout()
+        layout.addLayout(self.left_layout)
+        layout.addLayout(self.right_layout)
 
-        # 左レイアウトにボタンを追加
-        self._start_fast_lio_button = self._create_button("Start fast_lio", left_layout, self.toggle_fast_lio_launch)
-        self._start_rosbag_button = self._create_button("Start recording rosbag", left_layout, self.toggle_rosbag_recording)
-        self._create_button("", left_layout, self.start_dummy)
+        # 出力表示領域
+        self.output_display = QTextEdit()
+        self.output_display.setReadOnly(True)
+        self.output_display.setFixedHeight(300)
 
-        # 右レイアウトにボタンを追加
-        self._start_rqt_button = self._create_button("Start rqt", right_layout, self.start_rqt)
-        self._create_button("", right_layout, self.start_dummy)
-        self._create_button("Start avatar_ros", right_layout, self.start_avatar_ros)
+        # アイテム管理
+        self.processes = {}
+        self.item_buttons = {}
+        self.current_selected_item = None
 
-        self._recording = False
-        self._fast_lio_launch = False
-        self._bag_file = None
-        self._process1 = QProcess()
-        self._process2 = QProcess()
-        self._process3 = QProcess()
+        # アイテムの追加
+        self.add_item_button("fast_lio", "ros2 launch fast_lio mapping.launch.py")
+        self.add_item_button("rosbag", "ros2 bag record --all -o output.bag")
+        self.add_item_button("rqt", "rqt")
+        self.add_item_button("avatar_ros", "ros2 run avatar_ros avatar_node")
+        self.add_item_button("nvidia-smi", "nvidia-smi")
+        self.add_item_button("ros2_node_list", "ros2 node list")
+        self.add_item_button("ros2_topic_list", "ros2 topic list")
+        self.add_item_button("rqt_graph", "rqt_graph")
+        self.add_item_button("ros2_topic_pub_chatter", "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1")
 
-    def _create_button(self, text, layout, on_click) -> QPushButton:
-        button = QPushButton(text)
+        # ストップボタン
+        self.stop_button = QPushButton("Stop Selected Item")
+        self.stop_button.setEnabled(False)
+        self.stop_button.setStyleSheet(self.get_stop_button_style(False))  # 初期スタイル
+        self.stop_button.clicked.connect(self.stop_selected_item)
+        self.left_layout.addWidget(self.stop_button)
+
+        self.right_layout.addWidget(self.output_display)
+
+    def get_stop_button_style(self, enabled):
+        """ストップボタンのスタイルを返す"""
+        if enabled:
+            return "background-color: red; color: white; font-weight: bold;"
+        else:
+            return "background-color: lightgray; color: gray;"
+
+    def add_item_button(self, name, command):
+        """アイテムボタンを追加する"""
+        button = QPushButton(name)
         button.setMinimumHeight(50)
-        button.clicked.connect(on_click)
-        layout.addWidget(button)
-        return button
+        button.setStyleSheet("background-color: white;")
+        button.clicked.connect(lambda: self.select_item(name, command))
+        self.left_layout.addWidget(button)
+        self.item_buttons[name] = button
 
-    def start_dummy(self):
-        pass
+    def select_item(self, name, command):
+        """アイテムを選択し、起動状態にする"""
+        self.current_selected_item = name
+        self.update_button_styles()
+        self.stop_button.setEnabled(name in self.processes)
 
-    def toggle_fast_lio_launch(self):
-        if not self._fast_lio_launch:
-            self.start_fast_lio_launch()
-        else:
-            self.stop_fast_lio_launch()
+        if name not in self.processes:  # プロセス未起動の場合は起動する
+            self.start_process(name, command)
 
-    def start_fast_lio_launch(self):
-        command = "ros2 launch fast_lio mapping.launch.py"
-        self._process2.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
-        self._fast_lio_launch = True
-        self._start_fast_lio_button.setText("Stop fast_lio")
+        # 選択したアイテムの出力を表示する
+        self.output_display.clear()
+        self.output_display.append(f"Showing output for {name}...\n")
+        self.display_selected_item_output(name)
 
-    def stop_fast_lio_launch(self):
-        self._process2.terminate()
-        self._fast_lio_launch = False
-        self._start_fast_lio_button.setText("Start fast_lio")
+    def start_process(self, name, command):
+        """アイテムを起動する"""
+        process = QProcess()
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.readyReadStandardOutput.connect(lambda: self.display_selected_item_output(name))
+        process.finished.connect(lambda: self.on_process_finished(name))
+        process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && {command}"])
 
-    def toggle_rosbag_recording(self):
-        if not self._recording:
-            self.start_rosbag_recording()
-        else:
-            self.stop_rosbag_recording()
+        self.processes[name] = process
+        self.item_buttons[name].setStyleSheet("background-color: lightgreen;")
 
-    def start_rosbag_recording(self):
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self._bag_file = f'{timestamp}.bag'
-        command = f"ros2 bag record --all -o {self._bag_file}"
-        self._process3.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+    def display_selected_item_output(self, name):
+        """選択中のアイテムの出力を表示"""
+        if self.current_selected_item == name and name in self.processes:
+            process = self.processes[name]
+            output = process.readAllStandardOutput().data().decode()
+            if output:
+                self.output_display.append(output)
 
-        self._recording = True
-        self._start_rosbag_button.setText("Stop recording rosbag")
+    def on_process_finished(self, name):
+        """プロセス終了時に状態をリセットする"""
+        if name in self.processes:
+            del self.processes[name]
+            self.item_buttons[name].setStyleSheet("background-color: white;")
 
-    def stop_rosbag_recording(self):
-        self._process3.terminate()
-        self._recording = False
-        self._start_rosbag_button.setText("Start recording rosbag")
+        if self.current_selected_item == name:
+            self.current_selected_item = None
+            self.output_display.append(f"{name} has stopped.\n")
+            self.stop_button.setEnabled(False)
+            self.stop_button.setStyleSheet(self.get_stop_button_style(False))
 
-    def start_rqt(self):
-        command = "rqt"
-        self._process1.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+    def stop_selected_item(self):
+        """選択中のアイテムを停止する"""
+        if self.current_selected_item and self.current_selected_item in self.processes:
+            process = self.processes[self.current_selected_item]
+            self.output_display.append(f"Stopping {self.current_selected_item}...\n")
+            process.kill()  # 強制終了
+            self.on_process_finished(self.current_selected_item)
 
-    def start_avatar_ros(self):
-        command = "ros2 run avatar_ros avatar_node"
-        self._process1.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
+    def update_button_styles(self):
+        """選択状態と起動状態のボタンを更新"""
+        for name, button in self.item_buttons.items():
+            if name == self.current_selected_item:
+                button.setStyleSheet("background-color: lightblue;")
+            elif name in self.processes:
+                button.setStyleSheet("background-color: lightgreen;")
+            else:
+                button.setStyleSheet("background-color: white;")
+
+        # ストップボタンの有効/無効状態とスタイルを更新
+        enabled = self.current_selected_item in self.processes
+        self.stop_button.setEnabled(enabled)
+        self.stop_button.setStyleSheet(self.get_stop_button_style(enabled))
 
 
 def main():
@@ -100,6 +140,7 @@ def main():
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
