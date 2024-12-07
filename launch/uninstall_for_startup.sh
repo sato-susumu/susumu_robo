@@ -1,5 +1,5 @@
+ros2 run robot_upstart uninstall ros2_susumu_robo_bringup
 ros2 run robot_upstart uninstall ros2_foxglove_bridge
-ros2 run robot_upstart uninstall ros2_teleop_twist_joy
 ros2 run robot_upstart uninstall ros2_collision_monitor
 # ros2 run robot_upstart uninstall ros2_kobuki_velocity_smoother
 ros2 run robot_upstart uninstall ros2_micro_ros_agent

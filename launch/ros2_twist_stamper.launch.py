@@ -10,7 +10,7 @@ def generate_launch_description():
             package='twist_stamper',
             executable='twist_stamper',
             remappings=[
-                ('/cmd_vel_in','/collision_monitor/output_velocity'),
+                ('/cmd_vel_in','/cmd_vel'),
                 ('/cmd_vel_out','/diffbot_base_controller/cmd_vel')
             ],
             output='screen',
