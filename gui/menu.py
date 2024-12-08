@@ -91,7 +91,10 @@ class MainWindow(QMainWindow):
         """アイテムをすべて追加する関数"""
         self.add_item_button("Launch", "fast_lio", "ros2 launch fast_lio mapping.launch.py")
         self.add_item_button("Launch", "avatar_ros", "ros2 run avatar_ros avatar_node")
+        self.add_item_button("os", "jstest-gtk", "jstest-gtk")
+        self.add_item_button("os", "top", "gnome-terminal -- top")
         self.add_item_button("os", "nvidia-smi", "nvidia-smi")
+        self.add_item_button("os", "nvtop", "gnome-terminal -- nvtop")
         self.add_item_button("ros2", "ros2 bag record", "ros2 bag record --all -o output.bag")
         self.add_item_button("ros2", "ros2 node list", "ros2 node list")
         self.add_item_button("ros2", "ros2 topic list", "ros2 topic list")
