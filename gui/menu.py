@@ -90,26 +90,27 @@ class MainWindow(QMainWindow):
     def add_all_items(self) -> None:
         """アイテムをすべて追加する関数"""
         self.add_item_button("Launch", "fast_lio", "ros2 launch fast_lio mapping.launch.py")
-        self.add_item_button("Tools", "rosbag", "ros2 bag record --all -o output.bag")
-        self.add_item_button("Visualization", "rqt", "rqt")
         self.add_item_button("Launch", "avatar_ros", "ros2 run avatar_ros avatar_node")
-        self.add_item_button("Tools", "nvidia-smi", "nvidia-smi")
-        self.add_item_button("Tools", "ros2_node_list", "ros2 node list")
-        self.add_item_button("Tools", "ros2_topic_list", "ros2 topic list")
-        self.add_item_button("Visualization", "rqt_graph", "rqt_graph")
-        self.add_item_button("Debugging", "ros2_topic_pub_chatter",
+        self.add_item_button("os", "nvidia-smi", "nvidia-smi")
+        self.add_item_button("ros2", "ros2 bag record", "ros2 bag record --all -o output.bag")
+        self.add_item_button("ros2", "ros2 node list", "ros2 node list")
+        self.add_item_button("ros2", "ros2 topic list", "ros2 topic list")
+        self.add_item_button("ros2", "ros2 action list", "ros2 action list")
+        self.add_item_button("ros2", "ros2 doctor", "ros2 doctor")
+        self.add_item_button("ros2", "ros2 topic pub",
                              "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1")
-        self.add_item_button("Visualization", "rqt_plot", "ros2 run rqt_plot rqt_plot")
-        self.add_item_button("Visualization", "rqt_console", "ros2 run rqt_console rqt_console")
-        self.add_item_button("Tools", "ros2_doctor", "ros2 doctor")
-        self.add_item_button("Tools", "ros2_action_list", "ros2 action list")
-        self.add_item_button("Visualization", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
-        self.add_item_button("Visualization", "view_frames", "ros2 run tf2_tools view_frames")
-        self.add_item_button("Debugging", "tf2_monitor", "ros2 run tf2_ros tf2_monitor")
-        self.add_item_button("Debugging", "cmd_vel_echo", "ros2 topic echo /cmd_vel")
-        self.add_item_button("Debugging", "cmd_vel_echo_csv", "ros2 topic echo /cmd_vel --csv")
-        self.add_item_button("Debugging", "cmd_vel_echo_filter",
+        self.add_item_button("ros2", "ros2 topic echo", "ros2 topic echo /cmd_vel")
+        self.add_item_button("ros2", "ros2 topic echo csv", "ros2 topic echo /cmd_vel --csv")
+        self.add_item_button("ros2", "ros2 topic echo filter",
                              "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'")
+        self.add_item_button("rqt", "rqt", "rqt")
+        self.add_item_button("rqt", "rqt_graph", "rqt_graph")
+        self.add_item_button("rqt", "rqt_plot", "ros2 run rqt_plot rqt_plot")
+        self.add_item_button("rqt", "rqt_console", "ros2 run rqt_console rqt_console")
+        self.add_item_button("rqt", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
+        self.add_item_button("TF", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
+        self.add_item_button("TF", "tf2_tools", "ros2 run tf2_tools view_frames")
+        self.add_item_button("TF", "tf2_monitor", "ros2 run tf2_ros tf2_monitor")
 
     def get_stop_button_style(self, enabled: bool) -> str:
         """ストップボタンのスタイルを返す"""
