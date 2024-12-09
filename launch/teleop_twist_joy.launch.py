@@ -33,7 +33,8 @@ def generate_launch_description():
             parameters=[
                 launch.substitutions.LaunchConfiguration('config_filepath'),
                 {
-                    "require_enable_button": False,
+                    "require_enable_button": True,
+                    "enable_button": 1,             # 有効化ボタン(Aボタン)
                     "scale_angular.yaw": 1.0,
                     "scale_angular_turbo.yaw": 4.0,
                     "scale_linear.x": 0.3,
