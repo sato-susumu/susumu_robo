@@ -95,6 +95,7 @@ class MainWindow(QMainWindow):
         self.add_item_button("os", "top", "gnome-terminal -- top")
         self.add_item_button("os", "nvidia-smi", "nvidia-smi")
         self.add_item_button("os", "nvtop", "gnome-terminal -- nvtop")
+        self.add_item_button("os", "reboot", "sudo reboot")
         self.add_item_button("ros2", "ros2 bag record", "ros2 bag record --all -o output.bag")
         self.add_item_button("ros2", "ros2 node list", "ros2 node list")
         self.add_item_button("ros2", "ros2 topic list", "ros2 topic list")
@@ -106,6 +107,7 @@ class MainWindow(QMainWindow):
         self.add_item_button("ros2", "ros2 topic echo csv", "ros2 topic echo /cmd_vel --csv")
         self.add_item_button("ros2", "ros2 topic echo filter",
                              "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'")
+
         self.add_item_button("rqt", "rqt", "rqt")
         self.add_item_button("rqt", "rqt_graph", "rqt_graph")
         self.add_item_button("rqt", "rqt_plot", "ros2 run rqt_plot rqt_plot")
@@ -113,9 +115,29 @@ class MainWindow(QMainWindow):
         self.add_item_button("rqt", "rqt_console", "ros2 run rqt_console rqt_console")
         self.add_item_button("rqt", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
         self.add_item_button("rqt", "rqt_robot_steering", "ros2 run rqt_robot_steering rqt_robot_steering")
+
         self.add_item_button("TF", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
         self.add_item_button("TF", "tf2_tools", "ros2 run tf2_tools view_frames")
         self.add_item_button("TF", "tf2_monitor", "ros2 run tf2_ros tf2_monitor")
+
+        self.add_item_button("service", "service all log", "systemctl list-unit-files --type=service --no-pager | grep -o 'ros2[^ ]*.service' | xargs -I{} sudo systemctl status {} --no-pager")
+        self.add_item_button("service", "service all status", "sudo systemctl list-units --type=service | grep -e ros2 -e UNIT; sudo systemctl list-unit-files --type=service | grep -e ros2 -e UNIT")
+
+        self.add_item_button("service", "start ros2_bringup", "sudo systemctl start ros2_bringup")
+        self.add_item_button("service", "start ros2_mid360", "sudo systemctl start ros2_mid360")
+        self.add_item_button("service", "start ros2_ddsm115", "sudo systemctl start ros2_ddsm115")
+
+        self.add_item_button("service", "stop ros2_bringup", "sudo systemctl stop ros2_bringup")
+        self.add_item_button("service", "stop ros2_mid360", "sudo systemctl stop ros2_mid360")
+        self.add_item_button("service", "stop ros2_ddsm115", "sudo systemctl stop ros2_ddsm115")
+
+        self.add_item_button("service", "enable ros2_bringup", "sudo systemctl enable ros2_bringup")
+        self.add_item_button("service", "enable ros2_mid360", "sudo systemctl enable ros2_mid360")
+        self.add_item_button("service", "enable ros2_ddsm115", "sudo systemctl enable ros2_ddsm115")
+
+        self.add_item_button("service", "disable ros2_bringup", "sudo systemctl disable ros2_bringup")
+        self.add_item_button("service", "disable ros2_mid360", "sudo systemctl disable ros2_mid360")
+        self.add_item_button("service", "disable ros2_ddsm115", "sudo systemctl disable ros2_ddsm115")
 
     def get_stop_button_style(self, enabled: bool) -> str:
         """ストップボタンのスタイルを返す"""
