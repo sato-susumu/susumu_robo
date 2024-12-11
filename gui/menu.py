@@ -2,7 +2,7 @@ import sys
 import platform
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QTextEdit, QScrollArea, QSizePolicy
+    QPushButton, QTextEdit, QScrollArea, QSizePolicy, QScroller, QFrame
 )
 from PySide6.QtCore import QProcess
 from PySide6.QtGui import QFont
@@ -39,8 +39,9 @@ class MainWindow(QMainWindow):
         layout.addLayout(left_main_layout)
         layout.setStretch(0, 1)
 
-        # 左側: スクロールエリアとボタンリスト
+        # 左側: スクロールエリアと折りたたみカテゴリ
         scroll_area = QScrollArea()
+        QScroller.grabGesture(scroll_area.viewport(), QScroller.LeftMouseButtonGesture)
         scroll_area.setWidgetResizable(True)
         scroll_area.setFixedWidth(180)
         scroll_widget = QWidget()
@@ -88,56 +89,106 @@ class MainWindow(QMainWindow):
         self.output_display.setFont(font)
 
     def add_all_items(self) -> None:
-        """アイテムをすべて追加する関数"""
-        self.add_item_button("Launch", "fast_lio", "ros2 launch fast_lio mapping.launch.py")
-        self.add_item_button("Launch", "avatar_ros", "ros2 run avatar_ros avatar_node")
-        self.add_item_button("os", "jstest-gtk", "jstest-gtk")
-        self.add_item_button("os", "top", "gnome-terminal -- top")
-        self.add_item_button("os", "nvidia-smi", "nvidia-smi")
-        self.add_item_button("os", "nvtop", "gnome-terminal -- nvtop")
-        self.add_item_button("os", "reboot", "sudo reboot")
-        self.add_item_button("ros2", "ros2 bag record", "ros2 bag record --all -o output.bag")
-        self.add_item_button("ros2", "ros2 node list", "ros2 node list")
-        self.add_item_button("ros2", "ros2 topic list", "ros2 topic list")
-        self.add_item_button("ros2", "ros2 action list", "ros2 action list")
-        self.add_item_button("ros2", "ros2 doctor", "ros2 doctor")
-        self.add_item_button("ros2", "ros2 topic pub",
-                             "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1")
-        self.add_item_button("ros2", "ros2 topic echo", "ros2 topic echo /cmd_vel")
-        self.add_item_button("ros2", "ros2 topic echo csv", "ros2 topic echo /cmd_vel --csv")
-        self.add_item_button("ros2", "ros2 topic echo filter",
-                             "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'")
+        """アイテムをカテゴリごとに追加する関数"""
+        self.add_category("Launch", [
+            ("fast_lio", "ros2 launch fast_lio mapping.launch.py"),
+            ("avatar_ros", "ros2 run avatar_ros avatar_node"),
+        ])
 
-        self.add_item_button("rqt", "rqt", "rqt")
-        self.add_item_button("rqt", "rqt_graph", "rqt_graph")
-        self.add_item_button("rqt", "rqt_plot", "ros2 run rqt_plot rqt_plot")
-        self.add_item_button("rqt", "rqt_plot (cmd_vel)", "ros2 run rqt_plot rqt_plot /cmd_vel/linear/x /cmd_vel/angular/z")
-        self.add_item_button("rqt", "rqt_console", "ros2 run rqt_console rqt_console")
-        self.add_item_button("rqt", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
-        self.add_item_button("rqt", "rqt_robot_steering", "ros2 run rqt_robot_steering rqt_robot_steering")
+        self.add_category("OS Tools", [
+            ("jstest-gtk", "jstest-gtk"),
+            ("top", "gnome-terminal -- top"),
+            ("nvidia-smi", "nvidia-smi"),
+            ("nvtop", "gnome-terminal -- nvtop"),
+            ("reboot", "sudo reboot"),
+        ])
 
-        self.add_item_button("TF", "rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree")
-        self.add_item_button("TF", "tf2_tools", "ros2 run tf2_tools view_frames")
-        self.add_item_button("TF", "tf2_monitor", "ros2 run tf2_ros tf2_monitor")
+        self.add_category("ROS2", [
+            ("ros2 bag record", "ros2 bag record --all -o output.bag"),
+            ("ros2 node list", "ros2 node list"),
+            ("ros2 topic list", "ros2 topic list"),
+            ("ros2 action list", "ros2 action list"),
+            ("ros2 doctor", "ros2 doctor"),
+            ("ros2 topic pub", "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1"),
+            ("ros2 topic echo", "ros2 topic echo /cmd_vel"),
+            ("ros2 topic echo csv", "ros2 topic echo /cmd_vel --csv"),
+            ("ros2 topic echo filter", "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"),
+        ])
 
-        self.add_item_button("service", "service all log", "systemctl list-unit-files --type=service --no-pager | grep -o 'ros2[^ ]*.service' | xargs -I{} sudo systemctl status {} --no-pager")
-        self.add_item_button("service", "service all status", "sudo systemctl list-units --type=service | grep -e ros2 -e UNIT; sudo systemctl list-unit-files --type=service | grep -e ros2 -e UNIT")
+        self.add_category("RQT Tools", [
+            ("rqt", "rqt"),
+            ("rqt_graph", "rqt_graph"),
+            ("rqt_plot", "ros2 run rqt_plot rqt_plot"),
+            ("rqt_plot (cmd_vel)", "ros2 run rqt_plot rqt_plot /cmd_vel/linear/x /cmd_vel/angular/z"),
+            ("rqt_console", "ros2 run rqt_console rqt_console"),
+            ("rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree"),
+            ("rqt_robot_steering", "ros2 run rqt_robot_steering rqt_robot_steering"),
+        ])
 
-        self.add_item_button("service", "start ros2_bringup", "sudo systemctl start ros2_bringup")
-        self.add_item_button("service", "start ros2_mid360", "sudo systemctl start ros2_mid360")
-        self.add_item_button("service", "start ros2_ddsm115", "sudo systemctl start ros2_ddsm115")
+        self.add_category("TF", [
+            ("rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree"),
+            ("tf2_tools", "ros2 run tf2_tools view_frames"),
+            ("tf2_monitor", "ros2 run tf2_ros tf2_monitor"),
+        ])
 
-        self.add_item_button("service", "stop ros2_bringup", "sudo systemctl stop ros2_bringup")
-        self.add_item_button("service", "stop ros2_mid360", "sudo systemctl stop ros2_mid360")
-        self.add_item_button("service", "stop ros2_ddsm115", "sudo systemctl stop ros2_ddsm115")
+        self.add_category("Service", [
+            ("service all log",
+             "systemctl list-unit-files --type=service --no-pager | grep -o 'ros2[^ ]*.service' | xargs -I{} sudo systemctl status {} --no-pager"),
+            ("service all status",
+             "sudo systemctl list-units --type=service | grep -e ros2 -e UNIT; sudo systemctl list-unit-files --type=service | grep -e ros2 -e UNIT"),
 
-        self.add_item_button("service", "enable ros2_bringup", "sudo systemctl enable ros2_bringup")
-        self.add_item_button("service", "enable ros2_mid360", "sudo systemctl enable ros2_mid360")
-        self.add_item_button("service", "enable ros2_ddsm115", "sudo systemctl enable ros2_ddsm115")
+            ("start ros2_bringup", "sudo systemctl start ros2_bringup"),
+            ("start ros2_mid360", "sudo systemctl start ros2_mid360"),
+            ("start ros2_ddsm115", "sudo systemctl start ros2_ddsm115"),
 
-        self.add_item_button("service", "disable ros2_bringup", "sudo systemctl disable ros2_bringup")
-        self.add_item_button("service", "disable ros2_mid360", "sudo systemctl disable ros2_mid360")
-        self.add_item_button("service", "disable ros2_ddsm115", "sudo systemctl disable ros2_ddsm115")
+            ("stop ros2_bringup", "sudo systemctl stop ros2_bringup"),
+            ("stop ros2_mid360", "sudo systemctl stop ros2_mid360"),
+            ("stop ros2_ddsm115", "sudo systemctl stop ros2_ddsm115"),
+
+            ("enable ros2_bringup", "sudo systemctl enable ros2_bringup"),
+            ("enable ros2_mid360", "sudo systemctl enable ros2_mid360"),
+            ("enable ros2_ddsm115", "sudo systemctl enable ros2_ddsm115"),
+
+            ("disable ros2_bringup", "sudo systemctl disable ros2_bringup"),
+            ("disable ros2_mid360", "sudo systemctl disable ros2_mid360"),
+            ("disable ros2_ddsm115", "sudo systemctl disable ros2_ddsm115"),
+        ])
+
+    def add_category(self, category_name: str, items: list) -> None:
+        """カテゴリごとにボタンを折りたたみメニューに追加"""
+        category_button = QPushButton(category_name)
+        category_button.setCheckable(True)
+        category_button.setStyleSheet("background-color: lightgray; font-weight: bold;")
+
+        # 初期状態で展開（チェック状態）にする
+        category_button.setChecked(True)
+
+        # 子アイテムのコンテナ（折りたたみ用）
+        category_frame = QFrame()
+        category_layout = QVBoxLayout(category_frame)
+        category_layout.setContentsMargins(10, 5, 0, 5)
+
+        # 初期状態は可視
+        category_frame.setVisible(True)
+
+        # 親ボタンのクリックで表示/非表示を切り替え
+        category_button.toggled.connect(lambda checked: category_frame.setVisible(checked))
+
+        self.left_layout.addWidget(category_button)
+        self.left_layout.addWidget(category_frame)
+
+        # 各アイテムを追加
+        for name, command in items:
+            self.add_item_button(category_layout, name, command)
+
+    def add_item_button(self, layout, name: str, command: str) -> None:
+        """アイテムボタンを指定レイアウトに追加する"""
+        button = QPushButton(name)
+        button.setMinimumHeight(40)
+        button.setStyleSheet("background-color: white;")
+        button.clicked.connect(lambda: self.select_item(name, command))
+        layout.addWidget(button)
+        self.item_buttons[name] = button
 
     def get_stop_button_style(self, enabled: bool) -> str:
         """ストップボタンのスタイルを返す"""
@@ -145,15 +196,6 @@ class MainWindow(QMainWindow):
             return "background-color: red; color: white; font-weight: bold;"
         else:
             return "background-color: lightgray; color: gray;"
-
-    def add_item_button(self, category: str, name: str, command: str) -> None:
-        """アイテムボタンを追加する"""
-        button = QPushButton(name)
-        button.setMinimumHeight(50)
-        button.setStyleSheet("background-color: white;")
-        button.clicked.connect(lambda: self.select_item(name, command))
-        self.left_layout.addWidget(button)
-        self.item_buttons[name] = button
 
     def select_item(self, name: str, command: str) -> None:
         """アイテムを選択し、起動状態にする"""
