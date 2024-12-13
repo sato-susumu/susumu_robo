@@ -1,5 +1,6 @@
 import sys
 import platform
+import yaml
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTextEdit, QScrollArea, QSizePolicy, QScroller, QFrame
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
 
         # UIセットアップ
         self.setup_ui()
-        self.add_all_items()
+        self.load_and_add_items_from_yaml("menu.yaml")
 
     def setup_ui(self) -> None:
         """UIレイアウトを構築する関数"""
@@ -88,85 +89,17 @@ class MainWindow(QMainWindow):
         font.setPointSize(14)
         self.output_display.setFont(font)
 
-    def add_all_items(self) -> None:
-        """アイテムをカテゴリごとに追加する関数"""
-        self.add_category("Launch", [
-            ("fast_lio", "ros2 launch fast_lio mapping.launch.py"),
-            ("avatar_ros", "ros2 run avatar_ros avatar_node"),
-        ])
+    def load_and_add_items_from_yaml(self, yaml_file: str) -> None:
+        """YAMLファイルからカテゴリ・アイテムを読み込み追加する関数"""
+        with open(yaml_file, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
 
-        self.add_category("OS Tools", [
-            ("OS Info", "lsb_release -a"),
-            ("USB Info", "lsusb"),
-            ("PCI Info", "lspci"),
-            ("Disk Info", "df -h"),
-            ("Memory Info", "free -h"),
-            ("jstest-gtk", "jstest-gtk"),
-            ("Speaker Info (aplay)", "aplay -l"),
-            ("Mic Info (arecord)", "arecord -l"),
-            ("top", "gnome-terminal -- top"),
-            ("system-monitor", "gnome-system-monitor"),
-            ("nvidia-smi", "nvidia-smi"),
-            ("nvtop", "gnome-terminal -- nvtop"),
-            ("cuDNN Info", "cat /usr/include/cudnn_version.h | grep CUDNN_MAJOR -A 2"),
-            ("reboot", "sudo reboot"),
-        ])
-
-        self.add_category("ROS2", [
-            ("bag record", "ros2 bag record --all -o output.bag"),
-            ("node list", "ros2 node list"),
-            ("topic list", "ros2 topic list"),
-            ("action list", "ros2 action list"),
-            ("doctor", "ros2 doctor"),
-            ("topic pub", "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1"),
-            ("topic echo", "ros2 topic echo /cmd_vel"),
-            ("topic echo csv", "ros2 topic echo /cmd_vel --csv"),
-            ("topic echo filter", "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"),
-        ])
-
-        self.add_category("RQT Tools", [
-            ("rqt", "rqt"),
-            ("rqt_graph", "rqt_graph"),
-            ("rqt_plot", "ros2 run rqt_plot rqt_plot"),
-            ("rqt_plot (cmd_vel)", "ros2 run rqt_plot rqt_plot /cmd_vel/linear/x /cmd_vel/angular/z"),
-            ("rqt_console", "ros2 run rqt_console rqt_console"),
-            ("rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree"),
-            ("rqt_robot_steering", "ros2 run rqt_robot_steering rqt_robot_steering"),
-        ])
-
-        self.add_category("TF", [
-            ("rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree"),
-            ("tf2_tools", "ros2 run tf2_tools view_frames"),
-            ("tf2_monitor", "ros2 run tf2_ros tf2_monitor"),
-        ])
-
-        self.add_category("Other", [
-            ("rviz2 (LiDar)", "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"),
-            ("ros_graph", "ros2_graph $(ros2 node list) ")
-        ])
-
-        self.add_category("Service", [
-            ("service all log",
-             "systemctl list-unit-files --type=service --no-pager | grep -o 'ros2[^ ]*.service' | xargs -I{} sudo systemctl status {} --no-pager"),
-            ("service all status",
-             "sudo systemctl list-units --type=service | grep -e ros2 -e UNIT; sudo systemctl list-unit-files --type=service | grep -e ros2 -e UNIT"),
-
-            ("start ros2_bringup", "sudo systemctl start ros2_bringup"),
-            ("start ros2_mid360", "sudo systemctl start ros2_mid360"),
-            ("start ros2_ddsm115", "sudo systemctl start ros2_ddsm115"),
-
-            ("stop ros2_bringup", "sudo systemctl stop ros2_bringup"),
-            ("stop ros2_mid360", "sudo systemctl stop ros2_mid360"),
-            ("stop ros2_ddsm115", "sudo systemctl stop ros2_ddsm115"),
-
-            ("enable ros2_bringup", "sudo systemctl enable ros2_bringup"),
-            ("enable ros2_mid360", "sudo systemctl enable ros2_mid360"),
-            ("enable ros2_ddsm115", "sudo systemctl enable ros2_ddsm115"),
-
-            ("disable ros2_bringup", "sudo systemctl disable ros2_bringup"),
-            ("disable ros2_mid360", "sudo systemctl disable ros2_mid360"),
-            ("disable ros2_ddsm115", "sudo systemctl disable ros2_ddsm115"),
-        ])
+        categories = data.get('categories', [])
+        for category in categories:
+            category_name = category.get('name', 'Unknown')
+            items = category.get('items', [])
+            item_list = [(item.get('name', 'NoName'), item.get('command', '')) for item in items]
+            self.add_category(category_name, item_list)
 
     def add_category(self, category_name: str, items: list) -> None:
         """カテゴリごとにボタンを折りたたみメニューに追加"""
