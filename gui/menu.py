@@ -96,10 +96,16 @@ class MainWindow(QMainWindow):
         ])
 
         self.add_category("OS Tools", [
+            ("OS Info", "lsb_release -a"),
+            ("USB Info", "lsusb"),
+            ("PCI Info", "lspci"),
+            ("Disk Info", "df -h"),
+            ("Memory Info", "free -h"),
             ("jstest-gtk", "jstest-gtk"),
             ("top", "gnome-terminal -- top"),
             ("nvidia-smi", "nvidia-smi"),
             ("nvtop", "gnome-terminal -- nvtop"),
+            ("cuDNN Info", "cat /usr/include/cudnn_version.h | grep CUDNN_MAJOR -A 2"),
             ("reboot", "sudo reboot"),
         ])
 
