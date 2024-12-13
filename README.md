@@ -36,24 +36,61 @@
 
 ## 配線図
 ```mermaid
-flowchart TD
+flowchart TB
     %% 電源供給ライン
-    A[Prime Power Bank] -->|20V出力| B[DP100]
-    B -->|12V出力| C[分岐ターミナル]
-    C -->|12V出力| D[DDSM115]
-    C -->|12V出力| E[DDSM115]
-    C -->|12V出力| F[Mini PC]
-    C -->|12V出力| J[自作ケーブル]
+    subgraph Power["Power"]
+        A[Prime Power Bank]
+        B[DP100]
+        C[分岐ターミナル]
+    end
+
+    subgraph Motor["Motor"]
+        D[DDSM115]
+        E[DDSM115]
+    end
+
+    subgraph MiniPC["Mini PC関連"]
+        F[Mini PC]
+        K[USBハブ]
+        H[USB TO RS485]
+        L[ゲームパッド F710]
+        I[Monitor]
+    end
+
+    subgraph LiDAR["LiDAR関連"]
+        G[Livox Mid-360]
+        J[自作ケーブル]
+    end
+
+    %% 電源供給ライン
+    A -->|20V出力| B
+    B -->|12V出力| C
+    C -->|12V出力| D
+    C -->|12V出力| E
+    C -->|12V出力| F
+    C -->|12V出力| J
 
     %% Mini PCとの接続
-    F -->|USB| K[USBハブ]
-    K -->|USB| H[USB TO RS485]
+    F -->|USB| K
+    K -->|USB| H
     H -->|RS485| D
     H -->|RS485| E
-    K -->|USB| L[ゲームパッド F710]
-    F -->|Type-C| I[Monitor]
-    F -->|イーサネット| J[自作ケーブル]
+    K -->|USB| L
+    F -->|Type-C| I
+    F -->|イーサネット| J
 
     %% 自作ケーブルライン
-    J -->|12V出力| G[Livox Mid-360]
+    J -->|12V出力＋イーサネット| G
+
+    %% クラス定義 (色分け)
+    classDef power fill:#FFDD00,stroke:#333,stroke-width:2px;     
+    classDef motor fill:#FF7373,stroke:#333,stroke-width:2px;     
+    classDef miniPC fill:#00A0E9,stroke:#333,stroke-width:2px;   
+    classDef lidar fill:#96C291,stroke:#333,stroke-width:2px;     
+
+    %% クラス適用
+    class A,B,C power;
+    class D,E motor;
+    class F,K,H,L,I miniPC;
+    class G,J lidar;
 ```
