@@ -102,6 +102,8 @@ class MainWindow(QMainWindow):
             ("Disk Info", "df -h"),
             ("Memory Info", "free -h"),
             ("jstest-gtk", "jstest-gtk"),
+            ("Speaker Info (aplay)", "aplay -l"),
+            ("Mic Info (arecord)", "arecord -l"),
             ("top", "gnome-terminal -- top"),
             ("nvidia-smi", "nvidia-smi"),
             ("nvtop", "gnome-terminal -- nvtop"),
@@ -135,6 +137,10 @@ class MainWindow(QMainWindow):
             ("rqt_tf_tree", "ros2 run rqt_tf_tree rqt_tf_tree"),
             ("tf2_tools", "ros2 run tf2_tools view_frames"),
             ("tf2_monitor", "ros2 run tf2_ros tf2_monitor"),
+        ])
+
+        self.add_category("Sensor", [
+            ("rviz2 (LiDar)", "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"),
         ])
 
         self.add_category("Service", [
