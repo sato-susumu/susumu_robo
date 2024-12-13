@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
             ("Speaker Info (aplay)", "aplay -l"),
             ("Mic Info (arecord)", "arecord -l"),
             ("top", "gnome-terminal -- top"),
+            ("system-monitor", "gnome-system-monitor"),
             ("nvidia-smi", "nvidia-smi"),
             ("nvtop", "gnome-terminal -- nvtop"),
             ("cuDNN Info", "cat /usr/include/cudnn_version.h | grep CUDNN_MAJOR -A 2"),
