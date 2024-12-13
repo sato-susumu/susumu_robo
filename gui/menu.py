@@ -112,15 +112,15 @@ class MainWindow(QMainWindow):
         ])
 
         self.add_category("ROS2", [
-            ("ros2 bag record", "ros2 bag record --all -o output.bag"),
-            ("ros2 node list", "ros2 node list"),
-            ("ros2 topic list", "ros2 topic list"),
-            ("ros2 action list", "ros2 action list"),
-            ("ros2 doctor", "ros2 doctor"),
-            ("ros2 topic pub", "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1"),
-            ("ros2 topic echo", "ros2 topic echo /cmd_vel"),
-            ("ros2 topic echo csv", "ros2 topic echo /cmd_vel --csv"),
-            ("ros2 topic echo filter", "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"),
+            ("bag record", "ros2 bag record --all -o output.bag"),
+            ("node list", "ros2 node list"),
+            ("topic list", "ros2 topic list"),
+            ("action list", "ros2 action list"),
+            ("doctor", "ros2 doctor"),
+            ("topic pub", "ros2 topic pub /chatter std_msgs/msg/String \"data: 'Hello ROS 2'\" --rate 1"),
+            ("topic echo", "ros2 topic echo /cmd_vel"),
+            ("topic echo csv", "ros2 topic echo /cmd_vel --csv"),
+            ("topic echo filter", "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"),
         ])
 
         self.add_category("RQT Tools", [
@@ -139,8 +139,9 @@ class MainWindow(QMainWindow):
             ("tf2_monitor", "ros2 run tf2_ros tf2_monitor"),
         ])
 
-        self.add_category("Sensor", [
+        self.add_category("Other", [
             ("rviz2 (LiDar)", "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"),
+            ("ros_graph", "ros2_graph $(ros2 node list) ")
         ])
 
         self.add_category("Service", [
