@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         scroll_area = QScrollArea()
         QScroller.grabGesture(scroll_area.viewport(), QScroller.LeftMouseButtonGesture)
         scroll_area.setWidgetResizable(True)
-        scroll_area.setFixedWidth(180)
+        scroll_area.setFixedWidth(220)
         scroll_widget = QWidget()
         self.left_layout = QVBoxLayout(scroll_widget)
         self.left_layout.setSpacing(5)
@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
         self.output_display.setReadOnly(True)
         self.output_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.output_display.setStyleSheet("background-color: black; color: white;")
+        QScroller.grabGesture(self.output_display.viewport(), QScroller.LeftMouseButtonGesture)
         self.set_output_font()
 
         self.right_layout.addWidget(self.output_display)
@@ -95,44 +96,66 @@ class MainWindow(QMainWindow):
             data = yaml.safe_load(f)
 
         categories = data.get('categories', [])
-        for category in categories:
-            category_name = category.get('name', 'Unknown')
-            items = category.get('items', [])
-            item_list = [(item.get('name', 'NoName'), item.get('command', '')) for item in items]
-            self.add_category(category_name, item_list)
+        for category_data in categories:
+            self.add_category(self.left_layout, category_data, level=0)
 
-    def add_category(self, category_name: str, items: list) -> None:
-        """カテゴリごとにボタンを折りたたみメニューに追加"""
-        category_button = QPushButton(category_name)
+    def add_category(self, parent_layout: QVBoxLayout, category_data: dict, level: int = 0) -> None:
+        """カテゴリまたはサブカテゴリを追加する関数"""
+        category_name = category_data.get('name', 'Unknown')
+        category_display_name = category_name.replace('&', '&&')  # エスケープ処理
+        items = category_data.get('items', [])
+        subcategories = category_data.get('subcategories', [])
+
+        category_button = QPushButton(category_display_name)
         category_button.setCheckable(True)
-        category_button.setStyleSheet("background-color: lightgray; font-weight: bold;")
+        category_button.setChecked(True)  # 初期状態で展開
 
-        # 初期状態で展開（チェック状態）にする
-        category_button.setChecked(True)
+        # 階層レベルによって色分け＆左寄せ
+        if level == 0:
+            category_button.setStyleSheet(
+                "background-color: lightblue; font-weight: bold; text-align: left; padding-left: 5px;"
+            )
+        else:
+            category_button.setStyleSheet(
+                "background-color: lightgray; font-weight: bold; text-align: left; padding-left: 5px;"
+            )
 
-        # 子アイテムのコンテナ（折りたたみ用）
+        # 初期状態は展開中なので、▼を付ける
+        category_button.setText(f"▼ {category_display_name}")
+
         category_frame = QFrame()
         category_layout = QVBoxLayout(category_frame)
         category_layout.setContentsMargins(10, 5, 0, 5)
-
-        # 初期状態は可視
         category_frame.setVisible(True)
 
-        # 親ボタンのクリックで表示/非表示を切り替え
-        category_button.toggled.connect(lambda checked: category_frame.setVisible(checked))
+        # トグル時にテキストを変更するスロットを定義
+        def toggle_text(checked):
+            if checked:
+                category_button.setText(f"▼ {category_display_name}")
+            else:
+                category_button.setText(f"▶ {category_display_name}")
+            category_frame.setVisible(checked)
 
-        self.left_layout.addWidget(category_button)
-        self.left_layout.addWidget(category_frame)
+        category_button.toggled.connect(toggle_text)
 
-        # 各アイテムを追加
-        for name, command in items:
+        parent_layout.addWidget(category_button)
+        parent_layout.addWidget(category_frame)
+
+        # アイテムを追加
+        for item in items:
+            name = item.get('name', 'NoName')
+            command = item.get('command', '')
             self.add_item_button(category_layout, name, command)
+
+        # サブカテゴリを再帰的に追加
+        for subcat in subcategories:
+            self.add_category(category_layout, subcat, level=level+1)
 
     def add_item_button(self, layout, name: str, command: str) -> None:
         """アイテムボタンを指定レイアウトに追加する"""
-        button = QPushButton(name)
+        button = QPushButton(name.replace('&', '&&'))  # エスケープ処理
         button.setMinimumHeight(40)
-        button.setStyleSheet("background-color: white;")
+        button.setStyleSheet("background-color: white; text-align: left; padding-left: 5px;")
         button.clicked.connect(lambda: self.select_item(name, command))
         layout.addWidget(button)
         self.item_buttons[name] = button
@@ -170,7 +193,7 @@ class MainWindow(QMainWindow):
         process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && {command}"])
 
         self.processes[name] = process
-        self.item_buttons[name].setStyleSheet("background-color: lightgreen;")
+        self.item_buttons[name].setStyleSheet("background-color: lightgreen; text-align: left; padding-left: 5px;")
 
     def display_selected_item_output(self, name: str) -> None:
         """選択中のアイテムの出力を表示"""
@@ -184,7 +207,7 @@ class MainWindow(QMainWindow):
         """プロセス終了時に状態をリセットする"""
         if name in self.processes:
             del self.processes[name]
-            self.item_buttons[name].setStyleSheet("background-color: white;")
+            self.item_buttons[name].setStyleSheet("background-color: white; text-align: left; padding-left: 5px;")
 
         if self.current_selected_item == name:
             self.current_selected_item = None
@@ -204,11 +227,11 @@ class MainWindow(QMainWindow):
         """選択状態と起動状態のボタンを更新"""
         for name, button in self.item_buttons.items():
             if name == self.current_selected_item:
-                button.setStyleSheet("background-color: lightblue;")
+                button.setStyleSheet("background-color: lightblue; text-align: left; padding-left: 5px;")
             elif name in self.processes:
-                button.setStyleSheet("background-color: lightgreen;")
+                button.setStyleSheet("background-color: lightgreen; text-align: left; padding-left: 5px;")
             else:
-                button.setStyleSheet("background-color: white;")
+                button.setStyleSheet("background-color: white; text-align: left; padding-left: 5px;")
 
         # ストップボタンの有効/無効状態とスタイルを更新
         enabled = self.current_selected_item in self.processes
