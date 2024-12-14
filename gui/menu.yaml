@@ -108,9 +108,9 @@ categories:
         command: "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"
       - name: "ros_graph"
         command: "ros2_graph $(ros2 node list)"
-      - name: "camera (color) Cannot run"
+      - name: "camera (color)"
         command: "ros2 run rqt_image_view rqt_image_view --force-discover /camera/color/image_raw"
-      - name: "camera (depth) Cannot run"
+      - name: "camera (depth)"
         command: "ros2 run rqt_image_view rqt_image_view --force-discover /camera/depth/image_rect_raw"
 
   - name: "systemd"
