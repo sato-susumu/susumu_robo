@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
-    realsense_launch_path = os.path.join(
+    launch_path = os.path.join(
         get_package_share_directory('susumu_robo'),
         'launch',
         'realsense.launch.py'
@@ -13,7 +13,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(realsense_launch_path)
+            PythonLaunchDescriptionSource(launch_path)
         )
     ])
 
