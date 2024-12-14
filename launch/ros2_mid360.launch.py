@@ -5,21 +5,13 @@ from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    # 1. Include msg_MID360_launch
+    # Include msg_MID360_launch
     base_launch_share_dir = get_package_share_directory("livox_ros_driver2")
     msg_mid360_action = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([base_launch_share_dir + "/launch_ROS2/msg_MID360_launch.py"])
     )
 
-    # 2. Odom Relay Node
-    odom_relay_node = Node(
-        package='topic_tools',
-        executable='relay',
-        name='odom_topic_relay',
-        arguments=['/diffbot_base_controller/odom', '/odom']
-    )
-
-    # 3. Livox to PointCloud2 Node
+    # Livox to PointCloud2 Node
     livox_to_pointcloud2_node = Node(
         package='livox_to_pointcloud2',
         executable='livox_to_pointcloud2_node',
@@ -28,7 +20,7 @@ def generate_launch_description():
         remappings=[('/livox_pointcloud', '/livox/lidar')]
     )
 
-    # 4. PointCloud to LaserScan Node
+    # PointCloud to LaserScan Node
     pointcloud_to_laserscan_node = Node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
@@ -51,7 +43,7 @@ def generate_launch_description():
         name='pointcloud_to_laserscan'
     )
 
-    # 5. Static Transform Publisher for Livox Frame
+    # Static Transform Publisher for Livox Frame
     tf_livox_frame_node = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -60,7 +52,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         msg_mid360_action,
-        odom_relay_node,
         livox_to_pointcloud2_node,
         pointcloud_to_laserscan_node,
         tf_livox_frame_node

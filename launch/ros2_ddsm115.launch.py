@@ -11,11 +11,11 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([base_launch_share_dir + "/launch/diffbot.launch.py"]),
     )
 
-    # odom_relayノードを追加
+    # odom_topic_relayノードを追加
     relay_node = Node(
         package='topic_tools',
         executable='relay',
-        name='odom_relay',
+        name='odom_topic_relay',
         arguments=['/diffbot_base_controller/odom', '/odom']
     )
 
