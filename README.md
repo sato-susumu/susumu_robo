@@ -23,7 +23,7 @@
 | [TRIGKEY G5 Mini PC](https://trigkey.com/products/trigkey-g5-mini-pc-w11-desktop-12th-gen-intel-n1004core-up-to-3-4ghz-16g-ddr4-500g-pcie1-ssd-dual-ethernet-mini-computer-support-micro-computer-w10-pro-wifi-6-bt5-2-dual-hdmi-triple-screen-output) | 1  | 約800g                                                ||
 | [Logicool ゲームパッド F710](https://www.logicool.co.jp/ja-jp/products/gamepads/f710-wireless-gamepad.940-000144.html) | 1 | - | 無線ゲームパッド |
 | [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - |Livox Mid-360とPCを接続するためのケーブル|
-| USBハブ | 1 | - |  |
+| [Waveshare USB3.2-Gen1-HUB-2IN-4OUT](https://www.waveshare.com/usb3.2-gen1-hub-2in-4out.htm) | 1 | - | USBハブ |
 
 ### フレーム部分
 | Item                                                                                                     | 数量 | 重量         | 合計重量     | 備考・補足                                                    |
