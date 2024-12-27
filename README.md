@@ -15,7 +15,7 @@
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
 | [Prime Power Bank (27650mAh, 250W)](https://www.ankerjapan.com/products/a1340)                                                                                                                                                                         | 1  | [約665g](https://www.ankerjapan.com/products/a1340)   | USB-C1 / C2 出力：5V⎓3A / 9V⎓3A / 12V⎓1.5A / 15V⎓3A / 20V⎓5A / 28V⎓5A (最大140W)                                                                 |
 | [DP100 安定化電源](https://www.switch-science.com/products/9414)                                                                                                                                                                                            | 1  | [約95g](https://www.switch-science.com/products/9414) | 入出力電源スペック: 入力 100-240V AC, 出力 0-30V DC / 0-5A                                                                      |
-| [DDSM115 ダイレクトドライブサーボモーター](https://www.switch-science.com/products/9628)                                                                                                                                                                               | 2  | 約765g                                                |                                                                                        |
+| [DDT M0601C_111](https://www.switch-science.com/products/764) ＋ タイヤ           | 2  | 約765g                                                | モーター。[DDSM115 ダイレクトドライブサーボモーター](https://www.switch-science.com/products/9628)と一緒？    |
 | [8HP-CAPLCD Monitor](https://www.waveshare.com/8hp-caplcd-monitor.htm)                                                                                                                                                                                 | 1  | 623g                                                 | 8インチ静電容量式タッチディスプレイ、1280×800、HDMI/Type-Cディスプレイインターフェース SKU:24483 |
 | [プラス・マイナス分岐ターミナル](https://www.amon.jp/products2/detail.php?product_code=3360)                                                                                                                                                                          | 1  | -                                                    | DC12V車専用、使用可能電流:5A、使用可能電力:60W以下、適合コードサイズ:0.12〜1.25sq相当(AWG26〜16)                                      |
 | [Waveshare USB TO RS485](https://www.waveshare.com/usb-to-rs485.htm)                                                                                                                                                                                   | 1  | -                                                    | USB to RS485インターフェースコンバーター                                                                                         |
@@ -23,7 +23,7 @@
 | [TRIGKEY G5 Mini PC](https://trigkey.com/products/trigkey-g5-mini-pc-w11-desktop-12th-gen-intel-n1004core-up-to-3-4ghz-16g-ddr4-500g-pcie1-ssd-dual-ethernet-mini-computer-support-micro-computer-w10-pro-wifi-6-bt5-2-dual-hdmi-triple-screen-output) | 1  | 約800g                                                ||
 | [Logicool ゲームパッド F710](https://www.logicool.co.jp/ja-jp/products/gamepads/f710-wireless-gamepad.940-000144.html) | 1 | - | 無線ゲームパッド |
 | [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - |Livox Mid-360とPCを接続するためのケーブル|
-| [Waveshare USB3.2-Gen1-HUB-2IN-4OUT](https://www.waveshare.com/usb3.2-gen1-hub-2in-4out.htm) | 1 | - | USBハブ |
+| USBハブ | 1 | - | USBハブ |
 
 ### フレーム部分
 | Item                                                                                                     | 数量 | 重量         | 合計重量     | 備考・補足                                                    |
@@ -83,10 +83,10 @@ flowchart TB
     J -->|12V出力＋イーサネット| G
 
     %% クラス定義 (色分け)
-    classDef power fill:#FFDD00,stroke:#333,stroke-width:2px;     
-    classDef motor fill:#FF7373,stroke:#333,stroke-width:2px;     
-    classDef miniPC fill:#00A0E9,stroke:#333,stroke-width:2px;   
-    classDef lidar fill:#96C291,stroke:#333,stroke-width:2px;     
+    classDef power fill:#FFDD00,stroke:#333,stroke-width:2px,color:#000;     
+    classDef motor fill:#FF7373,stroke:#333,stroke-width:2px,color:#000;     
+    classDef miniPC fill:#00A0E9,stroke:#333,stroke-width:2px,color:#000;   
+    classDef lidar fill:#96C291,stroke:#333,stroke-width:2px,color:#000;     
 
     %% クラス適用
     class A,B,C power;
