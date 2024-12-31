@@ -19,10 +19,8 @@ class TwistFilterNode(Node):
         # 初期化
         self.enable_publish_ = True
 
-        # QoS設定（ベストエフォート）
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
-        # Twistメッセージのサブスクライバ
         self.twist_subscriber_ = self.create_subscription(
             Twist,
             'input_twist',
@@ -30,7 +28,6 @@ class TwistFilterNode(Node):
             qos_profile
         )
 
-        # Boolメッセージのサブスクライバ
         self.bool_subscriber_ = self.create_subscription(
             Bool,
             'enable',
@@ -38,7 +35,6 @@ class TwistFilterNode(Node):
             qos_profile
         )
 
-        # フィルタリングされたTwistメッセージのパブリッシャ
         self.twist_publisher_ = self.create_publisher(
             Twist,
             'output_twist',
@@ -52,9 +48,6 @@ class TwistFilterNode(Node):
         Twistメッセージを受信し、条件に応じてパブリッシュする.
         """
         if self.enable_publish_:
-            self.twist_publisher_.publish(msg)
-            self.get_logger().debug("Publishing Twist message.")
-        else:
             zero_twist = Twist()
             zero_twist.linear.x = 0.0
             zero_twist.linear.y = 0.0
@@ -64,6 +57,9 @@ class TwistFilterNode(Node):
             zero_twist.angular.z = 0.0
             self.twist_publisher_.publish(zero_twist)
             self.get_logger().debug("Publishing zero Twist message.")
+        else:
+            self.twist_publisher_.publish(msg)
+            self.get_logger().debug("Publishing Twist message.")
 
     def bool_callback(self, msg):
         """
