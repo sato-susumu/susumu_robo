@@ -71,6 +71,26 @@ categories:
             command: "ros2 topic echo /cmd_vel --csv"
           - name: "topic echo filter"
             command: "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"
+  - name: "Twist"
+    subcategories:
+      - name: "topic echo"
+        items:
+        - name: "/cmd_vel"
+          command: "ros2 topic echo /cmd_vel"
+        - name: "/input_twist"
+          command: "ros2 topic echo /input_twist"
+        - name: "/scan_in_range"
+          command: "ros2 topic echo /scan_in_range"
+      - name: "keyboard teleop"
+        items:
+        - name: "/cmd_vel"
+          command: "gnome-terminal -- ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+        - name: "/input_twist"
+          command: "gnome-terminal -- ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/input_twist"
+      - name: "rqt_plot"
+        items:
+        - name: "/cmd_vel & /input_twist"
+          command: "ros2 run rqt_plot rqt_plot /cmd_vel/linear/x /cmd_vel/angular/z /input_twist/linear/x /input_twist/angular/z"
 
   - name: "RQT Tools"
     subcategories:
