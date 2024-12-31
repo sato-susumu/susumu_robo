@@ -25,7 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "collision_monitor = susumu_robo.collision_monitor:main",
+            "laserscan_filter_node = susumu_robo.laserscan_filter_node:main",
+            "twist_filter_node = susumu_robo.twist_filter_node:main",
             "tenkey_controller = susumu_tenkey_controller.tenkey_controller:main",
         ],
     },

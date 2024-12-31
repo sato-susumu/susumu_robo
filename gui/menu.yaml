@@ -104,6 +104,8 @@ categories:
 
   - name: "Other"
     items:
+      - name: "rviz2 (ALL)"
+        command: "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/all.rviz"
       - name: "rviz2 (LiDar)"
         command: "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"
       - name: "ros_graph"
