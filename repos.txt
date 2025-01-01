@@ -1,0 +1,6 @@
+https://github.com/sato-susumu/susumu_robo.git
+https://github.com/sato-susumu/susumu_gtts.git
+https://github.com/sato-susumu/livox_to_pointcloud2.git
+https://github.com/sato-susumu/avatar_ros.git
+https://github.com/sato-susumu/twist_stamper.git
+https://github.com/sato-susumu/diffdrive_ddsm115.git
