@@ -113,11 +113,11 @@ class LaserScanFilterNode(Node):
         # 進行方向に応じて範囲を切り替える
         if self.is_forward_:
             x_min = self.forward_x_min_
-            x_max = self.forward_x_max_ + self.linear_x_
+            x_max = self.forward_x_max_ + self.linear_x_ * 0.5
             y_min = self.forward_y_min_
             y_max = self.forward_y_max_
         else:
-            x_min = self.backward_x_min_ + self.linear_x_
+            x_min = self.backward_x_min_ + self.linear_x_ * 0.5
             x_max = self.backward_x_max_
             y_min = self.backward_y_min_
             y_max = self.backward_y_max_
@@ -194,7 +194,7 @@ class LaserScanFilterNode(Node):
         # 検出した点群をPublish
         self.detected_points_publisher_.publish(detected_points_msg)
 
-        self.get_logger().info(f"Scan in range: {in_range}")
+        self.get_logger().debug(f"Scan in range: {in_range}")
 
     def get_yaw_from_quaternion(self, quaternion):
         """
