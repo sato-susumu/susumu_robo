@@ -38,12 +38,43 @@ categories:
             command: "lspci"
           - name: "jstest-gtk"
             command: "jstest-gtk"
+          - name: "realsense-viewer"
+            command: "realsense-viewer"
+
+  - name: "Audio"
+    subcategories:
+      - name: "Device"
+        items:
           - name: "Speaker Info (aplay)"
             command: "aplay -l"
           - name: "Mic Info (arecord)"
             command: "arecord -l"
-          - name: "realsense-viewer"
-            command: "realsense-viewer"
+
+      - name: "Speaker volume"
+        items:
+          - name: "amixer set PCM 100%"
+            command: "amixer set PCM 100%"
+          - name: "amixer set PCM 80%"
+            command: "amixer set PCM 80%"
+          - name: "amixer set PCM 60%"
+            command: "amixer set PCM 60%"
+          - name: "amixer set PCM 40%"
+            command: "amixer set PCM 40%"
+          - name: "amixer set PCM 20%"
+            command: "amixer set PCM 20%"
+          - name: "amixer set PCM 0%"
+            command: "amixer set PCM 0%"
+          - name: "amixer get PCM"
+            command: "amixer get PCM"
+          - name: "sudo alsactl store"
+            command: "sudo alsactl store"
+          - name: "amixer scontrols"
+            command: "amixer scontrols"
+
+      - name: "Demo"
+        items:
+          - name: "aplay test"
+            command: "aplay /usr/share/sounds/alsa/Front_Left.wav"
 
   - name: "ROS2"
     subcategories:
