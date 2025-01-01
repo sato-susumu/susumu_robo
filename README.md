@@ -1,13 +1,26 @@
 # susumu_robo
 ## 方向性
-- ROS2搭載で静かに動く移動ロボット
+- ROS2搭載でパワフルながら静かに動く移動ロボット
 - なるべく市販品を使う、扱いやすく安全な電源を使う
 ## TODO
+- [x] タッチ対応コマンド実行メニュー
 - [x] 機器を接続する
 - [x] 起動後にすぐに動かせるようにする
 - [ ] 3Dプリンターでカバーを作る
-- [ ] LiDARを使って障害物を検知し、停止する
-
+- [x] ジョイパッドによる操作
+- [x] LiDARを使って障害物を検知し、停止する
+## TODO ?
+- [x] デプスカメラ
+- [x] 音声合成
+- [ ] 複数cmd_velの受付 (cmd_vel_mux)
+- [ ] ReSpeakerマイク
+- [ ] 音声認識
+- [ ] ウェイクワード判定
+- [ ] 画像認識、追跡
+- [ ] 地図作成、ナビゲーション
+- [ ] LLM
+- [ ] アバター
+- [ ] リップシンク
 
 ## ハードウェア
 ### 機器
@@ -21,7 +34,7 @@
 | [Waveshare USB TO RS485](https://www.waveshare.com/usb-to-rs485.htm)                                                                                                                                                                                   | 1  | -                                                    | USB to RS485インターフェースコンバーター                                                                                         |
 | [Livox Mid-360](https://www.livoxtech.com/jp/mid-360)                                                                                                                                                                                                  | 1  | [約265g](https://www.livoxtech.com/jp/mid-360)        | LiDARモジュール、360度スキャン対応                                                                                            |
 | [TRIGKEY G5 Mini PC](https://trigkey.com/products/trigkey-g5-mini-pc-w11-desktop-12th-gen-intel-n1004core-up-to-3-4ghz-16g-ddr4-500g-pcie1-ssd-dual-ethernet-mini-computer-support-micro-computer-w10-pro-wifi-6-bt5-2-dual-hdmi-triple-screen-output) | 1  | 約800g                                                ||
-| [Logicool ゲームパッド F710](https://www.logicool.co.jp/ja-jp/products/gamepads/f710-wireless-gamepad.940-000144.html) | 1 | - | 無線ゲームパッド |
+| [PS5 DualSense](https://www.playstation.com/ja-jp/accessories/dualsense-wireless-controller/) | 1 | - | 無線ゲームパッド |
 | [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - |Livox Mid-360とPCを接続するためのケーブル|
 | USBハブ | 1 | - | USBハブ |
 
