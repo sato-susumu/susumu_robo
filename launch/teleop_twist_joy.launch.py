@@ -4,6 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 
 import launch
 import launch_ros.actions
+from launch import LaunchService
 
 
 def generate_launch_description():
@@ -30,11 +31,14 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='teleop_twist_joy', executable='teleop_node',
             name='teleop_twist_joy_node',
+            # PS5 DualSense用の設定
             parameters=[
-                launch.substitutions.LaunchConfiguration('config_filepath'),
                 {
                     "require_enable_button": True,
-                    "enable_button": 1,             # 有効化ボタン(Aボタン)
+                    "axis_linear.x": 1,
+                    "axis_angular.yaw": 0,
+                    "enable_button": 0,  # x button
+                    "enable_turbo_button": 5,  # R1 shoulder button
                     "scale_angular.yaw": 1.0,
                     "scale_angular_turbo.yaw": 4.0,
                     "scale_linear.x": 0.3,
@@ -44,3 +48,9 @@ def generate_launch_description():
             remappings={('/cmd_vel', launch.substitutions.LaunchConfiguration('joy_vel'))},
             ),
     ])
+
+
+if __name__ == '__main__':
+    launch_service = LaunchService()
+    launch_service.include_launch_description(generate_launch_description())
+    launch_service.run()

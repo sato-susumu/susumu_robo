@@ -38,8 +38,6 @@ categories:
             command: "lsusb"
           - name: "PCI Info"
             command: "lspci"
-          - name: "jstest-gtk"
-            command: "jstest-gtk"
           - name: "realsense-viewer"
             command: "realsense-viewer"
 
@@ -108,8 +106,16 @@ categories:
             command: "ros2 topic echo /cmd_vel --filter 'abs(m.linear.x)<0.2'"
   - name: "Twist"
     subcategories:
+      - name: "device"
+        items:
+          - name: "ls -la /dev/input/js*"
+            command: "ls -la /dev/input/js*"
+          - name: "jstest-gtk"
+            command: "jstest-gtk"
       - name: "topic echo"
         items:
+        - name: "/joy"
+          command: "ros2 topic echo /joy"
         - name: "/cmd_vel"
           command: "ros2 topic echo /cmd_vel"
         - name: "/input_twist"
