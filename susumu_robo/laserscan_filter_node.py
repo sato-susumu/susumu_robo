@@ -30,15 +30,15 @@ class LaserScanFilterNode(Node):
         super().__init__('laserscan_filter_node')
 
         # パラメータ宣言 (デフォルト値をセット)
-        self.declare_parameter('reference_link', 'base_link')
-        self.declare_parameter('forward.x_min', -1.0)
-        self.declare_parameter('forward.x_max',  1.0)
-        self.declare_parameter('forward.y_min', -1.0)
-        self.declare_parameter('forward.y_max',  1.0)
-        self.declare_parameter('backward.x_min', -1.0)
-        self.declare_parameter('backward.x_max',  1.0)
-        self.declare_parameter('backward.y_min', -1.0)
-        self.declare_parameter('backward.y_max',  1.0)
+        self.declare_parameter('reference_link', 'livox_frame')
+        self.declare_parameter('forward.x_min', -0.22)
+        self.declare_parameter('forward.x_max',  0.22)
+        self.declare_parameter('forward.y_min', -0.22)
+        self.declare_parameter('forward.y_max',  0.22)
+        self.declare_parameter('backward.x_min', -0.22)
+        self.declare_parameter('backward.x_max',  0.22)
+        self.declare_parameter('backward.y_min', -0.22)
+        self.declare_parameter('backward.y_max',  0.22)
 
         # パラメータ取得
         self.reference_link_ = self.get_parameter('reference_link').value
@@ -194,7 +194,7 @@ class LaserScanFilterNode(Node):
         # 検出した点群をPublish
         self.detected_points_publisher_.publish(detected_points_msg)
 
-        self.get_logger().debug(f"Scan in range: {in_range}")
+        self.get_logger().info(f"Scan in range: {in_range}")
 
     def get_yaw_from_quaternion(self, quaternion):
         """
