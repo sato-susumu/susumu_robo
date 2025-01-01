@@ -5,6 +5,8 @@ categories:
         command: "ros2 launch fast_lio mapping.launch.py"
       - name: "avatar_ros"
         command: "ros2 run avatar_ros avatar_node"
+      - name: "TTS (susumu_gtts)"
+        command: "ros2 run susumu_gtts susumu_gtts"
 
   - name: "OS"
     subcategories:
@@ -75,6 +77,8 @@ categories:
         items:
           - name: "aplay test"
             command: "aplay /usr/share/sounds/alsa/Front_Left.wav"
+          - name: "TTS テスト1"
+            command: "ros2 topic pub -1 /tts std_msgs/String 'data: テスト1'"
 
   - name: "ROS2"
     subcategories:
@@ -184,6 +188,8 @@ categories:
             command: "sudo systemctl enable ros2_bringup"
           - name: "disable ros2_bringup"
             command: "sudo systemctl disable ros2_bringup"
+          - name: "log ros2_bringup"
+            command: "sudo journalctl -u ros2_bringup.service --no-pager"
       - name: "ros2_mid360"
         items:
           - name: "start ros2_mid360"
@@ -194,6 +200,8 @@ categories:
             command: "sudo systemctl enable ros2_mid360"
           - name: "disable ros2_mid360"
             command: "sudo systemctl disable ros2_mid360"
+          - name: "log ros2_mid360"
+            command: "sudo journalctl -u ros2_mid360.service --no-pager"
       - name: "ros2_ddsm115"
         items:
           - name: "start ros2_ddsm115"
@@ -204,6 +212,8 @@ categories:
             command: "sudo systemctl enable ros2_ddsm115"
           - name: "disable ros2_ddsm115"
             command: "sudo systemctl disable ros2_ddsm115"
+          - name: "log ros2_ddsm115"
+            command: "sudo journalctl -u ros2_ddsm115.service --no-pager"
       - name: "ros2_realsense"
         items:
           - name: "start ros2_realsense"
@@ -214,3 +224,17 @@ categories:
             command: "sudo systemctl enable ros2_realsense"
           - name: "disable ros2_realsense"
             command: "sudo systemctl disable ros2_realsense"
+          - name: "log ros2_realsense"
+            command: "sudo journalctl -u ros2_realsense.service --no-pager"
+#      - name: "ros2_audio"
+#        items:
+#          - name: "start ros2_audio"
+#            command: "sudo systemctl start ros2_audio"
+#          - name: "stop ros2_audio"
+#            command: "sudo systemctl stop ros2_audio"
+#          - name: "enable ros2_audio"
+#            command: "sudo systemctl enable ros2_audio"
+#          - name: "disable ros2_audio"
+#            command: "sudo systemctl disable ros2_audio"
+#          - name: "log ros2_audio"
+#            command: "sudo journalctl -u ros2_audio.service --no-pager"
