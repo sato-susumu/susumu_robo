@@ -18,7 +18,7 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='taro',
+    maintainer='Sato Susumu',
     maintainer_email='75652942+sato-susumu@users.noreply.github.com',
     description='TODO: Package description',
     license='TODO: License declaration',
@@ -28,6 +28,7 @@ setup(
             "laserscan_filter_node = susumu_robo.laserscan_filter_node:main",
             "twist_filter_node = susumu_robo.twist_filter_node:main",
             "tenkey_controller = susumu_tenkey_controller.tenkey_controller:main",
+            "led_controller_node = susumu_robo.nodes.led_controller_node:main",
         ],
     },
 )

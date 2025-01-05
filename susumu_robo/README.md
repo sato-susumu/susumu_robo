@@ -1,1 +1,0 @@
-# susumu_robo(kari)
