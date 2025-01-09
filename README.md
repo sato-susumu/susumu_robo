@@ -40,6 +40,13 @@
 | [PS5 DualSense](https://www.playstation.com/ja-jp/accessories/dualsense-wireless-controller/) | 1 | - | 無線ゲームパッド |
 | [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - |Livox Mid-360とPCを接続するためのケーブル|
 | USBハブ | 1 | - | USBハブ |
+| [ReSpeaker USB Mic Array](https://wiki.seeedstudio.com/ReSpeaker-USB-Mic-Array/) | 1 | - | |
+| USBスピーカー | 1 | - | |
+| BlinkStick Strip | 1 | - | USB LED |
+| TP-Link UB500/A| 1 | - | USB Bluetoothアダプタ |
+| TP-Link TL-WN725N | 1 | - | USB WiFiアダプタ |
+| D435i | 1 | - | カメラ |
+
 
 ### フレーム部分
 合計約2.2Kg
@@ -72,8 +79,14 @@ flowchart TB
         F[Mini PC]
         K[USBハブ]
         H[USB TO RS485]
-        L[ゲームパッド F710]
+        L[PS5 DualSense]
         I[Monitor]
+        M[マイクアレイ]
+        N[UBSスピーカー]
+        O[USB LED]
+        P[Bluetoothアダプタ]
+        Q[WiFiアダプタ]
+        R[D435i]
     end
 
     subgraph LiDAR["LiDAR関連"]
@@ -91,12 +104,20 @@ flowchart TB
 
     %% Mini PCとの接続
     F -->|USB| K
-    K -->|USB| H
+    F -->|USB| R
     H -->|RS485| D
     H -->|RS485| E
-    K -->|USB| L
+    F -->|Bluetooth| L
     F -->|Type-C| I
     F -->|イーサネット| J
+
+    %% USB Hubとの接続
+    K -->|USB| H
+    K -->|USB| M
+    K -->|USB| N
+    K -->|USB| O
+    K -->|USB| P
+    K -->|USB| Q
 
     %% 自作ケーブルライン
     J -->|12V出力＋イーサネット| G
@@ -110,6 +131,6 @@ flowchart TB
     %% クラス適用
     class A,B,C power;
     class D,E motor;
-    class F,K,H,L,I miniPC;
+    class F,K,H,L,I,M,N,O,P,Q,R miniPC;
     class G,J lidar;
 ```
