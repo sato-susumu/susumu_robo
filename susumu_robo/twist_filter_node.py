@@ -17,7 +17,7 @@ class TwistFilterNode(Node):
         super().__init__('twist_filter_node')
 
         # 初期化
-        self.enable_publish_ = True
+        self.in_range = False
 
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
@@ -47,16 +47,14 @@ class TwistFilterNode(Node):
         """
         Twistメッセージを受信し、条件に応じてパブリッシュする.
         """
-        if self.enable_publish_:
-            zero_twist = Twist()
-            zero_twist.linear.x = 0.0
-            zero_twist.linear.y = 0.0
-            zero_twist.linear.z = 0.0
-            zero_twist.angular.x = 0.0
-            zero_twist.angular.y = 0.0
-            zero_twist.angular.z = 0.0
-            self.twist_publisher_.publish(zero_twist)
-            self.get_logger().debug("Publishing zero Twist message.")
+        if self.in_range:
+            new_msg = Twist()
+            new_msg.angular = msg.angular
+            new_msg.linear.x = 0.0
+            new_msg.linear.y = 0.0
+            new_msg.linear.z = 0.0
+            self.twist_publisher_.publish(new_msg)
+            self.get_logger().debug("Publishing Twist message with linear.x, linear.y, linear.z set to 0.0.")
         else:
             self.twist_publisher_.publish(msg)
             self.get_logger().debug("Publishing Twist message.")
@@ -65,8 +63,8 @@ class TwistFilterNode(Node):
         """
         Boolメッセージを受信し、パブリッシュの有効フラグを設定する.
         """
-        self.enable_publish_ = msg.data
-        self.get_logger().debug(f"Enable flag set to: {'True' if self.enable_publish_ else 'False'}")
+        self.in_range = msg.data
+        self.get_logger().debug(f"Enable flag set to: {'True' if self.in_range else 'False'}")
 
 
 def main(args=None):
