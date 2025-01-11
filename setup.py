@@ -28,7 +28,7 @@ setup(
             "laserscan_filter_node = susumu_robo.laserscan_filter_node:main",
             "twist_filter_node = susumu_robo.twist_filter_node:main",
             "tenkey_controller = susumu_tenkey_controller.tenkey_controller:main",
-            "led_controller_node = susumu_robo.nodes.led_controller_node:main",
+            "led_controller_node = susumu_robo.led_controller_node:main",
         ],
     },
 )
