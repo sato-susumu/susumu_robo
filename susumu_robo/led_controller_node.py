@@ -45,26 +45,28 @@ class LEDControllerNode(Node):
         elif self.previous_state and not current_state:
             self.get_logger().info('状態が True から False に変化しました。LEDをオフにします。')
             self.publish_led_command(
-                pattern='SOLID',
-                color1='black',
-                color2='black',
-                duration=1.0,
-                priority=2,
-                decay_rate=0.0,
-                speed=1.0
+                pattern='STOP',
+                priority=99999,
+                duration=0.0
             )
 
         self.previous_state = current_state
 
-    def publish_led_command(self, pattern, color1, color2, duration, priority, decay_rate, speed):
+    def publish_led_command(self, pattern, color1=None, color2=None, duration=None, priority=None, decay_rate=None, speed=None):
         led_msg = LED()
         led_msg.pattern = pattern
-        led_msg.color1 = color1
-        led_msg.color2 = color2
-        led_msg.duration = duration  # 秒数
-        led_msg.priority = priority
-        led_msg.decay_rate = decay_rate
-        led_msg.speed = speed
+        if color1 is not None:
+            led_msg.color1 = color1
+        if color2 is not None:
+            led_msg.color2 = color2
+        if duration is not None:
+            led_msg.duration = duration  # 秒数
+        if priority is not None:
+            led_msg.priority = priority
+        if decay_rate is not None:
+            led_msg.decay_rate = decay_rate
+        if speed is not None:
+            led_msg.speed = speed
 
         self.publisher.publish(led_msg)
         self.get_logger().debug(
