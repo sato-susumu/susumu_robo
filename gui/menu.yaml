@@ -1,6 +1,8 @@
 categories:
   - name: "Launch"
     items:
+      - name: "foxglove-studio (local)"
+        command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
       - name: "fast_lio"
         command: "ros2 launch fast_lio mapping.launch.py"
       - name: "avatar_ros"
