@@ -1,8 +1,14 @@
 categories:
-  - name: "Launch"
+  - name: "Development"
     items:
+      - name: "colcon build"
+        command: "cd ~/ros2_ws && colcon build && source install/setup.bash"
+      - name: "pycharm"
+        command: "pycharm"
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
+  - name: "Launch"
+    items:
       - name: "fast_lio"
         command: "ros2 launch fast_lio mapping.launch.py"
       - name: "avatar_ros"
