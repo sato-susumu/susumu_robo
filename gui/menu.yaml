@@ -7,6 +7,16 @@ categories:
         command: "pycharm"
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
+
+  - name: "URDF"
+    items:
+      - name: "create diffbot.urdf"
+        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && xacro diffbot.urdf.xacro > diffbot.urdf"
+      - name: "check_urdf"
+        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && check_urdf <(xacro diffbot.urdf.xacro)"
+      - name: "urdf_to_graphiz"
+        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && urdf_to_graphiz <(xacro diffbot.urdf.xacro) && evince diffdrive_robot.pdf"
+
   - name: "Launch"
     items:
       - name: "fast_lio"
@@ -40,6 +50,8 @@ categories:
             command: "dpkg -l | grep librealsense2"
           - name: "reboot"
             command: "sudo reboot"
+          - name: "shutdown"
+            command: "sudo shutdown -h now"
       - name: "Device"
         items:
           - name: "USB Info"
