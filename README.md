@@ -27,25 +27,25 @@
 
 ## ハードウェア
 ### 機器
-| Item                                                                                                                                                                                                                                                   | 数量 | 重量                                                   | 補足・備考                                                                                                                      |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| [Prime Power Bank (27650mAh, 250W)](https://www.ankerjapan.com/products/a1340)                                                                                                                                                                         | 1  | [約665g](https://www.ankerjapan.com/products/a1340)   | USB-C1 / C2 出力：5V⎓3A / 9V⎓3A / 12V⎓1.5A / 15V⎓3A / 20V⎓5A / 28V⎓5A (最大140W)                                                                 |
-| [DP100 安定化電源](https://www.switch-science.com/products/9414)                                                                                                                                                                                            | 1  | [約95g](https://www.switch-science.com/products/9414) | 入出力電源スペック: 入力 100-240V AC, 出力 0-30V DC / 0-5A                                                                      |
-| [DDT M0601C_111](https://www.switch-science.com/products/764) ＋ タイヤ           | 2  | 約765g                                                | モーター。[DDSM115 ダイレクトドライブサーボモーター](https://www.switch-science.com/products/9628)と一緒？    |
-| [8HP-CAPLCD Monitor](https://www.waveshare.com/8hp-caplcd-monitor.htm)                                                                                                                                                                                 | 1  | 623g                                                 | 8インチ静電容量式タッチディスプレイ、1280×800、HDMI/Type-Cディスプレイインターフェース SKU:24483 |
-| [プラス・マイナス分岐ターミナル](https://www.amon.jp/products2/detail.php?product_code=3360)                                                                                                                                                                          | 1  | -                                                    | DC12V車専用、使用可能電流:5A、使用可能電力:60W以下、適合コードサイズ:0.12〜1.25sq相当(AWG26〜16)                                      |
-| [Waveshare USB TO RS485](https://www.waveshare.com/usb-to-rs485.htm)                                                                                                                                                                                   | 1  | -                                                    | USB to RS485インターフェースコンバーター                                                                                         |
-| [Livox Mid-360](https://www.livoxtech.com/jp/mid-360)                                                                                                                                                                                                  | 1  | [約265g](https://www.livoxtech.com/jp/mid-360)        | 3D LiDAR。水平360°、垂直59°（-7°〜52°）                                                                                        |
-| [TRIGKEY G5 Mini PC](https://trigkey.com/products/trigkey-g5-mini-pc-w11-desktop-12th-gen-intel-n1004core-up-to-3-4ghz-16g-ddr4-500g-pcie1-ssd-dual-ethernet-mini-computer-support-micro-computer-w10-pro-wifi-6-bt5-2-dual-hdmi-triple-screen-output) | 1  | 約800g                                                | 付属ACアダプタは12V3A |
-| [PS5 DualSense](https://www.playstation.com/ja-jp/accessories/dualsense-wireless-controller/) | 1 | - | 無線ゲームパッド |
-| [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - |Livox Mid-360とPCを接続するためのケーブル|
-| USBハブ | 1 | - | USBハブ |
-| [ReSpeaker USB Mic Array](https://wiki.seeedstudio.com/ReSpeaker-USB-Mic-Array/) | 1 | - | |
-| USBスピーカー | 1 | - | |
-| BlinkStick Strip | 1 | - | USB LED |
-| TP-Link UB500/A| 1 | - | USB Bluetoothアダプタ |
-| TP-Link TL-WN725N | 1 | - | USB WiFiアダプタ |
-| D435i | 1 | - | カメラ |
+| Item                                                                                                                                                                                                                                                   | 数量 | 重量                                                   | 補足・備考                                                                             |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [Prime Power Bank (27650mAh, 250W)](https://www.ankerjapan.com/products/a1340)                                                                                                                                                                         | 1  | [約665g](https://www.ankerjapan.com/products/a1340)   | USB-C1 / C2 出力：5V⎓3A / 9V⎓3A / 12V⎓1.5A / 15V⎓3A / 20V⎓5A / 28V⎓5A (最大140W)       |
+| [DP100 安定化電源](https://www.switch-science.com/products/9414)                                                                                                                                                                                            | 1  | [約95g](https://www.switch-science.com/products/9414) | 入出力電源スペック: 入力 100-240V AC, 出力 0-30V DC / 0-5A                                     |
+| [DDT M0601C_111](https://www.switch-science.com/products/764) ＋ タイヤ           | 2  | 約765g                                                | モーター。[DDSM115 ダイレクトドライブサーボモーター](https://www.switch-science.com/products/9628)と一緒？ |
+| [8HP-CAPLCD Monitor](https://www.waveshare.com/8hp-caplcd-monitor.htm)                                                                                                                                                                                 | 1  | 623g                                                 | 8インチ静電容量式タッチディスプレイ、1280×800、HDMI/Type-Cディスプレイインターフェース SKU:24483                   |
+| [プラス・マイナス分岐ターミナル](https://www.amon.jp/products2/detail.php?product_code=3360)                                                                                                                                                                          | 1  | -                                                    | DC12V車専用、使用可能電流:5A、使用可能電力:60W以下、適合コードサイズ:0.12〜1.25sq相当(AWG26〜16)                  |
+| [Waveshare USB TO RS485](https://www.waveshare.com/usb-to-rs485.htm)                                                                                                                                                                                   | 1  | -                                                    | USB to RS485インターフェースコンバーター                                                        |
+| [Livox Mid-360](https://www.livoxtech.com/jp/mid-360)                                                                                                                                                                                                  | 1  | [約265g](https://www.livoxtech.com/jp/mid-360)        | 3D LiDAR。水平360°、垂直59°（-7°〜52°）                                                    |
+| [TRIGKEY G5 Mini PC](https://trigkey.com/products/trigkey-g5-mini-pc-w11-desktop-12th-gen-intel-n1004core-up-to-3-4ghz-16g-ddr4-500g-pcie1-ssd-dual-ethernet-mini-computer-support-micro-computer-w10-pro-wifi-6-bt5-2-dual-hdmi-triple-screen-output) | 1  | 約800g    | 付属ACアダプタは12V3A                                                                    |
+| [PS5 DualSense](https://www.playstation.com/ja-jp/accessories/dualsense-wireless-controller/) | 1 | - | 無線ゲームパッド                                                                          |
+| [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - | Livox Mid-360とPCを接続するためのケーブル                                                      |
+| USBハブ | 1 | - | USBハブ                                                                             |
+| [ReSpeaker USB Mic Array](https://wiki.seeedstudio.com/ReSpeaker-USB-Mic-Array/) | 1 | - |                                                                                   |
+| USBスピーカー | 1 | - | DAISO USB ミニスピーカー 3W x 2。周波数帯域 35Hz - 200Hz。インピーダンス６Ω                       |
+| BlinkStick Strip | 1 | - | USB LED                                                                           |
+| TP-Link UB500/A| 1 | - | USB Bluetoothアダプタ                                                                 |
+| TP-Link TL-WN725N | 1 | - | USB WiFiアダプタ                                                                      |
+| D435i | 1 | - | カメラ                                                                               |
 
 
 ### フレーム部分
@@ -87,6 +87,7 @@ flowchart TB
         P[Bluetoothアダプタ]
         Q[WiFiアダプタ]
         R[D435i]
+        S[ReSpeaker USB Mic Array]
     end
 
     subgraph LiDAR["LiDAR関連"]
@@ -118,8 +119,10 @@ flowchart TB
     K -->|USB| O
     K -->|USB| P
     K -->|USB| Q
+    K -->|USB| S
 
-    %% 自作ケーブルライン
+    %% その他
+    N -->|オーディオケーブル(φ3.5mmステレオミニプラグ)| S
     J -->|12V出力＋イーサネット| G
 
     %% クラス定義 (色分け)
@@ -131,7 +134,7 @@ flowchart TB
     %% クラス適用
     class A,B,C power;
     class D,E motor;
-    class F,K,H,L,I,M,N,O,P,Q,R miniPC;
+    class F,K,H,L,I,M,N,O,P,Q,R,S miniPC;
     class G,J lidar;
 ```
 
