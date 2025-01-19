@@ -134,3 +134,6 @@ flowchart TB
     class F,K,H,L,I,M,N,O,P,Q,R miniPC;
     class G,J lidar;
 ```
+
+## 制限事項
+- オーディオ関連ノードが自動起動できない
