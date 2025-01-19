@@ -23,8 +23,8 @@ categories:
         command: "ros2 launch fast_lio mapping.launch.py"
       - name: "avatar_ros"
         command: "ros2 run avatar_ros avatar_node"
-      - name: "TTS (susumu_gtts)"
-        command: "ros2 run susumu_gtts susumu_gtts"
+      - name: "susumu_robo audio"
+        command: "ros2 launch susumu_robo audio.launch.py"
 
   - name: "OS"
     subcategories:
