@@ -56,7 +56,8 @@
 | [HFSF5-2020-210](https://jp.misumi-ec.com/vona2/detail/110302683920/?ProductCode=HFSF5-2020-210)        | 4    | 約111g/本 | 約444g | アルミフレーム 5シリーズ、正方形、20×20mm、1列溝、3面溝、長さ: 210mm、重量: 0.53kg/m |
 | [HFSF5-2020-230](https://jp.misumi-ec.com/vona2/detail/110302683920/?ProductCode=HFSF5-2020-230)        | 4    | 約122g/本 | 約488g | アルミフレーム 5シリーズ、正方形、20×20mm、1列溝、3面溝、長さ: 230mm、重量: 0.53kg/m |
 | [HFSR5-2020-184](https://jp.misumi-ec.com/vona2/detail/110302685570/?ProductCode=HFSR5-2020-184)        | 4    | 約077g/本 | 約309g | アルミフレーム 5シリーズ、R形状、20×20mm、長さ: 184mm、重量: 0.42kg/m         |
-| [HBLSS5](https://jp.misumi-ec.com/vona2/detail/110300438930/?ProductCode=HBLSS5)                        |12    | 約3.8g/1個    | 約45.6g | ５シリーズ（溝幅６ｍｍ）用薄型ブラケット |
+| [HBLSS5](https://jp.misumi-ec.com/vona2/detail/110300438930/?ProductCode=HBLSS5)                        |12    | 約3.8g/1個 | 約45.6g | ５シリーズ（溝幅６ｍｍ）用薄型ブラケット |
+| [HFS5-2020-210](https://jp.misumi-ec.com/vona2/detail/110302683830/?ProductCode=HFS5-2020-210)          | 1    | 約105g/本 | 約105g | アルミフレーム 5シリーズ、正方形、20×20mm、1列溝、4面溝、長さ: 210mm、重量: 0.5kg/m |
 | 上記以外にも、フレームキャップ、ストッパナット、ボルトが必要| - | - | - |
 
 
