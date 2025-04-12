@@ -4,4 +4,5 @@ sudo systemctl start ros2_ddsm115
 sudo systemctl start ros2_realsense
 # sudo systemctl start ros2_audio
 sudo systemctl start ros2_led
+sudo systemctl start ros2_nav2
 
