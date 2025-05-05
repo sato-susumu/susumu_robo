@@ -3,13 +3,20 @@
 
 # 問題発生時の対処法
 ## systemdで登録したサービスで音声が再生できない
-```sudo vi /lib/systemd/system/ros2_audio.service
-```ファイルの末尾に次の内容を追記します
+```
+sudo vi /lib/systemd/system/ros2_audio.service
+```
+ファイルの末尾に次の内容を追記します
 
-例：Userがtaro、uidが1000の場合
-```[Service]
+例：Userがtaro、uidが1000、ワークスペースが/home/taro/ros2_wsの場合
+```
+[Service]
 Environment="PULSE_SERVER=unix:/run/user/1000/pulse/native"
 Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/taro/ros2_ws/src/voicevox_ros2/voicevox_core"
+Environment="JTALK_PATH=/home/taro/ros2_ws/src/voicevox_ros2/voicevox_core/open_jtalk_dic_utf_8-1.11"
+Environment="KANAENG_PATH=/home/taro/ros2_ws/src/voicevox_ros2/voicevox_core/bep-eng.dic"
 User=taro
-```
+```
+
 修正後は再起動し、オーディオを使った処理が動くことを確認する

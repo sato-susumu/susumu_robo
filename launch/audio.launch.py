@@ -17,11 +17,11 @@ def generate_launch_description():
             output='screen',
         ),
 
-        # susumu_gtts ノード
+        # voicevox_ros2 ノード
         Node(
-            package='susumu_gtts',
-            executable='susumu_gtts',
-            name='susumu_gtts_node',
+            package='voicevox_ros2',
+            executable='voicevox_ros2_core',
+            name='voicevox_ros2',
             output='screen'
         ),
     ])
