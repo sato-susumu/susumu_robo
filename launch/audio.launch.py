@@ -24,6 +24,14 @@ def generate_launch_description():
             name='voicevox_ros2',
             output='screen'
         ),
+
+        # voicevox_ros2 ノード
+        Node(
+            package='to_human_2_voicevox',
+            executable='to_human_2_voicevox',
+            name='to_human_2_voicevox',
+            output='screen'
+        ),
     ])
 
 if __name__ == '__main__':
