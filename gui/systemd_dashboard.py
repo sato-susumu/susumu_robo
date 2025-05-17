@@ -182,6 +182,8 @@ class DashboardWindow(QMainWindow):
             'ros2_bringup', 'ros2_mid360', 'ros2_ddsm115',
             'ros2_realsense', 'ros2_led', 'ros2_nav2',
             'ros2_audio',
+            'ros2_asr_with_vad',
+            'ros2_asr_with_wake_word',
             # ... more services ...
         ]
         self.services: List[ServiceItem] = []

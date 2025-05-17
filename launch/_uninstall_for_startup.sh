@@ -5,5 +5,5 @@ ros2 run robot_upstart uninstall ros2_realsense
 ros2 run robot_upstart uninstall ros2_audio
 ros2 run robot_upstart uninstall ros2_led
 ros2 run robot_upstart uninstall ros2_nav2
-
-
+ros2 run robot_upstart uninstall ros2_asr_with_vad
+ros2 run robot_upstart uninstall ros2_asr_with_wake_word
