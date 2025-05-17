@@ -9,13 +9,13 @@ from launch.event_handlers import OnProcessStart
 
 def generate_launch_description():
     return LaunchDescription([
-        # respeaker_ros ノード
-        Node(
-            package='respeaker_ros',
-            executable='respeaker_node',
-            name='respeaker_node',
-            output='screen',
-        ),
+        # # respeaker_ros ノード
+        # Node(
+        #     package='respeaker_ros',
+        #     executable='respeaker_node',
+        #     name='respeaker_node',
+        #     output='screen',
+        # ),
 
         # voicevox_ros2 ノード
         Node(
