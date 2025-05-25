@@ -139,5 +139,3 @@ flowchart TB
     class G,J lidar;
 ```
 
-## 制限事項
-- オーディオ関連ノードが自動起動できない
