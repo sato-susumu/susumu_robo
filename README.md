@@ -86,7 +86,6 @@ flowchart TB
         P[Bluetoothアダプタ]
         Q[WiFiアダプタ]
         R[D435i]
-        S[ReSpeaker USB Mic Array]
     end
 
     subgraph LiDAR["LiDAR関連"]
@@ -117,8 +116,7 @@ flowchart TB
     K -->|USB| O
     K -->|USB| P
     K -->|USB| Q
-    K -->|USB| S
-
+    
     %% その他
     J -->|12V出力＋イーサネット| G
 
@@ -131,7 +129,7 @@ flowchart TB
     %% クラス適用
     class A,B,C power;
     class D,E motor;
-    class F,K,H,L,I,M,O,P,Q,R,S miniPC;
+    class F,K,H,L,I,M,O,P,Q,R miniPC;
     class G,J lidar;
 ```
 
