@@ -21,8 +21,9 @@ User=taro
 
 修正後は再起動し、オーディオを使った処理が動くことを確認する
 
-## systemd実行時、ディレクトリ作成権限がないため実行に失敗する
-ros2_asr_with_vad および ros2_asr_with_wake_word で発生するため修正
+## systemdでサービス実行時、ディレクトリ作成権限がないため実行に失敗する
+ros2_asr_with_vad および ros2_asr_with_wake_word で発生するため修正。
+
 ros2_asr_with_vadの修正例
 ```
 sudo vi /lib/systemd/system/ros2_asr_with_vad.service

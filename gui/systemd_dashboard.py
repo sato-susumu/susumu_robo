@@ -184,6 +184,8 @@ class DashboardWindow(QMainWindow):
             'ros2_audio',
             'ros2_asr_with_vad',
             'ros2_asr_with_wake_word',
+            'ros2_rai_whoami',
+            'ros2_rai_voice_hmi',
             # ... more services ...
         ]
         self.services: List[ServiceItem] = []
