@@ -40,8 +40,7 @@
 | [PS5 DualSense](https://www.playstation.com/ja-jp/accessories/dualsense-wireless-controller/) | 1 | - | 無線ゲームパッド                                                                          |
 | [自作ケーブル](https://www.sato-susumu.com/entry/mid360_cable)| 1 | - | Livox Mid-360とPCを接続するためのケーブル                                                      |
 | USBハブ | 1 | - | USBハブ                                                                             |
-| [ReSpeaker USB Mic Array](https://wiki.seeedstudio.com/ReSpeaker-USB-Mic-Array/) | 1 | - |                                                                                   |
-| USBスピーカー | 1 | - | DAISO USB ミニスピーカー 3W x 2。周波数帯域 35Hz - 200Hz。インピーダンス６Ω                       |
+| [Anker PowerConf S3](https://www.ankerjapan.com/products/a3302) | 1 | - |                                                                                   |
 | BlinkStick Strip | 1 | - | USB LED                                                                           |
 | TP-Link UB500/A| 1 | - | USB Bluetoothアダプタ                                                                 |
 | TP-Link TL-WN725N | 1 | - | USB WiFiアダプタ                                                                      |
@@ -82,8 +81,7 @@ flowchart TB
         H[USB TO RS485]
         L[PS5 DualSense]
         I[Monitor]
-        M[マイクアレイ]
-        N[UBSスピーカー]
+        M[Anker PowerConf S3]
         O[USB LED]
         P[Bluetoothアダプタ]
         Q[WiFiアダプタ]
@@ -116,14 +114,12 @@ flowchart TB
     %% USB Hubとの接続
     K -->|USB| H
     K -->|USB| M
-    K -->|USB| N
     K -->|USB| O
     K -->|USB| P
     K -->|USB| Q
     K -->|USB| S
 
     %% その他
-    S -->|オーディオケーブル φ3.5mmステレオミニプラグ | N
     J -->|12V出力＋イーサネット| G
 
     %% クラス定義 (色分け)
@@ -135,7 +131,7 @@ flowchart TB
     %% クラス適用
     class A,B,C power;
     class D,E motor;
-    class F,K,H,L,I,M,N,O,P,Q,R,S miniPC;
+    class F,K,H,L,I,M,O,P,Q,R,S miniPC;
     class G,J lidar;
 ```
 
