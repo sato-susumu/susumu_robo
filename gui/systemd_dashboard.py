@@ -6,9 +6,10 @@ from typing import Dict, List
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QFrame, QLabel,
     QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QDialog, QTextEdit, QScrollArea
+    QDialog, QTextEdit, QScrollArea, QMenuBar, QMessageBox
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction
 
 # --- Data Model ---
 @dataclass
@@ -159,6 +160,9 @@ class DashboardWindow(QMainWindow):
         self._load_services()
 
     def _init_ui(self) -> None:
+        # メニューバーを作成
+        self._create_menu_bar()
+        
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
@@ -176,6 +180,93 @@ class DashboardWindow(QMainWindow):
 
         scroll.setWidget(container)
         layout.addWidget(scroll)
+
+    def _create_menu_bar(self) -> None:
+        """メニューバーを作成"""
+        menubar = self.menuBar()
+        
+        # ツールメニュー
+        tools_menu = menubar.addMenu('ツール')
+        
+        # ジャーナルログ削除アクション
+        cleanup_action = QAction('直近7日間以外のジャーナルログ削除', self)
+        cleanup_action.triggered.connect(self._cleanup_journal_logs)
+        tools_menu.addAction(cleanup_action)
+        
+        # ディスク使用量確認アクション
+        disk_usage_action = QAction('ジャーナルログの使用ディスク量確認', self)
+        disk_usage_action.triggered.connect(self._check_journal_disk_usage)
+        tools_menu.addAction(disk_usage_action)
+        
+        tools_menu.addSeparator()
+        
+        # 終了アクション
+        exit_action = QAction('終了', self)
+        exit_action.triggered.connect(self.close)
+        tools_menu.addAction(exit_action)
+
+    def _cleanup_journal_logs(self) -> None:
+        """直近7日間以外のジャーナルログを削除"""
+        reply = QMessageBox.question(
+            self, 
+            '確認',
+            '直近7日間以外のジャーナルログを削除しますか？\nこの操作は元に戻せません。',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            try:
+                # journalctl --vacuum-time=7d を実行
+                proc = subprocess.run(
+                    ['sudo', 'journalctl', '--vacuum-time=7d'],
+                    capture_output=True, text=True, check=True
+                )
+                
+                QMessageBox.information(
+                    self, 
+                    '完了',
+                    f'ジャーナルログの削除が完了しました。\n\n{proc.stdout}'
+                )
+            except subprocess.CalledProcessError as e:
+                QMessageBox.critical(
+                    self,
+                    'エラー', 
+                    f'ジャーナルログの削除に失敗しました。\n\nエラー: {e.stderr}'
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'エラー',
+                    f'予期しないエラーが発生しました。\n\nエラー: {str(e)}'
+                )
+
+    def _check_journal_disk_usage(self) -> None:
+        """ジャーナルログの使用ディスク量を確認"""
+        try:
+            # journalctl --disk-usage を実行
+            proc = subprocess.run(
+                ['sudo', 'journalctl', '--disk-usage'],
+                capture_output=True, text=True, check=True
+            )
+            
+            QMessageBox.information(
+                self,
+                'ディスク使用量',
+                f'ジャーナルログのディスク使用量:\n\n{proc.stdout}'
+            )
+        except subprocess.CalledProcessError as e:
+            QMessageBox.critical(
+                self,
+                'エラー',
+                f'ディスク使用量の確認に失敗しました。\n\nエラー: {e.stderr}'
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                'エラー',
+                f'予期しないエラーが発生しました。\n\nエラー: {str(e)}'
+            )
 
     def _load_services(self) -> None:
         service_names = [
