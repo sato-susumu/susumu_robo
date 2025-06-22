@@ -208,3 +208,6 @@ AMENT_IGNORE
 .idea
 
 models/
+
+# Claude Code knowledge management files
+.claude/
