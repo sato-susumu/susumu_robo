@@ -8,7 +8,7 @@ def generate_launch_description():
     # Include msg_MID360_launch
     base_launch_share_dir = get_package_share_directory("livox_ros_driver2")
     msg_mid360_action = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([base_launch_share_dir + "/launch_ROS2/msg_MID360_launch.py"])
+        PythonLaunchDescriptionSource([base_launch_share_dir + "/launch/msg_MID360_launch.py"])
     )
 
     # Livox to PointCloud2 Node

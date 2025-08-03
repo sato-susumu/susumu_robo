@@ -5,3 +5,4 @@ https://github.com/sato-susumu/avatar_ros.git
 https://github.com/sato-susumu/twist_stamper.git
 https://github.com/sato-susumu/diffdrive_ddsm115.git
 https://github.com/GAI-313/voicevox_ros2.git
+https://github.com/atinfinity/livox_ros_driver2.git
