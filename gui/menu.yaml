@@ -11,7 +11,7 @@ categories:
   - name: "GLIM"
     items:
       - name: "bag record (timestamped)"
-        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record -s mcap --all -o "$OUTPUT_DIR"'
+        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record --all -o "$OUTPUT_DIR"'
       - name: "rqt_bag"
         command: "rqt_bag"
       - name: "run glim"
