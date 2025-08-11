@@ -8,6 +8,19 @@ categories:
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
 
+  - name: "GLIM"
+    items:
+      - name: "bag record (timestamped)"
+        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record -s mcap --all -o "$OUTPUT_DIR"'
+      - name: "rqt_bag"
+        command: "rqt_bag"
+      - name: "run glim"
+        command: "ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
+      - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
+        command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
+      - name: "run offline_viewer"
+        command: "ros2 run glim_ros offline_viewer"
+
 #  - name: "Navigation2"
 #    items:
 #      - name: "turtlebot3_gazebo turtlebot3_world.launch.py"
