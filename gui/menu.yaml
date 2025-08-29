@@ -8,6 +8,19 @@ categories:
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
 
+  - name: "AutoWare"
+    items:
+      - name: "nvtop"
+        command: "gnome-terminal -- nvtop"
+      - name: "system monitor"
+        command: "gnome-system-monitor"
+      - name: "run rviz"
+#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
+        command: "cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
+      - name: "run AWSIM Demo"
+#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
+        command: "cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
+
   - name: "GLIM"
     items:
       - name: "bag record (timestamped)"
