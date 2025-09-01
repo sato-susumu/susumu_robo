@@ -2,7 +2,7 @@ categories:
   - name: "Development"
     items:
       - name: "colcon build"
-        command: "cd ~/ros2_ws && colcon build && source install/setup.bash"
+        command: "cd ~/ros2_ws && colcon build --symlink-install --continue-on-error && source install/setup.bash"
       - name: "pycharm"
         command: "pycharm"
       - name: "foxglove-studio (local)"
@@ -23,16 +23,18 @@ categories:
 
   - name: "GLIM"
     items:
+      - name: "launch mid-360"
+        command: 'ros2 launch susumu_robo mid360.launch.py'
       - name: "bag record (timestamped)"
-        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record --all -o "$OUTPUT_DIR"'
+        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record --all -s mcap -o "$OUTPUT_DIR"'
       - name: "rqt_bag"
-        command: "rqt_bag"
+        command: "cd ~/ros2_bags && rqt_bag"
       - name: "run glim"
-        command: "ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
+        command: "cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
       - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
         command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
       - name: "run offline_viewer"
-        command: "ros2 run glim_ros offline_viewer"
+        command: "cd ~/glim && ros2 run glim_ros offline_viewer"
 
 #  - name: "Navigation2"
 #    items:
