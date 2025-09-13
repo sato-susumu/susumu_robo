@@ -211,3 +211,6 @@ models/
 
 # Claude Code knowledge management files
 .claude/
+
+# Dear ImGui configuration files
+imgui.ini
