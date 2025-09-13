@@ -23,7 +23,7 @@ setup(
         (os.path.join('share', package_name, 'mapping/config/livox'), glob(os.path.join('mapping', 'config', 'livox', '*'))),
         (os.path.join('share', package_name, 'mapping/config/os0'), glob(os.path.join('mapping', 'config', 'os0', '*'))),
         (os.path.join('share', package_name, 'mapping/config/zed2i'), glob(os.path.join('mapping', 'config', 'zed2i', '*'))),
-        (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz'))),
+        (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz')) + glob(os.path.join('config', '*.yaml'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
