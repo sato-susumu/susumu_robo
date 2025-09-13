@@ -270,14 +270,7 @@ class DashboardWindow(QMainWindow):
 
     def _load_services(self) -> None:
         service_names = [
-            'ros2_bringup', 'ros2_mid360', 'ros2_ddsm115',
-            'ros2_realsense', 'ros2_led', 'ros2_nav2',
-            'ros2_audio',
-            'ros2_asr_with_vad',
-            'ros2_asr_with_wake_word',
-            'ros2_rai_whoami',
-            'ros2_rai_voice_hmi',
-            # ... more services ...
+            'ptpd',
         ]
         self.services: List[ServiceItem] = []
         for name in service_names:
