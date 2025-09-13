@@ -35,7 +35,7 @@ categories:
       - name: "collision_monitor (Safety)"
         command: "ros2 launch susumu_robo collision_monitor.launch.py"
       - name: "gnss (GPS/GNSS)"
-        command: "ros2 launch susumu_robo gnss.launch.py"
+        command: "/home/taro/ros2_ws/src/susumu_robo/gui/start_gnss.sh"
       - name: "imu_wt901 (IMU)"
         command: "ros2 launch susumu_robo imu_wt901.launch.py"
       - name: "tenkey_controller (10-key)"
