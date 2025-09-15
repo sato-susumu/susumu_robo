@@ -7,8 +7,8 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     config = os.path.join(
-        get_package_share_directory('witmotion_ros'),
-        'config',
+        get_package_share_directory('susumu_robo'),
+        'launch',
         'wt905.yml'
         )
         
