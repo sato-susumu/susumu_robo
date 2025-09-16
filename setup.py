@@ -30,7 +30,7 @@ setup(
     maintainer='Sato Susumu',
     maintainer_email='75652942+sato-susumu@users.noreply.github.com',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='MIT License',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [

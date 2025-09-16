@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>susumu_rob</description>
   <maintainer email="75652942+sato-susumu@users.noreply.github.com">taro</maintainer>
-  <license>MIT</license>
+  <license>MIT License</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
