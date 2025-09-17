@@ -9,7 +9,7 @@ def generate_launch_description():
     config = os.path.join(
         get_package_share_directory('susumu_robo'),
         'launch',
-        'wt905.yml'
+        'imu_wt901.yml'
         )
         
     node = Node(
