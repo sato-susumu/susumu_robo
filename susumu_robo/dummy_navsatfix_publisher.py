@@ -22,7 +22,7 @@ class DummyNavSatFixPublisher(Node):
         other_publishers = [pub for pub in publishers if pub.node_name != self.get_name()]
         if other_publishers:
             self.get_logger().info(f'Real GNSS node detected: {other_publishers[0].node_name}. Shutting down dummy publisher.')
-            rclpy.shutdown()
+            raise SystemExit
 
     def publish_navsatfix(self):
         msg = NavSatFix()
@@ -57,7 +57,7 @@ def main(args=None):
 
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         pass
     finally:
         node.destroy_node()
