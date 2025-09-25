@@ -45,8 +45,21 @@ def generate_launch_description():
         ]
     )
 
+    # Include dummy_navsatfix.launch.py (starts after 3 second delay)
+    dummy_navsatfix_launch = TimerAction(
+        period=3.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    os.path.join(package_share_dir, 'launch', 'dummy_navsatfix.launch.py')
+                ])
+            )
+        ]
+    )
+
     return LaunchDescription([
         mid360_launch,
         gnss_launch,
         imu_launch,
+        dummy_navsatfix_launch,
     ])
