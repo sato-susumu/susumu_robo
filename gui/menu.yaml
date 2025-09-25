@@ -20,6 +20,8 @@ categories:
         command: "ros2 launch susumu_robo bringup.launch.py"
       - name: "mid360 (LiDAR)"
         command: "ros2 launch susumu_robo mid360.launch.py"
+      - name: "foxglove_bridge"
+        command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
       - name: "ddsm115 (Motors)"
         command: "ros2 launch susumu_robo ddsm115.launch.py"
       - name: "realsense (Camera)"
@@ -66,8 +68,6 @@ categories:
 
   - name: "GLIM"
     items:
-      - name: "launch mid-360"
-        command: 'ros2 launch susumu_robo mid360.launch.py'
       - name: "bag record (timestamped)"
         command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record --all -s mcap -o "$OUTPUT_DIR"'
       - name: "rqt_bag"
