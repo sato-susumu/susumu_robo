@@ -36,9 +36,10 @@ setup(
         'console_scripts': [
             "laserscan_filter_node = susumu_robo.laserscan_filter_node:main",
             "twist_filter_node = susumu_robo.twist_filter_node:main",
-            "tenkey_controller = susumu_tenkey_controller.tenkey_controller:main",
+            "tenkey_publisher = susumu_robo.tenkey_publisher:main",
             "led_controller_node = susumu_robo.led_controller_node:main",
             "dummy_navsatfix_publisher = susumu_robo.dummy_navsatfix_publisher:main",
+            "number_key_publisher = susumu_robo.number_key_publisher:main",
         ],
     },
 )
