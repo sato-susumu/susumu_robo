@@ -40,6 +40,7 @@ setup(
             "led_controller_node = susumu_robo.led_controller_node:main",
             "dummy_navsatfix_publisher = susumu_robo.dummy_navsatfix_publisher:main",
             "number_key_publisher = susumu_robo.number_key_publisher:main",
+            "key_event_handler = susumu_robo.key_event_handler:main",
         ],
     },
 )

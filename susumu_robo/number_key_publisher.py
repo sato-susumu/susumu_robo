@@ -18,10 +18,10 @@ class NumberKeyPublisherNode(Node):
 
         # 通常の数字キー（テンキーではない）のマッピング
         self.key_map: Dict[str, str] = {
-            'KEY_1': '1',
-            'KEY_2': '2',
-            'KEY_3': '3',
-            'KEY_4': '4'
+            'KEY_KP1': '1',
+            'KEY_KP2': '2',
+            'KEY_KP3': '3',
+            'KEY_KP4': '4'
         }
 
         self.keyboard_device_path: str = self.get_parameter('keyboard_device_path').get_parameter_value().string_value
