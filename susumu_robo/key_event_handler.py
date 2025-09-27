@@ -9,6 +9,7 @@ from datetime import datetime
 import rclpy
 from rclpy.node import Node
 from rclpy.subscription import Subscription
+from rclpy.publisher import Publisher
 from std_msgs.msg import String
 
 
@@ -30,6 +31,13 @@ class KeyEventHandlerNode(Node):
         self.rosbag_process: Optional[subprocess.Popen] = None
         self.current_rosbag_dir: Optional[str] = None
 
+        # パブリッシャーの作成（TTS用）
+        self.tts_publisher: Publisher = self.create_publisher(
+            String,
+            'to_human',
+            10
+        )
+
         # サブスクライバーの作成
         self.key_subscriber: Subscription = self.create_subscription(
             String,
@@ -42,6 +50,13 @@ class KeyEventHandlerNode(Node):
         self.get_logger().info(f"Listening on topic: {self.key_event_topic}")
         self.get_logger().info(f"Key 1: Toggle rosbag recording")
         self.get_logger().info(f"Key 2: Run system diagnostics")
+
+    def send_tts_message(self, message: str) -> None:
+        """TTS音声合成用のメッセージを送信"""
+        tts_msg = String()
+        tts_msg.data = message
+        self.tts_publisher.publish(tts_msg)
+        self.get_logger().debug(f"TTS message sent: {message}")
 
     def key_event_callback(self, msg: String) -> None:
         """キーイベントの処理"""
@@ -96,6 +111,7 @@ class KeyEventHandlerNode(Node):
             )
 
             self.get_logger().info(f"Started rosbag recording to: {self.current_rosbag_dir}")
+            self.send_tts_message("ロスバッグの録画を開始しました")
 
         except Exception as e:
             self.get_logger().error(f"Failed to start rosbag recording: {e}")
@@ -118,6 +134,7 @@ class KeyEventHandlerNode(Node):
                     self.rosbag_process.wait(timeout=2.0)
 
                 self.get_logger().info(f"Stopped rosbag recording. Data saved to: {self.current_rosbag_dir}")
+                self.send_tts_message("ロスバッグの録画を終了しました")
 
             except Exception as e:
                 self.get_logger().error(f"Error stopping rosbag recording: {e}")
@@ -135,6 +152,7 @@ class KeyEventHandlerNode(Node):
         """システム診断を実行"""
         try:
             self.get_logger().info("Running system diagnostics...")
+            self.send_tts_message("システム診断を開始します")
 
             # robo_doctor.pyを実行
             result = subprocess.run(
@@ -144,13 +162,16 @@ class KeyEventHandlerNode(Node):
                 timeout=30
             )
 
-            # 結果を判定
+            # 結果を判定してTTS通知
             if result.returncode == 0:
                 self.get_logger().info("System diagnostics: OK - All systems operational")
+                self.send_tts_message("診断結果、すべてのシステムは正常です")
             elif result.returncode == 1:
                 self.get_logger().warn("System diagnostics: WARNING - Partial operation")
+                self.send_tts_message("診断結果、一部のシステムに警告があります")
             else:
                 self.get_logger().error("System diagnostics: NG - System issues detected")
+                self.send_tts_message("診断結果、システムに問題が検出されました")
 
             # 詳細ログを出力（デバッグ用）
             if result.stdout:
@@ -159,10 +180,13 @@ class KeyEventHandlerNode(Node):
 
         except subprocess.TimeoutExpired:
             self.get_logger().error("System diagnostics timeout")
+            self.send_tts_message("診断がタイムアウトしました")
         except FileNotFoundError:
             self.get_logger().error(f"robo_doctor.py not found at: {self.robo_doctor_path}")
+            self.send_tts_message("診断スクリプトが見つかりません")
         except Exception as e:
             self.get_logger().error(f"Failed to run diagnostics: {e}")
+            self.send_tts_message("診断の実行に失敗しました")
 
     def destroy_node(self) -> None:
         """ノード終了時のクリーンアップ"""
