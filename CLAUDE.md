@@ -82,7 +82,7 @@ The system uses a layered launch file structure:
 - **Motors**: DDSM115 direct drive servos via RS485 (`ros2_ddsm115.launch.py`)
 - **LiDAR**: Livox Mid-360 for 3D mapping (`ros2_mid360.launch.py`)
 - **Camera**: RealSense D435i depth camera (`ros2_realsense.launch.py`)
-- **Audio**: Anker PowerConf S3 for speech I/O (`ros2_audio.launch.py`)
+- **Audio**: Anker PowerConf S3 for speech I/O (TTS via `tts_voicevox.launch.py`)
 - **LEDs**: BlinkStick Strip via USB (`ros2_led.launch.py`)
 - **Navigation**: SLAM and Nav2 integration (`ros2_nav2.launch.py`)
 
@@ -176,8 +176,8 @@ ros2 launch susumu_robo ros2_bringup.launch.py
 # Launch navigation
 ros2 launch susumu_robo ros2_nav2.launch.py
 
-# Launch audio processing
-ros2 launch susumu_robo ros2_audio.launch.py
+# Launch TTS VoiceVox
+ros2 launch susumu_robo tts_voicevox.launch.py
 
 # Monitor topics
 ros2 topic list

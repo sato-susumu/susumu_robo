@@ -26,8 +26,8 @@ categories:
         command: "ros2 launch susumu_robo ddsm115.launch.py"
       - name: "realsense (Camera)"
         command: "ros2 launch susumu_robo realsense.launch.py"
-      - name: "audio (Audio System)"
-        command: "ros2 launch susumu_robo audio.launch.py"
+      - name: "tts_voicevox (TTS VoiceVox)"
+        command: "ros2 launch susumu_robo tts_voicevox.launch.py"
       - name: "led (LED Control)"
         command: "ros2 launch susumu_robo led.launch.py"
       - name: "nav2 (Navigation)"
@@ -107,8 +107,6 @@ categories:
         command: "ros2 launch fast_lio mapping.launch.py"
       - name: "avatar_ros"
         command: "ros2 run avatar_ros avatar_node"
-      - name: "susumu_robo audio"
-        command: "ros2 launch susumu_robo audio.launch.py"
 
   - name: "OS"
     subcategories:
@@ -180,7 +178,7 @@ categories:
           - name: "aplay test"
             command: "aplay /usr/share/sounds/alsa/Front_Left.wav"
           - name: "TTS テスト1"
-            command: "ros2 topic pub -1 /tts std_msgs/String 'data: テスト1'"
+            command: "ros2 topic pub -1 /to_human std_msgs/String 'data: テスト1'"
 
   - name: "ROS2"
     subcategories:
