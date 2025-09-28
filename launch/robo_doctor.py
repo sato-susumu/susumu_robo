@@ -7,30 +7,66 @@ Checks if all required nodes and topics are running properly
 
 import subprocess
 import sys
-import os
 import socket
-import time
 from typing import List, Tuple
 
 
 class RoboDoctor:
     def __init__(self):
         self.expected_nodes = [
+            # Mid-360 LiDAR nodes
             'livox_lidar_publisher',
             'livox_to_pointcloud2_node',
             'pointcloud_to_laserscan',
+            'livox_imu_converter',
+
+            # GNSS node
             'septentrio_gnss_driver_container',
-            'witmotion'
+
+            # IMU node
+            'witmotion',
+
+            # # Dummy NavSatFix node
+            # 'dummy_navsatfix_publisher',
+
+            # Static transform nodes
+            'ecef_to_enu_transform',
+            'static_transform_publisher',
+
+            # Key event system nodes
+            'key_event_handler',
+            'number_key_publisher',
+
+            # TTS/VoiceVox nodes
+            'voicevox_ros2',
+            'to_human_2_voicevox'
         ]
 
         self.expected_topics = [
+            # LiDAR topics
             '/livox/lidar',
+            '/livox/imu',
             '/livox/imu_ms2',
-            '/scan',
-            '/imu',
-            '/navsatfix',
             '/converted_pointcloud2',
-            '/tf_static'
+            '/scan',
+
+            # IMU topics
+            '/imu',
+
+            # GNSS topics
+            '/navsatfix',
+            # '/dummy/navsatfix',
+
+            # # TF topics
+            # '/tf',
+            # '/tf_static',
+
+            # Key event topics
+            '/key_event',
+
+            # VoiceVox topics
+            '/voicevox/talk',
+            '/to_human'
         ]
 
         self.network_checks = [
