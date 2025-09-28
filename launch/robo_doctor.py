@@ -65,7 +65,7 @@ class RoboDoctor:
             '/key_event',
 
             # VoiceVox topics
-            '/voicevox/talk',
+            '/voicevox_ros2/speaker',
             '/to_human'
         ]
 
