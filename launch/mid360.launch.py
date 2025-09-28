@@ -50,9 +50,18 @@ def generate_launch_description():
         arguments=["0", "0", "0", "0", "0", "0", "laser_frame", "livox_frame"]
     )
 
+    # Livox IMU Converter Node (G to m/s²)
+    livox_imu_converter_node = Node(
+        package='susumu_robo',
+        executable='livox_imu_converter',
+        name='livox_imu_converter',
+        output='screen'
+    )
+
     return LaunchDescription([
         msg_mid360_action,
         livox_to_pointcloud2_node,
         pointcloud_to_laserscan_node,
-        tf_livox_frame_node
+        tf_livox_frame_node,
+        livox_imu_converter_node
     ])

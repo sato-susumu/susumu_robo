@@ -223,7 +223,7 @@ def main(args=None):
     import argparse
     parser = argparse.ArgumentParser(description='IMU Visualizer - Display 1 or 2 IMU topics')
     parser.add_argument('topic1', nargs='?', default='/imu', help='First IMU topic (default: /imu)')
-    parser.add_argument('topic2', nargs='?', default='/livox/imu', help='Second IMU topic (default: /livox/imu)')
+    parser.add_argument('topic2', nargs='?', default='/livox/imu_ms2', help='Second IMU topic (default: /livox/imu_ms2)')
 
     # ROS2の引数を除外
     argv = [arg for arg in sys.argv if not arg.startswith('__')]
