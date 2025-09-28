@@ -57,7 +57,15 @@ def generate_launch_description():
         ]
     )
 
+    # Include ecef_to_enu.launch.py (starts immediately for static transform)
+    ecef_to_enu_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            os.path.join(package_share_dir, 'launch', 'ecef_to_enu.launch.py')
+        ])
+    )
+
     return LaunchDescription([
+        ecef_to_enu_launch,  # Start immediately as it's a static transform
         mid360_launch,
         gnss_launch,
         imu_launch,
