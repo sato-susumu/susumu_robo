@@ -64,10 +64,23 @@ def generate_launch_description():
         ])
     )
 
+    # Include key_event_system.launch.py (starts after 5 second delay)
+    key_event_system_launch = TimerAction(
+        period=5.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    os.path.join(package_share_dir, 'launch', 'key_event_system.launch.py')
+                ])
+            )
+        ]
+    )
+
     return LaunchDescription([
         ecef_to_enu_launch,  # Start immediately as it's a static transform
         mid360_launch,
         gnss_launch,
         imu_launch,
         dummy_navsatfix_launch,
+        key_event_system_launch,
     ])
