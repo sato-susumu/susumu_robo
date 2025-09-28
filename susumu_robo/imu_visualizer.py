@@ -3,47 +3,52 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.lines import Line2D
 from collections import deque
 import time
 import math
 import sys
+import click
+from typing import Optional, Deque, List, Tuple
 
 class IMUVisualizer(Node):
-    def __init__(self, topic1='/imu', topic2=None):
+    def __init__(self, topic1: str = '/imu', topic2: Optional[str] = None) -> None:
         super().__init__('imu_visualizer')
 
         # トピック名設定
-        self.topic1 = topic1
-        self.topic2 = topic2
-        self.dual_mode = topic2 is not None
+        self.topic1: str = topic1
+        self.topic2: Optional[str] = topic2
+        self.dual_mode: bool = topic2 is not None
 
         # データ保存用（トピック1）
-        self.max_samples = 50
-        self.timestamps1 = deque(maxlen=self.max_samples)
-        self.accel_x1 = deque(maxlen=self.max_samples)
-        self.accel_y1 = deque(maxlen=self.max_samples)
-        self.accel_z1 = deque(maxlen=self.max_samples)
-        self.gyro_x1 = deque(maxlen=self.max_samples)
-        self.gyro_y1 = deque(maxlen=self.max_samples)
-        self.gyro_z1 = deque(maxlen=self.max_samples)
-        self.roll1 = deque(maxlen=self.max_samples)
-        self.pitch1 = deque(maxlen=self.max_samples)
-        self.yaw1 = deque(maxlen=self.max_samples)
+        self.max_samples: int = 50
+        self.timestamps1: Deque[float] = deque(maxlen=self.max_samples)
+        self.accel_x1: Deque[float] = deque(maxlen=self.max_samples)
+        self.accel_y1: Deque[float] = deque(maxlen=self.max_samples)
+        self.accel_z1: Deque[float] = deque(maxlen=self.max_samples)
+        self.gyro_x1: Deque[float] = deque(maxlen=self.max_samples)
+        self.gyro_y1: Deque[float] = deque(maxlen=self.max_samples)
+        self.gyro_z1: Deque[float] = deque(maxlen=self.max_samples)
+        self.roll1: Deque[float] = deque(maxlen=self.max_samples)
+        self.pitch1: Deque[float] = deque(maxlen=self.max_samples)
+        self.yaw1: Deque[float] = deque(maxlen=self.max_samples)
 
         # データ保存用（トピック2）
         if self.dual_mode:
-            self.timestamps2 = deque(maxlen=self.max_samples)
-            self.accel_x2 = deque(maxlen=self.max_samples)
-            self.accel_y2 = deque(maxlen=self.max_samples)
-            self.accel_z2 = deque(maxlen=self.max_samples)
-            self.gyro_x2 = deque(maxlen=self.max_samples)
-            self.gyro_y2 = deque(maxlen=self.max_samples)
-            self.gyro_z2 = deque(maxlen=self.max_samples)
-            self.roll2 = deque(maxlen=self.max_samples)
-            self.pitch2 = deque(maxlen=self.max_samples)
-            self.yaw2 = deque(maxlen=self.max_samples)
+            self.timestamps2: Deque[float] = deque(maxlen=self.max_samples)
+            self.accel_x2: Deque[float] = deque(maxlen=self.max_samples)
+            self.accel_y2: Deque[float] = deque(maxlen=self.max_samples)
+            self.accel_z2: Deque[float] = deque(maxlen=self.max_samples)
+            self.gyro_x2: Deque[float] = deque(maxlen=self.max_samples)
+            self.gyro_y2: Deque[float] = deque(maxlen=self.max_samples)
+            self.gyro_z2: Deque[float] = deque(maxlen=self.max_samples)
+            self.roll2: Deque[float] = deque(maxlen=self.max_samples)
+            self.pitch2: Deque[float] = deque(maxlen=self.max_samples)
+            self.yaw2: Deque[float] = deque(maxlen=self.max_samples)
 
-        self.start_time = time.time()
+        self.start_time: float = time.time()
 
         # IMUトピックの購読
         self.subscription1 = self.create_subscription(
@@ -55,7 +60,10 @@ class IMUVisualizer(Node):
 
         # プロット初期化
         plt.ion()  # インタラクティブモード
-        self.fig, self.axes = plt.subplots(3, 1, figsize=(10, 8))
+        self.fig: Figure
+        self.axes: List[Axes]
+        self.fig, axes = plt.subplots(3, 1, figsize=(10, 8))
+        self.axes = list(axes)
 
         if self.dual_mode:
             self.fig.suptitle(f'IMU Dual Visualization: {self.topic1} vs {self.topic2}')
@@ -105,7 +113,7 @@ class IMUVisualizer(Node):
         self.get_logger().info(f'IMU Visualizer started - Mode: {"Dual" if self.dual_mode else "Single"}')
         self.get_logger().info(f'Subscribing to: {self.topic1}' + (f' and {self.topic2}' if self.dual_mode else ''))
 
-    def quaternion_to_euler(self, x, y, z, w):
+    def quaternion_to_euler(self, x: float, y: float, z: float, w: float) -> Tuple[float, float, float]:
         """クォータニオンをオイラー角に変換"""
         # Roll (x軸周り)
         sinr_cosp = 2 * (w * x + y * z)
@@ -127,8 +135,8 @@ class IMUVisualizer(Node):
         # ラジアンから度に変換
         return math.degrees(roll), math.degrees(pitch), math.degrees(yaw)
 
-    def imu_callback(self, msg, source):
-        current_time = time.time() - self.start_time
+    def imu_callback(self, msg: Imu, source: int) -> None:
+        current_time: float = time.time() - self.start_time
 
         if source == 1:
             self.timestamps1.append(current_time)
@@ -174,10 +182,10 @@ class IMUVisualizer(Node):
         # グラフ更新
         self.update_plot()
 
-    def update_plot(self):
+    def update_plot(self) -> None:
         # トピック1の更新
         if len(self.timestamps1) >= 2:
-            t1 = list(self.timestamps1)
+            t1: List[float] = list(self.timestamps1)
 
             self.line_acc_x1.set_data(t1, list(self.accel_x1))
             self.line_acc_y1.set_data(t1, list(self.accel_y1))
@@ -193,7 +201,7 @@ class IMUVisualizer(Node):
 
         # トピック2の更新（デュアルモードの場合）
         if self.dual_mode and len(self.timestamps2) >= 2:
-            t2 = list(self.timestamps2)
+            t2: List[float] = list(self.timestamps2)
 
             self.line_acc_x2.set_data(t2, list(self.accel_x2))
             self.line_acc_y2.set_data(t2, list(self.accel_y2))
@@ -216,20 +224,31 @@ class IMUVisualizer(Node):
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
-def main(args=None):
-    rclpy.init(args=args)
+@click.command()
+@click.argument('topic1', default='/imu')
+@click.argument('topic2', default='/livox/imu_ms2', required=False)
+def main(topic1: str, topic2: Optional[str]) -> None:
+    """
+    IMU Visualizer - Display 1 or 2 IMU topics in real-time graphs.
 
-    # コマンドライン引数からトピック名を取得
-    import argparse
-    parser = argparse.ArgumentParser(description='IMU Visualizer - Display 1 or 2 IMU topics')
-    parser.add_argument('topic1', nargs='?', default='/imu', help='First IMU topic (default: /imu)')
-    parser.add_argument('topic2', nargs='?', default='/livox/imu_ms2', help='Second IMU topic (default: /livox/imu_ms2)')
+    TOPIC1: First IMU topic (default: /imu)
 
+    TOPIC2: Second IMU topic (default: /livox/imu_ms2, optional)
+
+    Examples:
+
+        python3 imu_visualizer.py                       # Display /imu and /livox/imu_ms2
+
+        python3 imu_visualizer.py /my_imu               # Display /my_imu and /livox/imu_ms2
+
+        python3 imu_visualizer.py /imu1 /imu2           # Display /imu1 and /imu2
+    """
     # ROS2の引数を除外
-    argv = [arg for arg in sys.argv if not arg.startswith('__')]
-    parsed_args = parser.parse_args(argv[1:])
+    sys.argv = [arg for arg in sys.argv if not arg.startswith('__')]
 
-    node = IMUVisualizer(parsed_args.topic1, parsed_args.topic2)
+    rclpy.init()
+
+    node = IMUVisualizer(topic1, topic2)
 
     try:
         rclpy.spin(node)
