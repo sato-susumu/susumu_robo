@@ -25,7 +25,7 @@ class RoboDoctor:
 
         self.expected_topics = [
             '/livox/lidar',
-            '/livox/imu',
+            '/livox/imu_ms2',
             '/scan',
             '/imu',
             '/navsatfix',
