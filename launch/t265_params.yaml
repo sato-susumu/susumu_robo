@@ -1,0 +1,16 @@
+/t265/camera:
+  ros__parameters:
+    # Device configuration
+    device_type: 't265'
+
+    # Enable only pose (odom) output
+    enable_pose: true
+    enable_fisheye1: false
+    enable_fisheye2: false
+    enable_gyro: false
+    enable_accel: false
+
+    tf_publish_rate: 50.0
+    pose_fps: 200
+
+    publish_odom_tf: true

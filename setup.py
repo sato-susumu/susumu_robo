@@ -12,7 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')) + glob(os.path.join('launch', '*.sh')) + glob(os.path.join('launch', '*.yml'))),
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')) + glob(os.path.join('launch', '*.sh')) + glob(os.path.join('launch', '*.yml')) + glob(os.path.join('launch', '*.yaml'))),
         (os.path.join('share', package_name, 'param'), glob(os.path.join('param', '*.yaml'))),
         (os.path.join('share', package_name, 'mapping'), glob(os.path.join('mapping', '*.md')) + glob(os.path.join('mapping', '*.ini'))),
         (os.path.join('share', package_name, 'mapping/config'), glob(os.path.join('mapping', 'config', '*.json'))),
