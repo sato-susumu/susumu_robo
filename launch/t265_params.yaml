@@ -15,3 +15,5 @@
     pose_fps: 200
 
     publish_odom_tf: true
+    enable_relocalization: false
+    enable_pose_jumping: false
