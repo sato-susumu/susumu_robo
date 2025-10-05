@@ -28,6 +28,8 @@ categories:
         command: "ros2 launch susumu_robo d435i.launch.py"
       - name: "t265 (Tracking Camera)"
         command: "ros2 launch susumu_robo t265.launch.py"
+      - name: "t265 RViz (Tracking Visualization)"
+        command: "ros2 launch susumu_robo t265_rviz.launch.py"
       - name: "tts_voicevox (TTS VoiceVox)"
         command: "ros2 launch susumu_robo tts_voicevox.launch.py"
       - name: "led (LED Control)"
