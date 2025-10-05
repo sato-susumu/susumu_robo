@@ -2,6 +2,7 @@
   ros__parameters:
     # Device configuration
     device_type: 't265'
+    camera_name: 't265'
 
     # Enable only pose (odom) output
     enable_pose: true
