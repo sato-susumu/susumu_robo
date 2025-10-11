@@ -8,7 +8,7 @@ witmotion:
     imu_publisher:
       topic_name: /imu
       frame_id: imu_link
-      use_native_orientation: false
+      use_native_orientation: true
       measurements:
         acceleration:
           enabled: true
@@ -28,7 +28,7 @@ witmotion:
       coefficient: 1.0 # Linear calibration parameters: coefficient
       addition: 0.0 # and addendum
     magnetometer_publisher:
-      enabled: false
+      enabled: true
       topic_name: /magnetometer
       frame_id: compass
       coefficient: 0.00000001 # Linear calibration parameters: coefficient
