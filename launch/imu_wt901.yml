@@ -28,7 +28,7 @@ witmotion:
       coefficient: 1.0 # Linear calibration parameters: coefficient
       addition: 0.0 # and addendum
     magnetometer_publisher:
-      enabled: true
+      enabled: false
       topic_name: /magnetometer
       frame_id: compass
       coefficient: 0.00000001 # Linear calibration parameters: coefficient
