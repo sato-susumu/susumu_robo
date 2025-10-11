@@ -1,5 +1,4 @@
 import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription, LaunchService
 from launch_ros.actions import Node
 
@@ -7,17 +6,24 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     config = os.path.join(
-        get_package_share_directory('susumu_robo'),
-        'launch',
+        os.path.dirname(__file__),
         'imu_wt901.yml'
         )
-        
+
+    tf_imu_link = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_camera_tf_publisher',
+        arguments=["0", "0", "0", "0", "0", "0", "base_link", "imu_link"]
+    )
+
     node = Node(
         package='witmotion_ros',
         executable='witmotion_ros_node',
         parameters=[config]
     )
 
+    ld.add_action(tf_imu_link)
     ld.add_action(node)
     return ld
 
