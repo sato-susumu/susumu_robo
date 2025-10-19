@@ -18,9 +18,12 @@ def generate_launch_description():
 
     composable_node = ComposableNode(
         name='septentrio_gnss_driver',
-        package='septentrio_gnss_driver', 
+        package='septentrio_gnss_driver',
         plugin='rosaic_node::ROSaicNode',
-        parameters=[gnss_params]
+        parameters=[gnss_params],
+        remappings=[
+            ('/navsatfix', '/fix')
+        ]
     )
 
     container = ComposableNodeContainer(
