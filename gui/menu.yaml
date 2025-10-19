@@ -48,6 +48,8 @@ categories:
         command: "ros2 launch susumu_robo collision_monitor.launch.py"
       - name: "gnss (GPS/GNSS)"
         command: "/home/taro/ros2_ws/src/susumu_robo/launch/start_gnss.sh"
+      - name: "ntrip_str2str (NTRIP Correction)"
+        command: "ros2 launch susumu_robo ntrip_str2str.launch.py"
       - name: "dummy_navsatfix (Dummy GNSS)"
         command: "ros2 launch susumu_robo dummy_navsatfix.launch.py"
       - name: "ecef_to_enu (ECEF to ENU Transform)"
