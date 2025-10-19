@@ -8,7 +8,7 @@ from std_msgs.msg import Header
 class DummyNavSatFixPublisher(Node):
     def __init__(self):
         super().__init__('dummy_navsatfix_publisher')
-        self.publisher = self.create_publisher(NavSatFix, '/navsatfix', 10)
+        self.publisher = self.create_publisher(NavSatFix, '/fix', 10)
         self.timer = self.create_timer(5.0, self.publish_navsatfix)  # 1Hz
         self.check_timer = self.create_timer(5.0, self.check_real_gnss)  # 2秒毎にチェック
         self.get_logger().info('Dummy NavSatFix publisher started')
@@ -16,7 +16,7 @@ class DummyNavSatFixPublisher(Node):
     def check_real_gnss(self):
         # 他のNavSatFixパブリッシャーが存在するかチェック
         topic_info = self.get_topic_names_and_types()
-        publishers = self.get_publishers_info_by_topic('/navsatfix')
+        publishers = self.get_publishers_info_by_topic('/fix')
 
         # 自分以外のパブリッシャーが存在する場合は終了
         other_publishers = [pub for pub in publishers if pub.node_name != self.get_name()]

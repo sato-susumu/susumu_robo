@@ -54,8 +54,7 @@ class RoboDoctor:
             '/imu',
 
             # GNSS topics
-            '/navsatfix',
-            # '/dummy/navsatfix',
+            '/fix',
 
             # # TF topics
             # '/tf',
