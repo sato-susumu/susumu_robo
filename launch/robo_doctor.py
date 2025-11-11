@@ -87,6 +87,11 @@ class RoboDoctor:
             ('PTP Master Status (Optional)', '192.168.1.144', None, 'ptp_master'),
         ]
 
+        # Process checks (warnings for missing processes)
+        self.process_checks = [
+            ('str2str NTRIP Process', 'str2str', 'process'),
+        ]
+
     def run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
         """Run a ROS2 command and return success status and output"""
         try:
@@ -187,6 +192,19 @@ class RoboDoctor:
             # Check for ptpd process
             result = subprocess.run(
                 ['pgrep', '-f', 'ptpd'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            return result.returncode == 0 and len(result.stdout.strip()) > 0
+        except Exception:
+            return False
+
+    def check_process_running(self, process_name: str) -> bool:
+        """Check if a process is running by name"""
+        try:
+            result = subprocess.run(
+                ['pgrep', '-f', process_name],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -381,6 +399,17 @@ class RoboDoctor:
                 else:
                     print(f"[WARN] {name}: PTP master at {target} is not reachable (OK for now, required for multi-sensor sync)")
 
+    def check_processes(self) -> None:
+        """Check if important processes are running (warnings only)"""
+        print("\n--- Process Status ---")
+
+        for name, process_name, check_type in self.process_checks:
+            if check_type == 'process':
+                if self.check_process_running(process_name):
+                    print(f"[OK] {name}: Process is running")
+                else:
+                    print(f"[WARN] {name}: Process '{process_name}' is not running (GNSS RTK corrections unavailable)")
+
     def check_nodes(self) -> Tuple[int, int]:
         """Check all expected nodes"""
         print("\n--- Node Status ---")
@@ -423,6 +452,9 @@ class RoboDoctor:
 
         # Check optional PTP features (warnings only)
         self.check_ptp_optional()
+
+        # Check processes (warnings only)
+        self.check_processes()
 
         # Check nodes
         node_ok, node_total = self.check_nodes()
