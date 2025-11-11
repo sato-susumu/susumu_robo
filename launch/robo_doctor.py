@@ -74,12 +74,17 @@ class RoboDoctor:
             ('Host Network (192.168.1.x)', '192.168.1.144', None, 'interface')
         ]
 
+        # Required PTP checks
         self.ptp_checks = [
             ('PTP Service Status', 'ptpd', None, 'service'),
             ('PTP Process Running', 'ptpd', None, 'process'),
             ('PTP Traffic Check', 'any', 319, 'ptp_tshark'),
-            ('PTP Master Status', '192.168.1.144', None, 'ptp_master'),
             ('PTP Slave Status', '192.168.1.145', None, 'ptp_slave')
+        ]
+
+        # Optional PTP checks (warnings only, not critical for operation)
+        self.ptp_optional_checks = [
+            ('PTP Master Status (Optional)', '192.168.1.144', None, 'ptp_master'),
         ]
 
     def run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
@@ -365,6 +370,17 @@ class RoboDoctor:
 
         return ptp_ok, len(self.ptp_checks)
 
+    def check_ptp_optional(self) -> None:
+        """Check optional PTP features (warnings only)"""
+        print("\n--- PTP Optional Features ---")
+
+        for name, target, port_or_service, check_type in self.ptp_optional_checks:
+            if check_type == 'ptp_master':
+                if self.check_ptp_master_status(target):
+                    print(f"[OK] {name}: PTP master at {target} is reachable")
+                else:
+                    print(f"[WARN] {name}: PTP master at {target} is not reachable (OK for now, required for multi-sensor sync)")
+
     def check_nodes(self) -> Tuple[int, int]:
         """Check all expected nodes"""
         print("\n--- Node Status ---")
@@ -404,6 +420,9 @@ class RoboDoctor:
 
         # Check PTP services
         ptp_ok, ptp_total = self.check_ptp_services()
+
+        # Check optional PTP features (warnings only)
+        self.check_ptp_optional()
 
         # Check nodes
         node_ok, node_total = self.check_nodes()
