@@ -22,6 +22,8 @@ categories:
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "foxglove_bridge"
             command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
+          - name: "ntrip_str2str (NTRIP Correction)"
+            command: "ros2 launch susumu_robo ntrip_str2str.launch.py"
       - name: "LiDAR"
         items:
           - name: "mid360 (LiDAR)"
