@@ -92,6 +92,11 @@ class RoboDoctor:
             ('str2str NTRIP Process', 'str2str', 'process'),
         ]
 
+        # Device checks (check if devices are present and sending data)
+        self.device_checks = [
+            ('IMU WT901 Device', '/dev/imu_wt901', 'device_data'),
+        ]
+
     def run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
         """Run a ROS2 command and return success status and output"""
         try:
@@ -210,6 +215,31 @@ class RoboDoctor:
                 timeout=5
             )
             return result.returncode == 0 and len(result.stdout.strip()) > 0
+        except Exception:
+            return False
+
+    def check_device_data(self, device_path: str, timeout: int = 2) -> bool:
+        """Check if device exists and is sending data"""
+        import os
+        import select
+
+        # First check if device exists
+        if not os.path.exists(device_path):
+            return False
+
+        # Try to read data from device
+        try:
+            fd = os.open(device_path, os.O_RDONLY | os.O_NONBLOCK)
+            try:
+                # Use select to wait for data with timeout
+                ready, _, _ = select.select([fd], [], [], timeout)
+                if ready:
+                    # Try to read some data
+                    data = os.read(fd, 100)
+                    return len(data) > 0
+                return False
+            finally:
+                os.close(fd)
         except Exception:
             return False
 
@@ -410,6 +440,25 @@ class RoboDoctor:
                 else:
                     print(f"[WARN] {name}: Process '{process_name}' is not running (GNSS RTK corrections unavailable)")
 
+    def check_devices(self) -> Tuple[int, int]:
+        """Check if devices are present and sending data"""
+        print("\n--- Device Status ---")
+        device_ok = 0
+
+        for name, device_path, check_type in self.device_checks:
+            if check_type == 'device_data':
+                import os
+                if not os.path.exists(device_path):
+                    print(f"[ERROR] {name}: Device {device_path} not found")
+                else:
+                    if self.check_device_data(device_path):
+                        print(f"[OK] {name}: Device {device_path} is present and sending data")
+                        device_ok += 1
+                    else:
+                        print(f"[ERROR] {name}: Device {device_path} exists but not sending data (check power/connection)")
+
+        return device_ok, len(self.device_checks)
+
     def check_nodes(self) -> Tuple[int, int]:
         """Check all expected nodes"""
         print("\n--- Node Status ---")
@@ -456,6 +505,9 @@ class RoboDoctor:
         # Check processes (warnings only)
         self.check_processes()
 
+        # Check devices
+        device_ok, device_total = self.check_devices()
+
         # Check nodes
         node_ok, node_total = self.check_nodes()
 
@@ -466,12 +518,13 @@ class RoboDoctor:
         print(f"\n--- Summary ---")
         print(f"Network: {network_ok}/{network_total} OK")
         print(f"PTP: {ptp_ok}/{ptp_total} OK")
+        print(f"Devices: {device_ok}/{device_total} OK")
         print(f"Nodes: {node_ok}/{node_total} OK")
         print(f"Topics: {topic_ok}/{topic_total} OK")
 
         # Overall status
-        total_checks = network_total + ptp_total + node_total + topic_total
-        total_ok = network_ok + ptp_ok + node_ok + topic_ok
+        total_checks = network_total + ptp_total + device_total + node_total + topic_total
+        total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok
 
         if total_ok == total_checks:
             print("Status: ALL SYSTEMS GO! [SUCCESS]")

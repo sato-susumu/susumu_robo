@@ -1,6 +1,6 @@
 witmotion:
   ros__parameters:
-    port: ttyUSB0
+    port: /dev/imu_wt901
     baud_rate: 115200 # baud
     polling_interval: 5 # ms
     timeout_ms: 150 # ms
