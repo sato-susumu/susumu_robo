@@ -8,6 +8,8 @@ Checks if all required nodes and topics are running properly
 import subprocess
 import sys
 import socket
+import json
+import os
 from typing import List, Tuple
 
 
@@ -71,7 +73,8 @@ class RoboDoctor:
         self.network_checks = [
             ('Livox LiDAR', '192.168.1.145', None, 'ping'),
             ('GNSS Septentrio', '192.168.3.1', 28784, 'tcp'),
-            ('Host Network (192.168.1.x)', '192.168.1.144', None, 'interface')
+            ('Host Network (192.168.1.x)', '192.168.1.5', None, 'interface'),
+            ('Livox Config Validation', None, None, 'livox_config')
         ]
 
         # Required PTP checks
@@ -84,7 +87,7 @@ class RoboDoctor:
 
         # Optional PTP checks (warnings only, not critical for operation)
         self.ptp_optional_checks = [
-            ('PTP Master Status (Optional)', '192.168.1.144', None, 'ptp_master'),
+            ('PTP Master Status (Optional)', '192.168.1.5', None, 'ptp_master'),
         ]
 
         # Process checks (warnings for missing processes)
@@ -176,6 +179,78 @@ class RoboDoctor:
         except Exception:
             return False
 
+    def get_current_host_ip_for_livox(self) -> str:
+        """Get the current host IP in 192.168.1.x subnet"""
+        try:
+            result = subprocess.run(
+                ['ip', 'addr', 'show'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if 'inet ' in line and '192.168.1.' in line:
+                        # Extract IP address
+                        parts = line.strip().split()
+                        for part in parts:
+                            if '192.168.1.' in part and '/' in part:
+                                return part.split('/')[0]
+            return None
+        except Exception:
+            return None
+
+    def validate_livox_config(self) -> Tuple[bool, str]:
+        """Validate Livox MID360 config file matches current network configuration"""
+        try:
+            # Find MID360_config.json in workspace
+            config_paths = [
+                '/home/taro/ros2_ws/src/livox_ros_driver2/config/MID360_config.json',
+                '/home/taro/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/MID360_config.json'
+            ]
+
+            config_path = None
+            for path in config_paths:
+                if os.path.exists(path):
+                    config_path = path
+                    break
+
+            if not config_path:
+                return False, "MID360_config.jsonが見つかりません"
+
+            # Read config file
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+
+            # Get current host IP
+            current_ip = self.get_current_host_ip_for_livox()
+            if not current_ip:
+                return False, "192.168.1.xサブネットのホストIPが見つかりません"
+
+            # Check if config matches current IP
+            host_net_info = config.get('MID360', {}).get('host_net_info', {})
+            config_ips = [
+                host_net_info.get('cmd_data_ip'),
+                host_net_info.get('push_msg_ip'),
+                host_net_info.get('point_data_ip'),
+                host_net_info.get('imu_data_ip')
+            ]
+
+            # All IPs should match current host IP
+            mismatches = []
+            for key, ip in zip(['cmd_data_ip', 'push_msg_ip', 'point_data_ip', 'imu_data_ip'], config_ips):
+                if ip != current_ip:
+                    mismatches.append(f"{key}={ip}")
+
+            if mismatches:
+                return False, f"設定IPが不一致: {', '.join(mismatches)} (正しくは {current_ip})"
+
+            return True, f"設定検証OK: ホストIP {current_ip}"
+
+        except Exception as e:
+            return False, f"検証エラー: {str(e)}"
+
     def check_service_status(self, service_name: str) -> bool:
         """Check if a systemd service is running"""
         try:
@@ -219,9 +294,10 @@ class RoboDoctor:
             return False
 
     def check_device_data(self, device_path: str, timeout: int = 2) -> bool:
-        """Check if device exists and is sending data"""
+        """Check if device exists and is sending data (or busy/in use)"""
         import os
         import select
+        import errno
 
         # First check if device exists
         if not os.path.exists(device_path):
@@ -240,6 +316,12 @@ class RoboDoctor:
                 return False
             finally:
                 os.close(fd)
+        except OSError as e:
+            # If device is busy (EBUSY), it means another program is using it
+            # This is OK - the device exists and is being used
+            if e.errno == errno.EBUSY or e.errno == errno.EAGAIN:
+                return True
+            return False
         except Exception:
             return False
 
@@ -301,7 +383,7 @@ class RoboDoctor:
             output = result.stderr + result.stdout
             has_packets = (result.returncode == 0 and
                           ('PTPv2' in output or
-                           'IP 192.168.1.144' in output or
+                           'IP 192.168.1.5' in output or
                            'captured' in output))
             return has_packets
 
@@ -344,153 +426,162 @@ class RoboDoctor:
 
     def check_network_connectivity(self) -> Tuple[int, int]:
         """Check network connectivity for all required devices"""
-        print("\n--- Network Connectivity ---")
+        print("\n--- ネットワーク接続 ---")
         network_ok = 0
 
         for name, host, port, check_type in self.network_checks:
             if check_type == 'ping':
                 if self.ping_host(host):
-                    print(f"[OK] {name}: {host} (ping successful)")
+                    print(f"[OK] {name}: {host} (ping成功)")
                     network_ok += 1
                 else:
-                    print(f"[ERROR] {name}: {host} (ping failed)")
+                    print(f"[エラー] {name}: {host} (ping失敗)")
 
             elif check_type == 'tcp':
                 if port is not None:
                     if self.check_tcp_connection(host, port):
-                        print(f"[OK] {name}: {host}:{port} (TCP connection successful)")
+                        print(f"[OK] {name}: {host}:{port} (TCP接続成功)")
                         network_ok += 1
                     else:
-                        print(f"[ERROR] {name}: {host}:{port} (TCP connection failed)")
+                        print(f"[エラー] {name}: {host}:{port} (TCP接続失敗)")
                 else:
-                    print(f"[ERROR] {name}: No port specified for TCP check")
+                    print(f"[エラー] {name}: TCPチェックのポートが未指定")
 
             elif check_type == 'interface':
                 if self.check_network_interface(host):
-                    print(f"[OK] {name}: Network interface configured for {host} subnet")
+                    print(f"[OK] {name}: {host}サブネット用のネットワークインターフェース設定済み")
                     network_ok += 1
                 else:
-                    print(f"[ERROR] {name}: No network interface found for {host} subnet")
+                    print(f"[エラー] {name}: {host}サブネット用のネットワークインターフェースが見つかりません")
+
+            elif check_type == 'livox_config':
+                success, message = self.validate_livox_config()
+                if success:
+                    print(f"[OK] {name}: {message}")
+                    network_ok += 1
+                else:
+                    print(f"[エラー] {name}: {message}")
+                    print(f"       対処法: MID360_config.jsonを正しいホストIPで更新してパッケージを再ビルド")
 
         return network_ok, len(self.network_checks)
 
     def check_ptp_services(self) -> Tuple[int, int]:
         """Check PTP server status and packet flow"""
-        print("\n--- PTP Status ---")
+        print("\n--- PTP状態 ---")
         ptp_ok = 0
 
         for name, target, port_or_service, check_type in self.ptp_checks:
             if check_type == 'service':
                 if self.check_service_status(target):
-                    print(f"[OK] {name}: Service is active")
+                    print(f"[OK] {name}: サービス稼働中")
                     ptp_ok += 1
                 else:
-                    print(f"[ERROR] {name}: Service is not running")
+                    print(f"[エラー] {name}: サービスが動作していません")
 
             elif check_type == 'process':
                 if self.check_ptpd_process():
-                    print(f"[OK] {name}: Process is running")
+                    print(f"[OK] {name}: プロセス稼働中")
                     ptp_ok += 1
                 else:
-                    print(f"[ERROR] {name}: Process is not running")
+                    print(f"[エラー] {name}: プロセスが動作していません")
 
             elif check_type == 'ptp_tshark':
-                print(f"[INFO] {name}: Checking for PTP traffic with tshark (this may take a few seconds...)")
+                print(f"[情報] {name}: tsharkでPTPトラフィックを確認中 (数秒かかります...)")
                 if self.check_ptp_tshark(target, port_or_service):
-                    print(f"[OK] {name}: PTP traffic detected")
+                    print(f"[OK] {name}: PTPトラフィック検出")
                     ptp_ok += 1
                 else:
-                    print(f"[ERROR] {name}: No PTP traffic detected")
+                    print(f"[エラー] {name}: PTPトラフィックが検出されません")
 
             elif check_type == 'ptp_master':
                 if self.check_ptp_master_status(target):
-                    print(f"[OK] {name}: PTP master at {target} is reachable")
+                    print(f"[OK] {name}: PTPマスター {target} に到達可能")
                     ptp_ok += 1
                 else:
-                    print(f"[ERROR] {name}: PTP master at {target} is not reachable")
+                    print(f"[エラー] {name}: PTPマスター {target} に到達できません")
 
             elif check_type == 'ptp_slave':
                 if self.check_ptp_slave_status(target):
-                    print(f"[OK] {name}: PTP slave at {target} is reachable")
+                    print(f"[OK] {name}: PTPスレーブ {target} に到達可能")
                     ptp_ok += 1
                 else:
-                    print(f"[ERROR] {name}: PTP slave at {target} is not reachable")
+                    print(f"[エラー] {name}: PTPスレーブ {target} に到達できません")
 
         return ptp_ok, len(self.ptp_checks)
 
     def check_ptp_optional(self) -> None:
         """Check optional PTP features (warnings only)"""
-        print("\n--- PTP Optional Features ---")
+        print("\n--- PTPオプション機能 ---")
 
         for name, target, port_or_service, check_type in self.ptp_optional_checks:
             if check_type == 'ptp_master':
                 if self.check_ptp_master_status(target):
-                    print(f"[OK] {name}: PTP master at {target} is reachable")
+                    print(f"[OK] {name}: PTPマスター {target} に到達可能")
                 else:
-                    print(f"[WARN] {name}: PTP master at {target} is not reachable (OK for now, required for multi-sensor sync)")
+                    print(f"[警告] {name}: PTPマスター {target} に到達不可 (現在はOK、マルチセンサー同期時に必要)")
 
     def check_processes(self) -> None:
         """Check if important processes are running (warnings only)"""
-        print("\n--- Process Status ---")
+        print("\n--- プロセス状態 ---")
 
         for name, process_name, check_type in self.process_checks:
             if check_type == 'process':
                 if self.check_process_running(process_name):
-                    print(f"[OK] {name}: Process is running")
+                    print(f"[OK] {name}: プロセス稼働中")
                 else:
-                    print(f"[WARN] {name}: Process '{process_name}' is not running (GNSS RTK corrections unavailable)")
+                    print(f"[警告] {name}: プロセス '{process_name}' が動作していません (GNSS RTK補正が利用不可)")
 
     def check_devices(self) -> Tuple[int, int]:
         """Check if devices are present and sending data"""
-        print("\n--- Device Status ---")
+        print("\n--- デバイス状態 ---")
         device_ok = 0
 
         for name, device_path, check_type in self.device_checks:
             if check_type == 'device_data':
                 import os
                 if not os.path.exists(device_path):
-                    print(f"[ERROR] {name}: Device {device_path} not found")
+                    print(f"[エラー] {name}: デバイス {device_path} が見つかりません")
                 else:
                     if self.check_device_data(device_path):
-                        print(f"[OK] {name}: Device {device_path} is present and sending data")
+                        print(f"[OK] {name}: デバイス {device_path} 存在、稼働中 (使用中またはデータ送信中)")
                         device_ok += 1
                     else:
-                        print(f"[ERROR] {name}: Device {device_path} exists but not sending data (check power/connection)")
+                        print(f"[エラー] {name}: デバイス {device_path} は存在しますが非稼働 (電源/接続を確認)")
 
         return device_ok, len(self.device_checks)
 
     def check_nodes(self) -> Tuple[int, int]:
         """Check all expected nodes"""
-        print("\n--- Node Status ---")
+        print("\n--- ノード状態 ---")
         node_ok = 0
 
         for node in self.expected_nodes:
             if self.check_node(node):
-                print(f"[OK] Node: {node}")
+                print(f"[OK] ノード: {node}")
                 node_ok += 1
             else:
-                print(f"[MISSING] Node: {node}")
+                print(f"[未検出] ノード: {node}")
 
         return node_ok, len(self.expected_nodes)
 
     def check_topics(self) -> Tuple[int, int]:
         """Check all expected topics"""
-        print("\n--- Topic Status ---")
+        print("\n--- トピック状態 ---")
         topic_ok = 0
 
         for topic_name in self.expected_topics:
             if self.check_topic(topic_name):
-                print(f"[OK] Topic: {topic_name}")
+                print(f"[OK] トピック: {topic_name}")
                 topic_ok += 1
             else:
-                print(f"[MISSING] Topic: {topic_name}")
+                print(f"[未検出] トピック: {topic_name}")
 
         return topic_ok, len(self.expected_topics)
 
     def run_diagnostics(self) -> int:
         """Run full diagnostics and return exit code"""
-        print("=== Susumu Robot Doctor - Diagnostics ===")
-        print("Checking robo.launch.py components...")
+        print("=== すすむロボット診断 (Robo Doctor) ===")
+        print("robo.launch.py コンポーネントをチェック中...")
         print()
 
         # Check network connectivity first
@@ -515,25 +606,25 @@ class RoboDoctor:
         topic_ok, topic_total = self.check_topics()
 
         # Summary
-        print(f"\n--- Summary ---")
-        print(f"Network: {network_ok}/{network_total} OK")
+        print(f"\n--- サマリー ---")
+        print(f"ネットワーク: {network_ok}/{network_total} OK")
         print(f"PTP: {ptp_ok}/{ptp_total} OK")
-        print(f"Devices: {device_ok}/{device_total} OK")
-        print(f"Nodes: {node_ok}/{node_total} OK")
-        print(f"Topics: {topic_ok}/{topic_total} OK")
+        print(f"デバイス: {device_ok}/{device_total} OK")
+        print(f"ノード: {node_ok}/{node_total} OK")
+        print(f"トピック: {topic_ok}/{topic_total} OK")
 
         # Overall status
         total_checks = network_total + ptp_total + device_total + node_total + topic_total
         total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok
 
         if total_ok == total_checks:
-            print("Status: ALL SYSTEMS GO! [SUCCESS]")
+            print("状態: すべて正常! [成功]")
             return 0
         elif total_ok > total_checks * 0.5:  # More than 50% working
-            print("Status: PARTIAL OPERATION [WARNING]")
+            print("状態: 部分的に動作 [警告]")
             return 1
         else:
-            print("Status: SYSTEM DOWN [ERROR]")
+            print("状態: システムダウン [エラー]")
             return 2
 
 
