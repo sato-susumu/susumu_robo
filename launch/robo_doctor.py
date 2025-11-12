@@ -70,6 +70,14 @@ class RoboDoctor:
             '/to_human'
         ]
 
+        # Critical topics that must have data flowing (IMU, GNSS, LiDAR)
+        self.critical_data_topics = [
+            ('/livox/lidar', 'LiDAR データ'),
+            ('/scan', 'LiDAR スキャン'),
+            ('/imu', 'IMU データ'),
+            ('/fix', 'GNSS 位置情報'),
+        ]
+
         self.network_checks = [
             ('Livox LiDAR', '192.168.1.145', None, 'ping'),
             ('GNSS Septentrio', '192.168.3.1', 28784, 'tcp'),
@@ -132,6 +140,56 @@ class RoboDoctor:
         if success:
             return topic_name in output.split('\n')
         return False
+
+    def check_topic_data_flow(self, topic_name: str, timeout: int = 3) -> Tuple[bool, str]:
+        """Check if a topic is publishing data"""
+        try:
+            # First check if topic exists
+            if not self.check_topic(topic_name):
+                return False, "トピックが存在しません"
+
+            # Check publisher count
+            result = subprocess.run(
+                ['ros2', 'topic', 'info', topic_name],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+            if result.returncode != 0:
+                return False, "トピック情報取得失敗"
+
+            # Parse publisher count
+            pub_count = 0
+            for line in result.stdout.split('\n'):
+                if 'Publisher count:' in line:
+                    try:
+                        pub_count = int(line.split(':')[1].strip())
+                    except:
+                        pass
+
+            if pub_count == 0:
+                return False, f"パブリッシャーなし (0個)"
+
+            # Try to receive at least one message
+            result = subprocess.run(
+                ['timeout', str(timeout), 'ros2', 'topic', 'echo', topic_name, '--once'],
+                capture_output=True,
+                text=True,
+                timeout=timeout + 1
+            )
+
+            if result.returncode == 0 and len(result.stdout.strip()) > 0:
+                return True, f"データ受信OK (パブリッシャー: {pub_count}個)"
+            elif result.returncode == 124:  # timeout exit code
+                return False, f"タイムアウト ({timeout}秒、パブリッシャー: {pub_count}個)"
+            else:
+                return False, f"データ受信失敗 (パブリッシャー: {pub_count}個)"
+
+        except subprocess.TimeoutExpired:
+            return False, f"タイムアウト ({timeout}秒)"
+        except Exception as e:
+            return False, f"エラー: {str(e)}"
 
 
     def ping_host(self, host: str, timeout: int = 1) -> bool:
@@ -578,6 +636,27 @@ class RoboDoctor:
 
         return topic_ok, len(self.expected_topics)
 
+    def check_critical_topic_data(self) -> Tuple[int, int]:
+        """Check if critical topics are publishing data"""
+        print("\n--- 重要トピックデータフロー (IMU/GNSS/LiDAR) ---")
+        data_ok = 0
+
+        for topic_name, description in self.critical_data_topics:
+            # Use longer timeout for slower topics (IMU: ~10Hz, GNSS: ~1Hz)
+            if topic_name in ['/imu', '/fix']:
+                timeout = 10  # IMU and GNSS can publish at 1-10Hz
+            else:
+                timeout = 3   # LiDAR is fast
+
+            success, message = self.check_topic_data_flow(topic_name, timeout=timeout)
+            if success:
+                print(f"[OK] {description} ({topic_name}): {message}")
+                data_ok += 1
+            else:
+                print(f"[エラー] {description} ({topic_name}): {message}")
+
+        return data_ok, len(self.critical_data_topics)
+
     def run_diagnostics(self) -> int:
         """Run full diagnostics and return exit code"""
         print("=== すすむロボット診断 (Robo Doctor) ===")
@@ -605,6 +684,9 @@ class RoboDoctor:
         # Check topics
         topic_ok, topic_total = self.check_topics()
 
+        # Check critical topic data flow (NEW)
+        data_ok, data_total = self.check_critical_topic_data()
+
         # Summary
         print(f"\n--- サマリー ---")
         print(f"ネットワーク: {network_ok}/{network_total} OK")
@@ -612,10 +694,11 @@ class RoboDoctor:
         print(f"デバイス: {device_ok}/{device_total} OK")
         print(f"ノード: {node_ok}/{node_total} OK")
         print(f"トピック: {topic_ok}/{topic_total} OK")
+        print(f"データフロー: {data_ok}/{data_total} OK")
 
         # Overall status
-        total_checks = network_total + ptp_total + device_total + node_total + topic_total
-        total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok
+        total_checks = network_total + ptp_total + device_total + node_total + topic_total + data_total
+        total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok + data_ok
 
         if total_ok == total_checks:
             print("状態: すべて正常! [成功]")
