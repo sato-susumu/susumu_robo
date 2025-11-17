@@ -655,6 +655,15 @@ class RoboDoctor:
             else:
                 print(f"[エラー] {description} ({topic_name}): {message}")
 
+                # Special diagnostic message for IMU topic
+                if topic_name == '/imu':
+                    print(f"       【IMU診断】考えられる原因:")
+                    print(f"         1. use_native_orientation=true だがIMUがネイティブクォータニオン出力未対応")
+                    print(f"            → Windowsアプリでセンサーのクォータニオン出力を有効化")
+                    print(f"         2. IMUデバイスが接続されていない (確認: ls -la /dev/imu_wt901)")
+                    print(f"         3. witmotionノードが起動していない (確認: ros2 node list | grep witmotion)")
+                    print(f"         4. シリアル通信の問題 (ボーレート、ポート設定を確認)")
+
         return data_ok, len(self.critical_data_topics)
 
     def run_diagnostics(self) -> int:
