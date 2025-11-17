@@ -295,7 +295,7 @@ categories:
     items:
       - name: "rviz2 (ALL)"
         command: "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/all.rviz"
-      - name: "rviz2 (LiDar)"
+      - name: "rviz2 (LiDAR)"
         command: "ros2 run rviz2 rviz2 -d $(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/lidar_config.rviz"
       - name: "rviz2 (Nav)"
         command: "ros2 launch nav2_bringup rviz_launch.py"
