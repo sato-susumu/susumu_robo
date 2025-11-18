@@ -15,6 +15,9 @@ from typing import List, Tuple
 
 class RoboDoctor:
     def __init__(self):
+        # Auto-flush print wrapper for real-time output
+        self._print = lambda *args, **kwargs: print(*args, **kwargs, flush=True)
+
         self.expected_nodes = [
             # Mid-360 LiDAR nodes
             'livox_lidar_publisher',
@@ -108,7 +111,7 @@ class RoboDoctor:
             ('IMU WT901 Device', '/dev/imu_wt901', 'device_data'),
         ]
 
-    def run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
+    def _run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
         """Run a ROS2 command and return success status and output"""
         try:
             result = subprocess.run(
@@ -123,9 +126,9 @@ class RoboDoctor:
         except Exception as e:
             return False, str(e)
 
-    def check_node(self, node_name: str) -> bool:
+    def _check_node(self, node_name: str) -> bool:
         """Check if a ROS2 node is running"""
-        success, output = self.run_ros2_command(['ros2', 'node', 'list'])
+        success, output = self._run_ros2_command(['ros2', 'node', 'list'])
         if success:
             nodes = [node.strip() for node in output.split('\n') if node.strip()]
             # Check for exact match or as substring (for namespaced nodes)
@@ -134,18 +137,18 @@ class RoboDoctor:
                     return True
         return False
 
-    def check_topic(self, topic_name: str) -> bool:
+    def _check_topic(self, topic_name: str) -> bool:
         """Check if a ROS2 topic exists"""
-        success, output = self.run_ros2_command(['ros2', 'topic', 'list'])
+        success, output = self._run_ros2_command(['ros2', 'topic', 'list'])
         if success:
             return topic_name in output.split('\n')
         return False
 
-    def check_topic_data_flow(self, topic_name: str, timeout: int = 3) -> Tuple[bool, str]:
+    def _check_topic_data_flow(self, topic_name: str, timeout: int = 3) -> Tuple[bool, str]:
         """Check if a topic is publishing data"""
         try:
             # First check if topic exists
-            if not self.check_topic(topic_name):
+            if not self._check_topic(topic_name):
                 return False, "トピックが存在しません"
 
             # Check publisher count
@@ -192,7 +195,7 @@ class RoboDoctor:
             return False, f"エラー: {str(e)}"
 
 
-    def ping_host(self, host: str, timeout: int = 1) -> bool:
+    def _ping_host(self, host: str, timeout: int = 1) -> bool:
         """Ping a host to check network connectivity"""
         try:
             result = subprocess.run(
@@ -205,7 +208,7 @@ class RoboDoctor:
         except (subprocess.TimeoutExpired, Exception):
             return False
 
-    def check_tcp_connection(self, host: str, port: int, timeout: int = 1) -> bool:
+    def _check_tcp_connection(self, host: str, port: int, timeout: int = 1) -> bool:
         """Check if TCP connection to host:port is possible"""
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -216,7 +219,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_network_interface(self, expected_ip: str) -> bool:
+    def _check_network_interface(self, expected_ip: str) -> bool:
         """Check if network interface has the expected IP or is in same subnet"""
         try:
             # Get all network interfaces
@@ -237,7 +240,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def get_current_host_ip_for_livox(self) -> str:
+    def _get_current_host_ip_for_livox(self) -> str:
         """Get the current host IP in 192.168.1.x subnet"""
         try:
             result = subprocess.run(
@@ -259,7 +262,7 @@ class RoboDoctor:
         except Exception:
             return None
 
-    def validate_livox_config(self) -> Tuple[bool, str]:
+    def _validate_livox_config(self) -> Tuple[bool, str]:
         """Validate Livox MID360 config file matches current network configuration"""
         try:
             # Find MID360_config.json in workspace
@@ -282,7 +285,7 @@ class RoboDoctor:
                 config = json.load(f)
 
             # Get current host IP
-            current_ip = self.get_current_host_ip_for_livox()
+            current_ip = self._get_current_host_ip_for_livox()
             if not current_ip:
                 return False, "192.168.1.xサブネットのホストIPが見つかりません"
 
@@ -309,7 +312,7 @@ class RoboDoctor:
         except Exception as e:
             return False, f"検証エラー: {str(e)}"
 
-    def check_service_status(self, service_name: str) -> bool:
+    def _check_service_status(self, service_name: str) -> bool:
         """Check if a systemd service is running"""
         try:
             result = subprocess.run(
@@ -324,7 +327,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_ptpd_process(self) -> bool:
+    def _check_ptpd_process(self) -> bool:
         """Check if ptpd process is actually running (not just service active)"""
         try:
             # Check for ptpd process
@@ -338,7 +341,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_process_running(self, process_name: str) -> bool:
+    def _check_process_running(self, process_name: str) -> bool:
         """Check if a process is running by name"""
         try:
             result = subprocess.run(
@@ -351,7 +354,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_device_data(self, device_path: str, timeout: int = 2) -> bool:
+    def _check_device_data(self, device_path: str, timeout: int = 2) -> bool:
         """Check if device exists and is sending data (or busy/in use)"""
         import os
         import select
@@ -383,7 +386,7 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_ptp_tshark(self, interface: str, port: int, timeout: int = 3) -> bool:
+    def _check_ptp_tshark(self, interface: str, port: int, timeout: int = 3) -> bool:
         """Check if PTP packets are being received using tshark"""
         try:
             # Use specific interface instead of 'any' and check for PTP traffic
@@ -450,24 +453,24 @@ class RoboDoctor:
         except Exception:
             return False
 
-    def check_ptp_master_status(self, master_ip: str) -> bool:
+    def _check_ptp_master_status(self, master_ip: str) -> bool:
         """Check if PTP master is reachable and potentially acting as master"""
         # First check basic connectivity
-        if not self.ping_host(master_ip, timeout=2):
+        if not self._ping_host(master_ip, timeout=2):
             return False
 
         # Check if ptpd process is running (if this is the local master)
-        if master_ip in ['127.0.0.1', 'localhost'] or self.is_local_ip(master_ip):
-            return self.check_service_status('ptpd')
+        if master_ip in ['127.0.0.1', 'localhost'] or self._is_local_ip(master_ip):
+            return self._check_service_status('ptpd')
 
         # For remote masters, ping is sufficient for now
         return True
 
-    def check_ptp_slave_status(self, slave_ip: str) -> bool:
+    def _check_ptp_slave_status(self, slave_ip: str) -> bool:
         """Check if PTP slave is reachable"""
-        return self.ping_host(slave_ip, timeout=2)
+        return self._ping_host(slave_ip, timeout=2)
 
-    def is_local_ip(self, ip: str) -> bool:
+    def _is_local_ip(self, ip: str) -> bool:
         """Check if IP address is local to this machine"""
         try:
             result = subprocess.run(
@@ -484,161 +487,161 @@ class RoboDoctor:
 
     def check_network_connectivity(self) -> Tuple[int, int]:
         """Check network connectivity for all required devices"""
-        print("\n--- ネットワーク接続 ---")
+        self._print("\n--- ネットワーク接続 ---")
         network_ok = 0
 
         for name, host, port, check_type in self.network_checks:
             if check_type == 'ping':
-                if self.ping_host(host):
-                    print(f"[OK] {name}: {host} (ping成功)")
+                if self._ping_host(host):
+                    self._print(f"[OK] {name}: {host} (ping成功)")
                     network_ok += 1
                 else:
-                    print(f"[エラー] {name}: {host} (ping失敗)")
+                    self._print(f"[エラー] {name}: {host} (ping失敗)")
 
             elif check_type == 'tcp':
                 if port is not None:
-                    if self.check_tcp_connection(host, port):
-                        print(f"[OK] {name}: {host}:{port} (TCP接続成功)")
+                    if self._check_tcp_connection(host, port):
+                        self._print(f"[OK] {name}: {host}:{port} (TCP接続成功)")
                         network_ok += 1
                     else:
-                        print(f"[エラー] {name}: {host}:{port} (TCP接続失敗)")
+                        self._print(f"[エラー] {name}: {host}:{port} (TCP接続失敗)")
                 else:
-                    print(f"[エラー] {name}: TCPチェックのポートが未指定")
+                    self._print(f"[エラー] {name}: TCPチェックのポートが未指定")
 
             elif check_type == 'interface':
-                if self.check_network_interface(host):
-                    print(f"[OK] {name}: {host}サブネット用のネットワークインターフェース設定済み")
+                if self._check_network_interface(host):
+                    self._print(f"[OK] {name}: {host}サブネット用のネットワークインターフェース設定済み")
                     network_ok += 1
                 else:
-                    print(f"[エラー] {name}: {host}サブネット用のネットワークインターフェースが見つかりません")
+                    self._print(f"[エラー] {name}: {host}サブネット用のネットワークインターフェースが見つかりません")
 
             elif check_type == 'livox_config':
-                success, message = self.validate_livox_config()
+                success, message = self._validate_livox_config()
                 if success:
-                    print(f"[OK] {name}: {message}")
+                    self._print(f"[OK] {name}: {message}")
                     network_ok += 1
                 else:
-                    print(f"[エラー] {name}: {message}")
-                    print(f"       対処法: MID360_config.jsonを正しいホストIPで更新してパッケージを再ビルド")
+                    self._print(f"[エラー] {name}: {message}")
+                    self._print(f"       対処法: MID360_config.jsonを正しいホストIPで更新してパッケージを再ビルド")
 
         return network_ok, len(self.network_checks)
 
     def check_ptp_services(self) -> Tuple[int, int]:
         """Check PTP server status and packet flow"""
-        print("\n--- PTP状態 ---")
+        self._print("\n--- PTP状態 ---")
         ptp_ok = 0
 
         for name, target, port_or_service, check_type in self.ptp_checks:
             if check_type == 'service':
-                if self.check_service_status(target):
-                    print(f"[OK] {name}: サービス稼働中")
+                if self._check_service_status(target):
+                    self._print(f"[OK] {name}: サービス稼働中")
                     ptp_ok += 1
                 else:
-                    print(f"[エラー] {name}: サービスが動作していません")
+                    self._print(f"[エラー] {name}: サービスが動作していません")
 
             elif check_type == 'process':
-                if self.check_ptpd_process():
-                    print(f"[OK] {name}: プロセス稼働中")
+                if self._check_ptpd_process():
+                    self._print(f"[OK] {name}: プロセス稼働中")
                     ptp_ok += 1
                 else:
-                    print(f"[エラー] {name}: プロセスが動作していません")
+                    self._print(f"[エラー] {name}: プロセスが動作していません")
 
             elif check_type == 'ptp_tshark':
-                print(f"[情報] {name}: tsharkでPTPトラフィックを確認中 (数秒かかります...)")
-                if self.check_ptp_tshark(target, port_or_service):
-                    print(f"[OK] {name}: PTPトラフィック検出")
+                self._print(f"[情報] {name}: tsharkでPTPトラフィックを確認中 (数秒かかります...)")
+                if self._check_ptp_tshark(target, port_or_service):
+                    self._print(f"[OK] {name}: PTPトラフィック検出")
                     ptp_ok += 1
                 else:
-                    print(f"[エラー] {name}: PTPトラフィックが検出されません")
+                    self._print(f"[エラー] {name}: PTPトラフィックが検出されません")
 
             elif check_type == 'ptp_master':
-                if self.check_ptp_master_status(target):
-                    print(f"[OK] {name}: PTPマスター {target} に到達可能")
+                if self._check_ptp_master_status(target):
+                    self._print(f"[OK] {name}: PTPマスター {target} に到達可能")
                     ptp_ok += 1
                 else:
-                    print(f"[エラー] {name}: PTPマスター {target} に到達できません")
+                    self._print(f"[エラー] {name}: PTPマスター {target} に到達できません")
 
             elif check_type == 'ptp_slave':
-                if self.check_ptp_slave_status(target):
-                    print(f"[OK] {name}: PTPスレーブ {target} に到達可能")
+                if self._check_ptp_slave_status(target):
+                    self._print(f"[OK] {name}: PTPスレーブ {target} に到達可能")
                     ptp_ok += 1
                 else:
-                    print(f"[エラー] {name}: PTPスレーブ {target} に到達できません")
+                    self._print(f"[エラー] {name}: PTPスレーブ {target} に到達できません")
 
         return ptp_ok, len(self.ptp_checks)
 
     def check_ptp_optional(self) -> None:
         """Check optional PTP features (warnings only)"""
-        print("\n--- PTPオプション機能 ---")
+        self._print("\n--- PTPオプション機能 ---")
 
         for name, target, port_or_service, check_type in self.ptp_optional_checks:
             if check_type == 'ptp_master':
-                if self.check_ptp_master_status(target):
-                    print(f"[OK] {name}: PTPマスター {target} に到達可能")
+                if self._check_ptp_master_status(target):
+                    self._print(f"[OK] {name}: PTPマスター {target} に到達可能")
                 else:
-                    print(f"[警告] {name}: PTPマスター {target} に到達不可 (現在はOK、マルチセンサー同期時に必要)")
+                    self._print(f"[警告] {name}: PTPマスター {target} に到達不可 (現在はOK、マルチセンサー同期時に必要)")
 
     def check_processes(self) -> None:
         """Check if important processes are running (warnings only)"""
-        print("\n--- プロセス状態 ---")
+        self._print("\n--- プロセス状態 ---")
 
         for name, process_name, check_type in self.process_checks:
             if check_type == 'process':
-                if self.check_process_running(process_name):
-                    print(f"[OK] {name}: プロセス稼働中")
+                if self._check_process_running(process_name):
+                    self._print(f"[OK] {name}: プロセス稼働中")
                 else:
-                    print(f"[警告] {name}: プロセス '{process_name}' が動作していません (GNSS RTK補正が利用不可)")
+                    self._print(f"[警告] {name}: プロセス '{process_name}' が動作していません (GNSS RTK補正が利用不可)")
 
     def check_devices(self) -> Tuple[int, int]:
         """Check if devices are present and sending data"""
-        print("\n--- デバイス状態 ---")
+        self._print("\n--- デバイス状態 ---")
         device_ok = 0
 
         for name, device_path, check_type in self.device_checks:
             if check_type == 'device_data':
                 import os
                 if not os.path.exists(device_path):
-                    print(f"[エラー] {name}: デバイス {device_path} が見つかりません")
+                    self._print(f"[エラー] {name}: デバイス {device_path} が見つかりません")
                 else:
-                    if self.check_device_data(device_path):
-                        print(f"[OK] {name}: デバイス {device_path} 存在、稼働中 (使用中またはデータ送信中)")
+                    if self._check_device_data(device_path):
+                        self._print(f"[OK] {name}: デバイス {device_path} 存在、稼働中 (使用中またはデータ送信中)")
                         device_ok += 1
                     else:
-                        print(f"[エラー] {name}: デバイス {device_path} は存在しますが非稼働 (電源/接続を確認)")
+                        self._print(f"[エラー] {name}: デバイス {device_path} は存在しますが非稼働 (電源/接続を確認)")
 
         return device_ok, len(self.device_checks)
 
     def check_nodes(self) -> Tuple[int, int]:
         """Check all expected nodes"""
-        print("\n--- ノード状態 ---")
+        self._print("\n--- ノード状態 ---")
         node_ok = 0
 
         for node in self.expected_nodes:
-            if self.check_node(node):
-                print(f"[OK] ノード: {node}")
+            if self._check_node(node):
+                self._print(f"[OK] ノード: {node}")
                 node_ok += 1
             else:
-                print(f"[未検出] ノード: {node}")
+                self._print(f"[未検出] ノード: {node}")
 
         return node_ok, len(self.expected_nodes)
 
     def check_topics(self) -> Tuple[int, int]:
         """Check all expected topics"""
-        print("\n--- トピック状態 ---")
+        self._print("\n--- トピック状態 ---")
         topic_ok = 0
 
         for topic_name in self.expected_topics:
-            if self.check_topic(topic_name):
-                print(f"[OK] トピック: {topic_name}")
+            if self._check_topic(topic_name):
+                self._print(f"[OK] トピック: {topic_name}")
                 topic_ok += 1
             else:
-                print(f"[未検出] トピック: {topic_name}")
+                self._print(f"[未検出] トピック: {topic_name}")
 
         return topic_ok, len(self.expected_topics)
 
     def check_critical_topic_data(self) -> Tuple[int, int]:
         """Check if critical topics are publishing data"""
-        print("\n--- 重要トピックデータフロー (IMU/GNSS/LiDAR) ---")
+        self._print("\n--- 重要トピックデータフロー (IMU/GNSS/LiDAR) ---")
         data_ok = 0
 
         for topic_name, description in self.critical_data_topics:
@@ -648,29 +651,29 @@ class RoboDoctor:
             else:
                 timeout = 3   # LiDAR is fast
 
-            success, message = self.check_topic_data_flow(topic_name, timeout=timeout)
+            success, message = self._check_topic_data_flow(topic_name, timeout=timeout)
             if success:
-                print(f"[OK] {description} ({topic_name}): {message}")
+                self._print(f"[OK] {description} ({topic_name}): {message}")
                 data_ok += 1
             else:
-                print(f"[エラー] {description} ({topic_name}): {message}")
+                self._print(f"[エラー] {description} ({topic_name}): {message}")
 
                 # Special diagnostic message for IMU topic
                 if topic_name == '/imu':
-                    print(f"       【IMU診断】考えられる原因:")
-                    print(f"         1. use_native_orientation=true だがIMUがネイティブクォータニオン出力未対応")
-                    print(f"            → Windowsアプリでセンサーのクォータニオン出力を有効化")
-                    print(f"         2. IMUデバイスが接続されていない (確認: ls -la /dev/imu_wt901)")
-                    print(f"         3. witmotionノードが起動していない (確認: ros2 node list | grep witmotion)")
-                    print(f"         4. シリアル通信の問題 (ボーレート、ポート設定を確認)")
+                    self._print(f"       【IMU診断】考えられる原因:")
+                    self._print(f"         1. use_native_orientation=true だがIMUがネイティブクォータニオン出力未対応")
+                    self._print(f"            → Windowsアプリでセンサーのクォータニオン出力を有効化")
+                    self._print(f"         2. IMUデバイスが接続されていない (確認: ls -la /dev/imu_wt901)")
+                    self._print(f"         3. witmotionノードが起動していない (確認: ros2 node list | grep witmotion)")
+                    self._print(f"         4. シリアル通信の問題 (ボーレート、ポート設定を確認)")
 
         return data_ok, len(self.critical_data_topics)
 
     def run_diagnostics(self) -> int:
         """Run full diagnostics and return exit code"""
-        print("=== すすむロボット診断 (Robo Doctor) ===")
-        print("robo.launch.py コンポーネントをチェック中...")
-        print()
+        self._print("=== すすむロボット診断 (Robo Doctor) ===")
+        self._print("robo.launch.py コンポーネントをチェック中...")
+        self._print()
 
         # Check network connectivity first
         network_ok, network_total = self.check_network_connectivity()
@@ -697,26 +700,26 @@ class RoboDoctor:
         data_ok, data_total = self.check_critical_topic_data()
 
         # Summary
-        print(f"\n--- サマリー ---")
-        print(f"ネットワーク: {network_ok}/{network_total} OK")
-        print(f"PTP: {ptp_ok}/{ptp_total} OK")
-        print(f"デバイス: {device_ok}/{device_total} OK")
-        print(f"ノード: {node_ok}/{node_total} OK")
-        print(f"トピック: {topic_ok}/{topic_total} OK")
-        print(f"データフロー: {data_ok}/{data_total} OK")
+        self._print(f"\n--- サマリー ---")
+        self._print(f"ネットワーク: {network_ok}/{network_total} OK")
+        self._print(f"PTP: {ptp_ok}/{ptp_total} OK")
+        self._print(f"デバイス: {device_ok}/{device_total} OK")
+        self._print(f"ノード: {node_ok}/{node_total} OK")
+        self._print(f"トピック: {topic_ok}/{topic_total} OK")
+        self._print(f"データフロー: {data_ok}/{data_total} OK")
 
         # Overall status
         total_checks = network_total + ptp_total + device_total + node_total + topic_total + data_total
         total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok + data_ok
 
         if total_ok == total_checks:
-            print("状態: すべて正常! [成功]")
+            self._print("状態: すべて正常! [成功]")
             return 0
         elif total_ok > total_checks * 0.5:  # More than 50% working
-            print("状態: 部分的に動作 [警告]")
+            self._print("状態: 部分的に動作 [警告]")
             return 1
         else:
-            print("状態: システムダウン [エラー]")
+            self._print("状態: システムダウン [エラー]")
             return 2
 
 
