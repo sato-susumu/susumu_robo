@@ -28,6 +28,9 @@ class RoboDoctor:
             # GNSS node
             'septentrio_gnss_driver_container',
 
+            # NTRIP node
+            'ntrip_str2str_node',
+
             # IMU node
             'witmotion',
 
@@ -84,7 +87,7 @@ class RoboDoctor:
         self.network_checks = [
             ('Livox LiDAR', '192.168.1.145', None, 'ping'),
             ('GNSS Septentrio', '192.168.3.1', 28784, 'tcp'),
-            ('Host Network (192.168.1.x)', '192.168.1.5', None, 'interface'),
+            ('Host Network (192.168.1.x)', '192.168.1.156', None, 'interface'),
             ('Livox Config Validation', None, None, 'livox_config')
         ]
 
@@ -98,12 +101,16 @@ class RoboDoctor:
 
         # Optional PTP checks (warnings only, not critical for operation)
         self.ptp_optional_checks = [
-            ('PTP Master Status (Optional)', '192.168.1.5', None, 'ptp_master'),
+            ('PTP Master Status (Optional)', '192.168.1.156', None, 'ptp_master'),
         ]
 
         # Process checks (warnings for missing processes)
         self.process_checks = [
-            ('str2str NTRIP Process', 'str2str', 'process'),
+        ]
+
+        # NTRIP service checks
+        self.ntrip_checks = [
+            ('NTRIP str2str', '/ntrip_str2str_node/get_status', 'ntrip_service'),
         ]
 
         # Device checks (check if devices are present and sending data)
@@ -391,7 +398,7 @@ class RoboDoctor:
         try:
             # Use specific interface instead of 'any' and check for PTP traffic
             if interface == 'any':
-                interface = 'enx00e04c682856'  # Use the actual PTP interface
+                interface = 'enx00e04c361f41'  # Use the actual PTP interface
 
             # Use tshark with PTP-specific filters for better detection
             cmd = [
@@ -444,7 +451,7 @@ class RoboDoctor:
             output = result.stderr + result.stdout
             has_packets = (result.returncode == 0 and
                           ('PTPv2' in output or
-                           'IP 192.168.1.5' in output or
+                           'IP 192.168.1.156' in output or
                            'captured' in output))
             return has_packets
 
@@ -469,6 +476,56 @@ class RoboDoctor:
     def _check_ptp_slave_status(self, slave_ip: str) -> bool:
         """Check if PTP slave is reachable"""
         return self._ping_host(slave_ip, timeout=2)
+
+    def _check_ntrip_service(self, service_name: str) -> Tuple[bool, str]:
+        """Check NTRIP str2str node status via ROS2 service"""
+        try:
+            # Call the service using ros2 service call
+            result = subprocess.run(
+                ['ros2', 'service', 'call', service_name,
+                 'susumu_ros2_interfaces/srv/NtripStatus'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+
+            if result.returncode != 0:
+                return False, "サービス呼び出し失敗 (ノード未起動の可能性)"
+
+            output = result.stdout
+
+            # Parse the response
+            is_running = 'is_running=True' in output or 'is_running: true' in output
+            is_connected = 'is_connected=True' in output or 'is_connected: true' in output
+
+            # Extract bps and bytes if available
+            import re
+            bps_match = re.search(r'bps=(\d+)', output)
+            bytes_match = re.search(r'total_bytes=(\d+)', output)
+
+            bps = int(bps_match.group(1)) if bps_match else 0
+            total_bytes = int(bytes_match.group(1)) if bytes_match else 0
+
+            if not is_running:
+                return False, "str2strプロセス未起動"
+            elif not is_connected:
+                # Extract state info
+                input_state_match = re.search(r'input_state=(-?\d+)', output)
+                output_state_match = re.search(r'output_state=(-?\d+)', output)
+                input_state = int(input_state_match.group(1)) if input_state_match else -1
+                output_state = int(output_state_match.group(1)) if output_state_match else -1
+
+                state_names = {-1: 'エラー', 0: '閉', 1: '待機', 2: '接続'}
+                in_name = state_names.get(input_state, '不明')
+                out_name = state_names.get(output_state, '不明')
+                return False, f"接続未完了 (入力:{in_name}, 出力:{out_name})"
+            else:
+                return True, f"接続中 ({bps} bps, {total_bytes} bytes)"
+
+        except subprocess.TimeoutExpired:
+            return False, "サービス呼び出しタイムアウト"
+        except Exception as e:
+            return False, f"エラー: {str(e)}"
 
     def _is_local_ip(self, ip: str) -> bool:
         """Check if IP address is local to this machine"""
@@ -583,6 +640,9 @@ class RoboDoctor:
 
     def check_processes(self) -> None:
         """Check if important processes are running (warnings only)"""
+        if not self.process_checks:
+            return
+
         self._print("\n--- プロセス状態 ---")
 
         for name, process_name, check_type in self.process_checks:
@@ -590,7 +650,23 @@ class RoboDoctor:
                 if self._check_process_running(process_name):
                     self._print(f"[OK] {name}: プロセス稼働中")
                 else:
-                    self._print(f"[警告] {name}: プロセス '{process_name}' が動作していません (GNSS RTK補正が利用不可)")
+                    self._print(f"[警告] {name}: プロセス '{process_name}' が動作していません")
+
+    def check_ntrip_services(self) -> Tuple[int, int]:
+        """Check NTRIP str2str node status via ROS2 service"""
+        self._print("\n--- NTRIP状態 ---")
+        ntrip_ok = 0
+
+        for name, service_name, check_type in self.ntrip_checks:
+            if check_type == 'ntrip_service':
+                success, message = self._check_ntrip_service(service_name)
+                if success:
+                    self._print(f"[OK] {name}: {message}")
+                    ntrip_ok += 1
+                else:
+                    self._print(f"[エラー] {name}: {message}")
+
+        return ntrip_ok, len(self.ntrip_checks)
 
     def check_devices(self) -> Tuple[int, int]:
         """Check if devices are present and sending data"""
@@ -687,6 +763,9 @@ class RoboDoctor:
         # Check processes (warnings only)
         self.check_processes()
 
+        # Check NTRIP services
+        ntrip_ok, ntrip_total = self.check_ntrip_services()
+
         # Check devices
         device_ok, device_total = self.check_devices()
 
@@ -703,14 +782,15 @@ class RoboDoctor:
         self._print(f"\n--- サマリー ---")
         self._print(f"ネットワーク: {network_ok}/{network_total} OK")
         self._print(f"PTP: {ptp_ok}/{ptp_total} OK")
+        self._print(f"NTRIP: {ntrip_ok}/{ntrip_total} OK")
         self._print(f"デバイス: {device_ok}/{device_total} OK")
         self._print(f"ノード: {node_ok}/{node_total} OK")
         self._print(f"トピック: {topic_ok}/{topic_total} OK")
         self._print(f"データフロー: {data_ok}/{data_total} OK")
 
         # Overall status
-        total_checks = network_total + ptp_total + device_total + node_total + topic_total + data_total
-        total_ok = network_ok + ptp_ok + device_ok + node_ok + topic_ok + data_ok
+        total_checks = network_total + ptp_total + ntrip_total + device_total + node_total + topic_total + data_total
+        total_ok = network_ok + ptp_ok + ntrip_ok + device_ok + node_ok + topic_ok + data_ok
 
         if total_ok == total_checks:
             self._print("状態: すべて正常! [成功]")

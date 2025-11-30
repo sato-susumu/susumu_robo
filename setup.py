@@ -42,6 +42,7 @@ setup(
             "number_key_publisher = susumu_robo.number_key_publisher:main",
             "key_event_handler = susumu_robo.key_event_handler:main",
             "livox_imu_converter = susumu_robo.livox_imu_converter:main",
+            "ntrip_str2str_node = susumu_robo.ntrip_str2str_node:main",
         ],
     },
 )

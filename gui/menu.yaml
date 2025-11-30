@@ -42,6 +42,8 @@ categories:
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/start_gnss.sh"
           - name: "ntrip_str2str (NTRIP Correction)"
             command: "ros2 launch susumu_robo ntrip_str2str.launch.py"
+          - name: "ntrip_str2str status"
+            command: "ros2 service call /ntrip_str2str_node/get_status susumu_ros2_interfaces/srv/NtripStatus"
           - name: "dummy_navsatfix (Dummy GNSS)"
             command: "ros2 launch susumu_robo dummy_navsatfix.launch.py"
           - name: "ecef_to_enu (ECEF to ENU Transform)"
@@ -79,19 +81,6 @@ categories:
           - name: "tenkey_controller (10-key)"
             command: "ros2 launch susumu_robo tenkey_controller.launch.py"
 
-  - name: "AutoWare"
-    items:
-      - name: "nvtop"
-        command: "gnome-terminal -- nvtop"
-      - name: "system monitor"
-        command: "gnome-system-monitor"
-      - name: "run rviz"
-#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
-        command: "cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
-      - name: "run AWSIM Demo"
-#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
-        command: "cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
-
   - name: "GLIM"
     items:
       - name: "bag record (timestamped)"
@@ -104,6 +93,19 @@ categories:
         command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
       - name: "run offline_viewer"
         command: "cd ~/glim && ros2 run glim_ros offline_viewer"
+
+  - name: "AutoWare"
+    items:
+      - name: "nvtop"
+        command: "gnome-terminal -- nvtop"
+      - name: "system monitor"
+        command: "gnome-system-monitor"
+      - name: "run rviz"
+#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
+        command: "cd ~/autoware && source ./install/setup.bash && ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/taro/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true"
+      - name: "run AWSIM Demo"
+#        command: "ros2 daemon stop && unset ROS_LOCALHOST_ONLY CYCLONEDDS_URI CYCLONEDDS_CONFIG && cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
+        command: "cd ~/autoware && cd ~/awsim/AWSIM-Demo && ./AWSIM-Demo.x86_64"
 
 #  - name: "Navigation2"
 #    items:

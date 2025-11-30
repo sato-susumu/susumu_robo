@@ -33,9 +33,21 @@ def generate_launch_description():
         ]
     )
 
-    # Include imu_wt901.launch.py (starts after 4 second delay)
+    # Include ntrip_str2str.launch.py (starts after 3 second delay)
+    ntrip_str2str_launch = TimerAction(
+        period=3.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    os.path.join(package_share_dir, 'launch', 'ntrip_str2str.launch.py')
+                ])
+            )
+        ]
+    )
+
+    # Include imu_wt901.launch.py (starts after 5 second delay)
     imu_launch = TimerAction(
-        period=4.0,
+        period=5.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
@@ -45,9 +57,9 @@ def generate_launch_description():
         ]
     )
 
-    # Include dummy_navsatfix.launch.py (starts after 3 second delay)
+    # Include dummy_navsatfix.launch.py (starts after 4 second delay)
     dummy_navsatfix_launch = TimerAction(
-        period=3.0,
+        period=4.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
@@ -64,9 +76,9 @@ def generate_launch_description():
         ])
     )
 
-    # Include key_event_system.launch.py (starts after 5 second delay)
+    # Include key_event_system.launch.py (starts after 6 second delay)
     key_event_system_launch = TimerAction(
-        period=5.0,
+        period=6.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
@@ -76,9 +88,9 @@ def generate_launch_description():
         ]
     )
 
-    # Include tts_voicevox.launch.py (starts after 6 second delay)
+    # Include tts_voicevox.launch.py (starts after 7 second delay)
     tts_voicevox_launch = TimerAction(
-        period=6.0,
+        period=7.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
@@ -92,8 +104,9 @@ def generate_launch_description():
         ecef_to_enu_launch,  # Start immediately as it's a static transform
         mid360_launch,
         gnss_launch,
-        imu_launch,
+        ntrip_str2str_launch,
         dummy_navsatfix_launch,
+        imu_launch,
         key_event_system_launch,
         tts_voicevox_launch,
     ])
