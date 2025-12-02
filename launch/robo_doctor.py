@@ -10,6 +10,7 @@ import sys
 import socket
 import json
 import os
+import time
 from typing import List, Tuple
 
 
@@ -43,7 +44,6 @@ class RoboDoctor:
 
             # Key event system nodes
             'key_event_handler',
-            'number_key_publisher',
 
             # TTS/VoiceVox nodes
             'voicevox_ros2',
@@ -117,6 +117,9 @@ class RoboDoctor:
         self.device_checks = [
             ('IMU WT901 Device', '/dev/imu_wt901', 'device_data'),
         ]
+
+        # Battery warning threshold (percentage)
+        self.battery_warning_threshold = 80
 
     def _run_ros2_command(self, cmd: List[str]) -> Tuple[bool, str]:
         """Run a ROS2 command and return success status and output"""
@@ -627,21 +630,28 @@ class RoboDoctor:
 
         return ptp_ok, len(self.ptp_checks)
 
-    def check_ptp_optional(self) -> None:
+    def check_ptp_optional(self) -> List[str]:
         """Check optional PTP features (warnings only)"""
         self._print("\n--- PTPオプション機能 ---")
+        warnings = []
 
         for name, target, port_or_service, check_type in self.ptp_optional_checks:
             if check_type == 'ptp_master':
                 if self._check_ptp_master_status(target):
                     self._print(f"[OK] {name}: PTPマスター {target} に到達可能")
                 else:
-                    self._print(f"[警告] {name}: PTPマスター {target} に到達不可 (現在はOK、マルチセンサー同期時に必要)")
+                    msg = f"{name}: PTPマスター {target} に到達不可"
+                    self._print(f"[警告] {msg} (現在はOK、マルチセンサー同期時に必要)")
+                    warnings.append(msg)
 
-    def check_processes(self) -> None:
+        return warnings
+
+    def check_processes(self) -> List[str]:
         """Check if important processes are running (warnings only)"""
+        warnings = []
+
         if not self.process_checks:
-            return
+            return warnings
 
         self._print("\n--- プロセス状態 ---")
 
@@ -650,7 +660,70 @@ class RoboDoctor:
                 if self._check_process_running(process_name):
                     self._print(f"[OK] {name}: プロセス稼働中")
                 else:
-                    self._print(f"[警告] {name}: プロセス '{process_name}' が動作していません")
+                    msg = f"{name}: プロセス '{process_name}' が動作していません"
+                    self._print(f"[警告] {msg}")
+                    warnings.append(msg)
+
+        return warnings
+
+    def check_battery(self) -> List[str]:
+        """Check PC battery level (warnings only)"""
+        self._print("\n--- バッテリー状態 ---")
+        warnings = []
+
+        try:
+            # Find battery device
+            power_supply_path = '/sys/class/power_supply'
+            battery_path = None
+
+            if os.path.exists(power_supply_path):
+                for device in os.listdir(power_supply_path):
+                    device_type_path = os.path.join(power_supply_path, device, 'type')
+                    if os.path.exists(device_type_path):
+                        with open(device_type_path, 'r') as f:
+                            if f.read().strip() == 'Battery':
+                                battery_path = os.path.join(power_supply_path, device)
+                                break
+
+            if not battery_path:
+                self._print("[OK] バッテリー非搭載 (デスクトップPC)")
+                return warnings
+
+            # Read battery capacity
+            capacity_path = os.path.join(battery_path, 'capacity')
+            status_path = os.path.join(battery_path, 'status')
+
+            if os.path.exists(capacity_path):
+                with open(capacity_path, 'r') as f:
+                    capacity = int(f.read().strip())
+
+                # Read charging status
+                status = "Unknown"
+                if os.path.exists(status_path):
+                    with open(status_path, 'r') as f:
+                        status = f.read().strip()
+
+                status_jp = {
+                    'Charging': '充電中',
+                    'Discharging': '放電中',
+                    'Full': '満充電',
+                    'Not charging': '充電停止',
+                    'Unknown': '不明'
+                }.get(status, status)
+
+                if capacity < self.battery_warning_threshold:
+                    msg = f"バッテリー残量低下: {capacity}% ({status_jp})"
+                    self._print(f"[警告] {msg}")
+                    warnings.append(msg)
+                else:
+                    self._print(f"[OK] バッテリー: {capacity}% ({status_jp})")
+            else:
+                self._print("[OK] バッテリー情報取得スキップ")
+
+        except Exception as e:
+            self._print(f"[情報] バッテリー情報取得エラー: {str(e)}")
+
+        return warnings
 
     def check_ntrip_services(self) -> Tuple[int, int]:
         """Check NTRIP str2str node status via ROS2 service"""
@@ -747,6 +820,8 @@ class RoboDoctor:
 
     def run_diagnostics(self) -> int:
         """Run full diagnostics and return exit code"""
+        start_time = time.time()
+
         self._print("=== すすむロボット診断 (Robo Doctor) ===")
         self._print("robo.launch.py コンポーネントをチェック中...")
         self._print()
@@ -758,10 +833,13 @@ class RoboDoctor:
         ptp_ok, ptp_total = self.check_ptp_services()
 
         # Check optional PTP features (warnings only)
-        self.check_ptp_optional()
+        ptp_warning_msgs = self.check_ptp_optional()
 
         # Check processes (warnings only)
-        self.check_processes()
+        process_warning_msgs = self.check_processes()
+
+        # Check battery (warnings only)
+        battery_warning_msgs = self.check_battery()
 
         # Check NTRIP services
         ntrip_ok, ntrip_total = self.check_ntrip_services()
@@ -778,6 +856,12 @@ class RoboDoctor:
         # Check critical topic data flow (NEW)
         data_ok, data_total = self.check_critical_topic_data()
 
+        # Calculate totals
+        total_checks = network_total + ptp_total + ntrip_total + device_total + node_total + topic_total + data_total
+        total_ok = network_ok + ptp_ok + ntrip_ok + device_ok + node_ok + topic_ok + data_ok
+        all_warnings = ptp_warning_msgs + process_warning_msgs + battery_warning_msgs
+        success_rate = (total_ok / total_checks * 100) if total_checks > 0 else 0
+
         # Summary
         self._print(f"\n--- サマリー ---")
         self._print(f"ネットワーク: {network_ok}/{network_total} OK")
@@ -787,19 +871,26 @@ class RoboDoctor:
         self._print(f"ノード: {node_ok}/{node_total} OK")
         self._print(f"トピック: {topic_ok}/{topic_total} OK")
         self._print(f"データフロー: {data_ok}/{data_total} OK")
+        self._print(f"")
+        self._print(f"チェック成功: {total_ok}/{total_checks} ({success_rate:.1f}%)")
+        self._print(f"警告: {len(all_warnings)}件")
+        if all_warnings:
+            for warning_msg in all_warnings:
+                self._print(f"  - {warning_msg}")
 
-        # Overall status
-        total_checks = network_total + ptp_total + ntrip_total + device_total + node_total + topic_total + data_total
-        total_ok = network_ok + ptp_ok + ntrip_ok + device_ok + node_ok + topic_ok + data_ok
-
+        # Overall status (based on success rate, warnings not included)
+        elapsed_time = time.time() - start_time
         if total_ok == total_checks:
-            self._print("状態: すべて正常! [成功]")
+            self._print(f"\n状態: すべて正常! [成功]")
+            self._print(f"実行時間: {elapsed_time:.1f}秒")
             return 0
-        elif total_ok > total_checks * 0.5:  # More than 50% working
-            self._print("状態: 部分的に動作 [警告]")
+        elif success_rate >= 50:
+            self._print(f"\n状態: 部分的に動作 [一部エラー]")
+            self._print(f"実行時間: {elapsed_time:.1f}秒")
             return 1
         else:
-            self._print("状態: システムダウン [エラー]")
+            self._print(f"\n状態: システムダウン [エラー]")
+            self._print(f"実行時間: {elapsed_time:.1f}秒")
             return 2
 
 

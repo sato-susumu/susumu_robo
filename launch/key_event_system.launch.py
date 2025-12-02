@@ -14,12 +14,6 @@ def generate_launch_description():
     pkg_dir = FindPackageShare('susumu_robo')
 
     # Launch引数の宣言
-    keyboard_device_arg = DeclareLaunchArgument(
-        'keyboard_device',
-        default_value='/dev/input/by-id/usb-INSTANT_USB_GAMING_MOUSE-if01-event-kbd',
-        description='Path to the keyboard device for number keys'
-    )
-
     tenkey_device_arg = DeclareLaunchArgument(
         'tenkey_device',
         default_value='/dev/input/by-id/usb-05a4_Tenkey_Keyboard-event-kbd',
@@ -44,28 +38,10 @@ def generate_launch_description():
         description='Base directory for rosbag recordings'
     )
 
-    enable_number_keys_arg = DeclareLaunchArgument(
-        'enable_number_keys',
-        default_value='true',
-        description='Enable number key publisher'
-    )
-
     enable_tenkey_arg = DeclareLaunchArgument(
         'enable_tenkey',
         default_value='false',
         description='Enable tenkey publisher'
-    )
-
-    # Number Key Publisher (1-4の数字キー)
-    number_key_publisher_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([pkg_dir, 'launch', 'number_key_publisher.launch.py'])
-        ]),
-        launch_arguments={
-            'keyboard_device': LaunchConfiguration('keyboard_device'),
-            'key_event_topic': LaunchConfiguration('key_event_topic')
-        }.items(),
-        condition=IfCondition(LaunchConfiguration('enable_number_keys'))
     )
 
     # Tenkey Publisher (テンキーパッド)
@@ -94,19 +70,16 @@ def generate_launch_description():
 
     # 全体のグループ化
     key_event_system = GroupAction([
-        number_key_publisher_launch,
         tenkey_publisher_launch,
         key_event_handler_launch
     ])
 
     return LaunchDescription([
         # 引数の宣言
-        keyboard_device_arg,
         tenkey_device_arg,
         key_event_topic_arg,
         robo_doctor_path_arg,
         rosbag_base_dir_arg,
-        enable_number_keys_arg,
         enable_tenkey_arg,
         # ノードの起動
         key_event_system

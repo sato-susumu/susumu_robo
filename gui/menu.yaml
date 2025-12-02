@@ -83,10 +83,6 @@ categories:
 
   - name: "GLIM"
     items:
-      - name: "bag record (timestamped)"
-        command: 'OUTPUT_DIR="$HOME/ros2_bags/$(date +''%Y%m%d_%H%M%S'')" && ros2 bag record --all -s mcap -o "$OUTPUT_DIR"'
-      - name: "rqt_bag"
-        command: "cd ~/ros2_bags && rqt_bag"
       - name: "run glim"
         command: "cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
       - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
