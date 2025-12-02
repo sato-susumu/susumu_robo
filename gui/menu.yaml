@@ -8,6 +8,17 @@ categories:
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
 
+  - name: "Diagnostic"
+    items:
+      - name: "1. robo_doctor_node"
+        command: "ros2 run susumu_robo robo_doctor_node"
+      - name: "2. diagnostic_aggregator"
+        command: "ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/taro/ros2_ws/src/susumu_robo/config/diagnostic_aggregator.yaml"
+      - name: "3. rqt_robot_monitor (aggregated)"
+        command: "ros2 run rqt_robot_monitor rqt_robot_monitor"
+      - name: "rqt_runtime_monitor (raw)"
+        command: "ros2 run rqt_runtime_monitor rqt_runtime_monitor"
+
   - name: "ROS2 Launch"
     subcategories:
       - name: "System"
