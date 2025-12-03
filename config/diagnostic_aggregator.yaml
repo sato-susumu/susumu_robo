@@ -1,39 +1,40 @@
-analyzers:
+/**:
   ros__parameters:
-    path: robo_doctor
-    robo_doctor:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: System
-      contains: ['/robo_doctor/System']
-    ptp:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: PTP
-      contains: ['/robo_doctor/PTP']
-    network:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: Network
-      contains: ['/robo_doctor/Network']
-    device:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: Device
-      contains: ['/robo_doctor/Device']
-    config:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: Config
-      contains: ['/robo_doctor/Config']
-    gnss:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: GNSS
-      contains: ['/robo_doctor/GNSS']
-    nodes:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: Nodes
-      contains: ['/robo_doctor/Nodes']
-    topics:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: Topics
-      contains: ['/robo_doctor/Topics']
-    dataflow:
-      type: diagnostic_aggregator/GenericAnalyzer
-      path: DataFlow
-      contains: ['/robo_doctor/DataFlow']
+    analyzers:
+      path: robo_doctor
+      robo_doctor:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: System
+        contains: ['/robo_doctor/System']
+      ptp:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: PTP
+        contains: ['/robo_doctor/PTP']
+      network:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: Network
+        contains: ['/robo_doctor/Network']
+      device:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: Device
+        contains: ['/robo_doctor/Device']
+      config:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: Config
+        contains: ['/robo_doctor/Config']
+      gnss:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: GNSS
+        contains: ['/robo_doctor/GNSS']
+      nodes:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: Nodes
+        contains: ['/robo_doctor/Nodes']
+      topics:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: Topics
+        contains: ['/robo_doctor/Topics']
+      dataflow:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: DataFlow
+        contains: ['/robo_doctor/DataFlow']

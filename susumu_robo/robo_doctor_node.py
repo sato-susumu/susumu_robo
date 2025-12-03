@@ -89,40 +89,87 @@ class RoboDoctorNode(Node):
         self._cache_lock = threading.Lock()
         self._cached_statuses = []  # Cached DiagnosticStatus list
 
+        # Background thread management (prevents concurrent execution of same check)
+        self._running_lock = threading.Lock()
+        self._running_checks = set()  # Set of currently running check names
+
         # Publisher
         self.diag_pub = self.create_publisher(DiagnosticArray, '/diagnostics', 10)
 
-        # Timer for publishing cached results (every 5 seconds to avoid stale)
-        self.timer_publish = self.create_timer(5.0, self._publish_cached_diagnostics)
+        # Timer for publishing cached results (every 3 seconds to avoid stale)
+        self.timer_publish = self.create_timer(3.0, self._publish_cached_diagnostics)
 
         # Check interval (all checks run at the same interval)
         check_interval = 60.0
-        self.timer_light = self.create_timer(check_interval, self._run_light_checks)
-        self.timer_medium = self.create_timer(check_interval, self._run_medium_checks)
-        self.timer_heavy = self.create_timer(check_interval, self._run_heavy_checks)
+        self.timer_light = self.create_timer(check_interval, self._schedule_light_checks)
+        self.timer_medium = self.create_timer(check_interval, self._schedule_medium_checks)
+        self.timer_heavy = self.create_timer(check_interval, self._schedule_heavy_checks)
 
         # Run initial checks after short delay
         self._initial_done = False
         self.timer_initial = self.create_timer(2.0, self._initial_check)
 
         self.get_logger().info('RoboDoctorNode started')
-        self.get_logger().info(f'  Publish interval: 5s, Check interval: {check_interval}s')
+        self.get_logger().info(f'  Publish interval: 3s, Check interval: {check_interval}s')
 
     def _initial_check(self):
-        """Run all checks once at startup."""
+        """Run all checks once at startup (in background thread)."""
         if self._initial_done:
             return
         self._initial_done = True
 
-        self.get_logger().info('Running initial diagnostics...')
-        self._run_light_checks()
-        self._run_medium_checks()
-        self._run_heavy_checks()
-        self._publish_cached_diagnostics()
-        self.get_logger().info('Initial diagnostics complete')
-
         # Cancel this one-shot timer
         self.timer_initial.cancel()
+
+        # Run initial checks in background thread
+        def run_initial():
+            self.get_logger().info('Running initial diagnostics...')
+            self._run_light_checks()
+            self._run_medium_checks()
+            self._run_heavy_checks()
+            self.get_logger().info('Initial diagnostics complete')
+
+        thread = threading.Thread(target=run_initial, daemon=True)
+        thread.start()
+
+    # =========================================================================
+    # Background Thread Scheduler
+    # =========================================================================
+
+    def _schedule_in_background(self, name: str, func):
+        """
+        Schedule a function to run in background thread.
+
+        Args:
+            name: Unique identifier to prevent concurrent execution of same task
+            func: Function to execute in background
+        """
+        with self._running_lock:
+            if name in self._running_checks:
+                return  # Already running, skip
+            self._running_checks.add(name)
+
+        def run():
+            try:
+                func()
+            finally:
+                with self._running_lock:
+                    self._running_checks.discard(name)
+
+        thread = threading.Thread(target=run, daemon=True)
+        thread.start()
+
+    def _schedule_light_checks(self):
+        """Schedule light checks in background thread."""
+        self._schedule_in_background('light', self._run_light_checks)
+
+    def _schedule_medium_checks(self):
+        """Schedule medium checks in background thread."""
+        self._schedule_in_background('medium', self._run_medium_checks)
+
+    def _schedule_heavy_checks(self):
+        """Schedule heavy checks in background thread."""
+        self._schedule_in_background('heavy', self._run_heavy_checks)
 
     # =========================================================================
     # Cache Management and Publishing
