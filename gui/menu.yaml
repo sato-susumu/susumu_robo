@@ -10,13 +10,9 @@ categories:
 
   - name: "Diagnostic"
     items:
-      - name: "1. robo_doctor_node"
-        command: "ros2 run susumu_robo robo_doctor_node"
-      - name: "2. diagnostic_aggregator"
-        command: "ros2 run diagnostic_aggregator aggregator_node --ros-args --params-file /home/taro/ros2_ws/src/susumu_robo/config/diagnostic_aggregator.yaml"
-      - name: "3. rqt_robot_monitor (aggregated)"
+      - name: "rqt_robot_monitor"
         command: "ros2 run rqt_robot_monitor rqt_robot_monitor"
-      - name: "rqt_runtime_monitor (raw)"
+      - name: "rqt_runtime_monitor"
         command: "ros2 run rqt_runtime_monitor rqt_runtime_monitor"
 
   - name: "ROS2 Launch"
@@ -27,14 +23,10 @@ categories:
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/ros2_cleanup.sh"
           - name: "robo (LiDAR+GNSS+IMU)"
             command: "ros2 launch susumu_robo robo.launch.py"
-          - name: "robo_doctor (Diagnostics)"
-            command: "/home/taro/ros2_ws/src/susumu_robo/launch/robo_doctor.py"
           - name: "bringup (Core System)"
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "foxglove_bridge"
             command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
-          - name: "ntrip_str2str (NTRIP Correction)"
-            command: "ros2 launch susumu_robo ntrip_str2str.launch.py"
       - name: "LiDAR"
         items:
           - name: "mid360 (LiDAR)"
@@ -51,10 +43,6 @@ categories:
         items:
           - name: "gnss (GPS/GNSS)"
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/start_gnss.sh"
-          - name: "ntrip_str2str (NTRIP Correction)"
-            command: "ros2 launch susumu_robo ntrip_str2str.launch.py"
-          - name: "ntrip_str2str status"
-            command: "ros2 service call /ntrip_str2str_node/get_status susumu_ros2_interfaces/srv/NtripStatus"
           - name: "dummy_navsatfix (Dummy GNSS)"
             command: "ros2 launch susumu_robo dummy_navsatfix.launch.py"
           - name: "ecef_to_enu (ECEF to ENU Transform)"
