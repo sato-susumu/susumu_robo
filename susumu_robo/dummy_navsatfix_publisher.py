@@ -32,14 +32,14 @@ class DummyNavSatFixPublisher(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'gnss'
 
-        # 大阪駅の座標（概算）
-        msg.latitude = 34.702485
-        msg.longitude = 135.495951
-        msg.altitude = 20.0  # 海抜20m程度
+        # 無効な座標 (NaN)
+        msg.latitude = float('nan')
+        msg.longitude = float('nan')
+        msg.altitude = float('nan')
 
-        # ステータス
-        msg.status.status = 0  # STATUS_FIX
-        msg.status.service = 1  # SERVICE_GPS (NavSatFixではGPS定数のみ定義)
+        # ステータス: 位置情報なし
+        msg.status.status = -1  # STATUS_NO_FIX
+        msg.status.service = 1  # SERVICE_GPS
 
         # 精度情報
         msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_DIAGONAL_KNOWN
