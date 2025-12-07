@@ -22,12 +22,7 @@ def generate_launch_description():
         plugin='rosaic_node::ROSaicNode',
         parameters=[gnss_params],
         remappings=[
-            ('/navsatfix', '/fix'),
-            ('/gpgga', '/gnss/gpgga'),
-            ('/gpgsa', '/gnss/gpgsa'),
-            ('/gprmc', '/gnss/gprmc'),
-            ('/rfstatus', '/gnss/rfstatus'),
-            ('/aimplusstatus', '/gnss/aimplusstatus')
+            ('/navsatfix', '/fix')
         ]
     )
 
