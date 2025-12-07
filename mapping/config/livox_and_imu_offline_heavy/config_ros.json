@@ -14,6 +14,6 @@
     // Topics
     "imu_topic": "/imu",
     "points_topic": "/converted_pointcloud2",
-    "image_topic": "/image"
+    "image_topic": "/glim_ros/input_image"
   }
 }
