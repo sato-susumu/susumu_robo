@@ -21,8 +21,15 @@ ptp_server_clock: false
 latency_compensation: true
 
 publish:
-  publish_only_valid: true
+  publish_only_valid: false
   navsatfix: true
-  diagnostics: false
+  diagnostics: true
+  aimplusstatus: true
+  pvtgeodetic: true
+  gpsfix: true
+  gpgga: true
+  gpgsa: true
+  gprmc: true
+  gpst: true
 
-activate_debug_log: true
+activate_debug_log: false
