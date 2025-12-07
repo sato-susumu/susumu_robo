@@ -51,6 +51,12 @@ categories:
         items:
           - name: "imu_wt901 (IMU)"
             command: "ros2 launch susumu_robo imu_wt901.launch.py"
+          - name: "imu_rviz (IMU Visualization)"
+            command: "ros2 launch susumu_robo imu_rviz.launch.py"
+          - name: "imu_plot (/imu Graph)"
+            command: "ros2 run rqt_plot rqt_plot /imu/linear_acceleration/x /imu/linear_acceleration/y /imu/linear_acceleration/z /imu/angular_velocity/x /imu/angular_velocity/y /imu/angular_velocity/z"
+          - name: "livox_imu_plot (/livox/imu Graph)"
+            command: "ros2 run rqt_plot rqt_plot /livox/imu/linear_acceleration/x /livox/imu/linear_acceleration/y /livox/imu/linear_acceleration/z /livox/imu/angular_velocity/x /livox/imu/angular_velocity/y /livox/imu/angular_velocity/z"
       - name: "Motor & Control"
         items:
           - name: "ddsm115 (Motors)"
