@@ -8,7 +8,7 @@ def generate_launch_description():
     # Launch arguments
     ntrip_server_arg = DeclareLaunchArgument(
         'ntrip_server',
-        default_value='ntrip://geortk.jp:2101/KOBEKOKA',
+        default_value='ntrip://ntrip1.bizstation.jp:2101/0C8BD4BE',
         description='NTRIP server URL'
     )
 

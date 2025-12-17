@@ -58,7 +58,7 @@ class NtripStr2StrNode(Node):
         super().__init__('ntrip_str2str_node')
 
         # パラメータ宣言
-        self.declare_parameter('ntrip_server', 'ntrip://geortk.jp:2101/KOBEKOKA')
+        self.declare_parameter('ntrip_server', 'ntrip://ntrip1.bizstation.jp:2101/0C8BD4BE')
         self.declare_parameter('output_dest', 'tcpcli://192.168.3.1:28785')
 
         # パラメータ取得
