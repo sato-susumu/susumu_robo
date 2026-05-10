@@ -135,7 +135,7 @@ categories:
   - name: "Launch"
     items:
       - name: "fast_lio"
-        command: "ros2 launch fast_lio mapping.launch.py"
+        command: "ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
       - name: "avatar_ros"
         command: "ros2 run avatar_ros avatar_node"
 
