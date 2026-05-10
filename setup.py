@@ -26,7 +26,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz')) + glob(os.path.join('config', '*.yaml')) + glob(os.path.join('config', '*.json'))),
         (os.path.join('share', package_name, 'susumu_diffbot/launch'), glob(os.path.join('susumu_diffbot', 'launch', '*.py'))),
         (os.path.join('share', package_name, 'susumu_diffbot/config'), glob(os.path.join('susumu_diffbot', 'config', '*.yaml'))),
-        (os.path.join('share', package_name, 'susumu_diffbot/urdf'), glob(os.path.join('susumu_diffbot', 'description', 'urdf', '*'))),
+        (os.path.join('share', package_name, 'susumu_diffbot/urdf'), glob(os.path.join('susumu_diffbot', 'urdf', '*'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
