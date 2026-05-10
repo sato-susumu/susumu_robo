@@ -10,9 +10,9 @@ import os
 
 def generate_launch_description():
     # ODrive BotWheel Explorer package
-    botwheel_pkg = get_package_share_directory('odrive_botwheel_explorer')
+    botwheel_pkg = get_package_share_directory('susumu_robo')
     botwheel_launch_file = os.path.join(
-        botwheel_pkg, 'launch', 'botwheel_explorer.launch.py'
+        botwheel_pkg, 'susumu_diffbot/launch', 'botwheel_explorer.launch.py'
     )
 
     # Xbox config file path
