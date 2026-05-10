@@ -88,14 +88,22 @@ categories:
           - name: "tenkey_controller (10-key)"
             command: "ros2 launch susumu_robo tenkey_controller.launch.py"
 
-  - name: "GLIM"
-    items:
-      - name: "run glim"
-        command: "cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
-      - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
-        command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
-      - name: "run offline_viewer"
-        command: "cd ~/glim && ros2 run glim_ros offline_viewer"
+  - name: "SLAM"
+    subcategories:
+      - name: "GLIM"
+        items:
+          - name: "run glim"
+            command: "cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
+          - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
+            command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
+          - name: "run offline_viewer"
+            command: "cd ~/glim && ros2 run glim_ros offline_viewer"
+      - name: "FAST_LIO"
+        items:
+          - name: "run fast_lio"
+            command: "ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
+          - name: "kill fast_lio"
+            command: "pkill -f fastlio_mapping"
 
   - name: "AutoWare"
     items:
@@ -134,8 +142,6 @@ categories:
 
   - name: "Launch"
     items:
-      - name: "fast_lio"
-        command: "ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
       - name: "avatar_ros"
         command: "ros2 run avatar_ros avatar_node"
 
