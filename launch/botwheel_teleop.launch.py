@@ -44,7 +44,10 @@ def generate_launch_description():
                 {
                     'publish_stamped_twist': True,
                     'scale_linear.x': 0.3,
-                    'enable_turbo_button': -1,
+                    'scale_linear_turbo.x': 0.9,
+                    'scale_angular.yaw': 1.0,
+                    'scale_angular_turbo.yaw': 1.0,
+                    'enable_turbo_button': 5,
                 }
             ],
             remappings=[
