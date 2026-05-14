@@ -102,8 +102,20 @@ categories:
         items:
           - name: "run fast_lio"
             command: "ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
+          - name: "save map (PCD) ※pcd_save_en:true required"
+            command: "ros2 service call /map_save std_srvs/srv/Trigger {}"
           - name: "kill fast_lio"
             command: "pkill -f fastlio_mapping"
+      - name: "slam_toolbox"
+        items:
+          - name: "run slam_toolbox (online_async)"
+            command: "ros2 launch slam_toolbox online_async_launch.py use_sim_time:=false slam_params_file:=$(ros2 pkg prefix susumu_robo)/share/susumu_robo/config/slam_toolbox_params.yaml"
+          - name: "kill slam_toolbox"
+            command: "pkill -f async_slam_toolbox_node"
+          - name: "rviz2 (slam_toolbox)"
+            command: "ros2 run rviz2 rviz2 -d /opt/ros/humble/share/slam_toolbox/config/slam_toolbox_default.rviz"
+          - name: "save map (with timestamp)"
+            command: "ros2 run nav2_map_server map_saver_cli -f ~/map_$(date +%Y%m%d_%H%M%S)"
 
   - name: "AutoWare"
     items:

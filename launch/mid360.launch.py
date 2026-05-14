@@ -1,4 +1,3 @@
-import ipaddress
 import json
 import os
 import subprocess
@@ -10,28 +9,16 @@ from launch_ros.actions import Node
 
 
 def _get_ip_on_subnet(target_ip: str) -> str | None:
-    """Return the local IP address that is on the same /24 subnet as target_ip."""
-    target_net = ipaddress.ip_network(target_ip + '/24', strict=False)
-    try:
-        import netifaces
-        for iface in netifaces.interfaces():
-            addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET, [])
-            for addr in addrs:
-                ip = addr.get('addr', '')
-                if ip and ipaddress.ip_address(ip) in target_net:
-                    return ip
-    except ImportError:
-        result = subprocess.run(['ip', '-4', 'addr'], capture_output=True, text=True)
-        for line in result.stdout.splitlines():
-            line = line.strip()
-            if line.startswith('inet '):
-                cidr = line.split()[1]
-                ip = cidr.split('/')[0]
-                try:
-                    if ipaddress.ip_address(ip) in target_net:
-                        return ip
-                except ValueError:
-                    pass
+    """Return the local IP the kernel would use to reach target_ip (via ip route get)."""
+    result = subprocess.run(
+        ['ip', 'route', 'get', target_ip],
+        capture_output=True, text=True
+    )
+    # Output example: "192.168.1.145 dev enxf8e43b07988f src 192.168.1.5 uid 1000"
+    for token in result.stdout.split():
+        if token == 'src':
+            idx = result.stdout.split().index('src')
+            return result.stdout.split()[idx + 1]
     return None
 
 
