@@ -10,6 +10,7 @@ import subprocess
 import glob
 import time
 import signal
+import psutil
 from datetime import datetime
 from PySide6.QtWidgets import (
     QApplication, QDialog, QVBoxLayout, QHBoxLayout,
@@ -118,12 +119,15 @@ def main():
     rviz_proc = run(f"{ROS_SETUP} && {WS_SETUP} && ros2 run rviz2 rviz2 -d {rviz_config}")
     rviz_proc.wait()  # RViz2 が閉じられるまで待機
 
-    # RViz2 終了後に map_server を終了
+    # RViz2 終了後に map_server とその子プロセスをすべて終了
     print("RViz2 closed. Stopping map_server...")
-    map_server_proc.terminate()
     try:
+        parent = psutil.Process(map_server_proc.pid)
+        for child in parent.children(recursive=True):
+            child.terminate()
+        parent.terminate()
         map_server_proc.wait(timeout=3)
-    except subprocess.TimeoutExpired:
+    except (psutil.NoSuchProcess, subprocess.TimeoutExpired):
         map_server_proc.kill()
 
     sys.exit(0)
