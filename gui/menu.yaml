@@ -112,6 +112,8 @@ categories:
             command: "ros2 launch susumu_robo slam_rviz.launch.py"
           - name: "save map (with timestamp)"
             command: "ros2 run nav2_map_server map_saver_cli -f ~/map_$(date +%Y%m%d_%H%M%S)"
+          - name: "show map (select file)"
+            command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
           - name: "kill slam_toolbox"
             command: "pkill -f async_slam_toolbox_node"
 
