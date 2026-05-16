@@ -8,6 +8,17 @@ categories:
       - name: "foxglove-studio (local)"
         command: 'foxglove-studio "foxglove://open?ds=foxglove-websocket&ds.url=ws://localhost:8765/"'
 
+  - name: "Bag"
+    items:
+      - name: "susumu_bag_cabinet"
+        command: "/home/taro/work/susumu_bag_cabinet/run_susumu_bag_cabinet.sh"
+      - name: "bag record"
+        command: "ros2 bag record --all -o output.bag"
+      - name: "bag record (mcap)"
+        command: "/home/taro/ros2_ws/src/susumu_robo/script/bag_record.sh"
+      - name: "rqt_bag"
+        command: "/home/taro/ros2_ws/src/susumu_robo/script/rqt_bag.sh"
+
   - name: "Diagnostic"
     items:
       - name: "rqt_robot_monitor"
@@ -71,10 +82,6 @@ categories:
             command: "ros2 launch susumu_robo collision_monitor.launch.py"
           - name: "twist_mux (Twist Multiplexer)"
             command: "ros2 launch susumu_robo twist_mux.launch.py"
-      - name: "Navigation"
-        items:
-          - name: "nav2 (Navigation)"
-            command: "ros2 launch susumu_robo nav2.launch.py"
       - name: "Audio & UI"
         items:
           - name: "tts_voicevox (TTS VoiceVox)"
@@ -116,6 +123,10 @@ categories:
             command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
           - name: "kill slam_toolbox"
             command: "pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'"
+      - name: "Nav2"
+        items:
+          - name: "nav2 (Navigation)"
+            command: "ros2 launch susumu_robo nav2.launch.py"
 
   - name: "AutoWare"
     items:
@@ -231,10 +242,8 @@ categories:
 
   - name: "ROS2"
     subcategories:
-      - name: "Bag & Diagnostics"
+      - name: "Diagnostics"
         items:
-          - name: "bag record"
-            command: "ros2 bag record --all -o output.bag"
           - name: "doctor"
             command: "ros2 doctor"
       - name: "Node & Action"
