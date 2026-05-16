@@ -129,6 +129,8 @@ categories:
             command: "ros2 launch susumu_robo nav2.launch.py"
           - name: "nav2 with ダミーodom"
             command: "ros2 launch susumu_robo nav2_dummy_odom.launch.py"
+          - name: "kill nav2"
+            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
 
   - name: "AutoWare"
     items:
