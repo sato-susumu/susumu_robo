@@ -20,7 +20,6 @@ setup(
         (os.path.join('share', package_name, 'mapping/config/d455'), glob(os.path.join('mapping', 'config', 'd455', '*'))),
         (os.path.join('share', package_name, 'mapping/config/kinect'), glob(os.path.join('mapping', 'config', 'kinect', '*'))),
         (os.path.join('share', package_name, 'mapping/config/l515'), glob(os.path.join('mapping', 'config', 'l515', '*'))),
-        (os.path.join('share', package_name, 'mapping/config/livox'), glob(os.path.join('mapping', 'config', 'livox', '*'))),
         (os.path.join('share', package_name, 'mapping/config/os0'), glob(os.path.join('mapping', 'config', 'os0', '*'))),
         (os.path.join('share', package_name, 'mapping/config/zed2i'), glob(os.path.join('mapping', 'config', 'zed2i', '*'))),
         (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz')) + glob(os.path.join('config', '*.yaml')) + glob(os.path.join('config', '*.json'))),

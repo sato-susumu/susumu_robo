@@ -127,6 +127,8 @@ categories:
         items:
           - name: "nav2 (Navigation)"
             command: "ros2 launch susumu_robo nav2.launch.py"
+          - name: "nav2 with ダミーodom"
+            command: "ros2 launch susumu_robo nav2_dummy_odom.launch.py"
 
   - name: "AutoWare"
     items:
