@@ -1,137 +1,160 @@
 #!/usr/bin/env python3
-"""
-保存済みの地図ファイルを選択してRViz2で表示するツール。
-nav2_map_server で地図を配信し、RViz2を起動する。
-RViz2を閉じると map_server も自動終了する。
-"""
 import os
 import sys
-import subprocess
+import re
+import shutil
 import glob
-import time
-import signal
-import psutil
+import yaml
 from datetime import datetime
 from PySide6.QtWidgets import (
-    QApplication, QDialog, QVBoxLayout, QHBoxLayout,
-    QPushButton, QListWidget, QListWidgetItem, QLabel
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QListWidget, QListWidgetItem, QLabel, QMessageBox,
+    QScrollArea, QSizePolicy, QSplitter, QTableWidget, QTableWidgetItem, QHeaderView
 )
+from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 
-ROS_SETUP = ". /opt/ros/humble/setup.bash"
-WS_SETUP = ". /home/taro/ros2_ws/install/setup.bash"
-
-
-class MapSelectorDialog(QDialog):
+class MapViewer(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("地図ファイルを選択")
-        self.setMinimumSize(500, 400)
+        self.setWindowTitle("地図ビューア")
+        self.resize(900, 600)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("表示する地図を選択してください:"))
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout = QHBoxLayout(central)
 
+        # 左: ファイルリスト
+        left = QVBoxLayout()
+        left.addWidget(QLabel("地図ファイル (~/*.yaml):"))
         self.list_widget = QListWidget()
-        self.list_widget.setMinimumHeight(300)
-        self.list_widget.doubleClicked.connect(self.accept)
-        layout.addWidget(self.list_widget)
+        self.list_widget.setFixedWidth(260)
+        self.list_widget.currentItemChanged.connect(self._on_select)
+        left.addWidget(self.list_widget)
 
-        btn_layout = QHBoxLayout()
-        ok_btn = QPushButton("表示")
-        ok_btn.setMinimumHeight(40)
-        ok_btn.clicked.connect(self.accept)
-        cancel_btn = QPushButton("キャンセル")
-        cancel_btn.setMinimumHeight(40)
-        cancel_btn.clicked.connect(self.reject)
-        btn_layout.addWidget(ok_btn)
-        btn_layout.addWidget(cancel_btn)
-        layout.addLayout(btn_layout)
+        copy_btn = QPushButton("~/map.yaml, ~/map.pgm にコピー")
+        copy_btn.setMinimumHeight(40)
+        copy_btn.clicked.connect(self._copy_to_map_dir)
+        left.addWidget(copy_btn)
+        layout.addLayout(left)
+
+        # 右: 画像とYAML表示を縦に分割
+        right_splitter = QSplitter(Qt.Vertical)
+
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.image_label = QLabel(alignment=Qt.AlignCenter)
+        self.image_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.scroll.setWidget(self.image_label)
+        right_splitter.addWidget(self.scroll)
+
+        self.yaml_table = QTableWidget(0, 3)
+        self.yaml_table.setHorizontalHeaderLabels(["フィールド", "値", "説明"])
+        self.yaml_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.yaml_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.yaml_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.yaml_table.verticalHeader().setVisible(False)
+        self.yaml_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.yaml_table.setFixedHeight(200)
+        right_splitter.addWidget(self.yaml_table)
+
+        layout.addWidget(right_splitter, stretch=1)
 
         self._load_map_files()
 
     def _load_map_files(self):
         home = os.path.expanduser("~")
         yaml_files = sorted(glob.glob(os.path.join(home, "map*.yaml")), reverse=True)
-
-        if not yaml_files:
-            self.list_widget.addItem("地図ファイルが見つかりません (~/*.yaml)")
-            return
-
         for path in yaml_files:
-            name = os.path.basename(path)
             mtime = datetime.fromtimestamp(os.path.getmtime(path)).strftime("%Y-%m-%d %H:%M")
-            item = QListWidgetItem(f"{name}  ({mtime})")
+            item = QListWidgetItem(f"{os.path.basename(path)}  ({mtime})")
             item.setData(Qt.UserRole, path)
             self.list_widget.addItem(item)
+        if self.list_widget.count():
+            self.list_widget.setCurrentRow(0)
 
-        self.list_widget.setCurrentRow(0)
+    def _on_select(self, item):
+        if not item:
+            return
+        yaml_path = item.data(Qt.UserRole)
 
-    def get_selected_path(self):
+        # YAML内容を表で表示
+        try:
+            with open(yaml_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            self._fill_yaml_table(data)
+        except Exception as e:
+            self.yaml_table.setRowCount(1)
+            self.yaml_table.setItem(0, 0, QTableWidgetItem("エラー"))
+            self.yaml_table.setItem(0, 2, QTableWidgetItem(str(e)))
+
+        # PGM画像表示
+        pgm_path = os.path.splitext(yaml_path)[0] + ".pgm"
+        if not os.path.exists(pgm_path):
+            self.image_label.setText(f".pgm が見つかりません:\n{pgm_path}")
+            return
+        pixmap = QPixmap(pgm_path)
+        if pixmap.isNull():
+            self.image_label.setText(f"画像を読み込めません:\n{pgm_path}")
+            return
+        self._pixmap = pixmap
+        self.image_label.setPixmap(
+            pixmap.scaled(self.scroll.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        )
+
+    _YAML_DESCRIPTIONS = {
+        "image":          "マップ画像ファイルのパス（PGM/PNG形式）",
+        "resolution":     "1ピクセルが現実世界で何メートルか（m/px）",
+        "origin":         "画像左下隅のワールド座標 [x(m), y(m), yaw(rad)]",
+        "negate":         "色反転フラグ。1=白黒を反転して占有度を解釈",
+        "occupied_thresh": "この値以上の占有度を「障害物あり」と判定（0〜1）",
+        "free_thresh":    "この値以下の占有度を「自由空間」と判定（0〜1）",
+        "mode":           "占有度の解釈モード（trinary/scale/raw）",
+    }
+
+    def _fill_yaml_table(self, data: dict) -> None:
+        self.yaml_table.setRowCount(0)
+        for key, value in data.items():
+            row = self.yaml_table.rowCount()
+            self.yaml_table.insertRow(row)
+            self.yaml_table.setItem(row, 0, QTableWidgetItem(str(key)))
+            self.yaml_table.setItem(row, 1, QTableWidgetItem(str(value)))
+            desc = self._YAML_DESCRIPTIONS.get(key, "")
+            self.yaml_table.setItem(row, 2, QTableWidgetItem(desc))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if getattr(self, "_pixmap", None):
+            self.image_label.setPixmap(
+                self._pixmap.scaled(self.scroll.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            )
+
+    def _copy_to_map_dir(self):
         item = self.list_widget.currentItem()
-        if item:
-            return item.data(Qt.UserRole)
-        return None
-
-
-def run(cmd, wait=False):
-    if wait:
-        return subprocess.run(["/bin/bash", "-c", cmd])
-    else:
-        return subprocess.Popen(["/bin/bash", "-c", cmd])
-
-
-def main():
-    app = QApplication(sys.argv)
-
-    dialog = MapSelectorDialog()
-    if dialog.exec() != QDialog.Accepted:
-        sys.exit(0)
-
-    map_path = dialog.get_selected_path()
-    if not map_path:
-        sys.exit(0)
-
-    print(f"選択した地図: {map_path}")
-
-    # map_server を起動
-    map_server_proc = run(
-        f"{ROS_SETUP} && {WS_SETUP} && "
-        f"ros2 run nav2_map_server map_server --ros-args "
-        f"-p yaml_filename:={map_path} -p use_sim_time:=false"
-    )
-
-    # map_server の起動を待ってライフサイクル遷移
-    time.sleep(2)
-    run(f"{ROS_SETUP} && ros2 lifecycle set /map_server configure", wait=True)
-    time.sleep(0.5)
-    run(f"{ROS_SETUP} && ros2 lifecycle set /map_server activate", wait=True)
-
-    # RViz2 設定ファイルのパスを取得
-    result = subprocess.run(
-        ["/bin/bash", "-c", f"{ROS_SETUP} && {WS_SETUP} && ros2 pkg prefix susumu_robo"],
-        capture_output=True, text=True
-    )
-    pkg_prefix = result.stdout.strip()
-    rviz_config = os.path.join(pkg_prefix, "share", "susumu_robo", "config", "slam.rviz")
-
-    # RViz2 を起動し、終了を待つ
-    rviz_proc = run(f"{ROS_SETUP} && {WS_SETUP} && ros2 run rviz2 rviz2 -d {rviz_config}")
-    rviz_proc.wait()  # RViz2 が閉じられるまで待機
-
-    # RViz2 終了後に map_server とその子プロセスをすべて終了
-    print("RViz2 closed. Stopping map_server...")
-    try:
-        parent = psutil.Process(map_server_proc.pid)
-        for child in parent.children(recursive=True):
-            child.terminate()
-        parent.terminate()
-        map_server_proc.wait(timeout=3)
-    except (psutil.NoSuchProcess, subprocess.TimeoutExpired):
-        map_server_proc.kill()
-
-    sys.exit(0)
+        if not item:
+            QMessageBox.warning(self, "警告", "地図ファイルを選択してください。")
+            return
+        yaml_path = item.data(Qt.UserRole)
+        pgm_path = os.path.splitext(yaml_path)[0] + ".pgm"
+        dest_yaml = os.path.expanduser("~/map.yaml")
+        dest_pgm = os.path.expanduser("~/map.pgm")
+        try:
+            if os.path.exists(pgm_path):
+                shutil.copy2(pgm_path, dest_pgm)
+            # yamlのimage行をmap.pgmに書き換えてコピー
+            with open(yaml_path, encoding="utf-8") as f:
+                content = f.read()
+            content = re.sub(r"^image:.*$", "image: map.pgm", content, flags=re.MULTILINE)
+            with open(dest_yaml, "w", encoding="utf-8") as f:
+                f.write(content)
+            QMessageBox.information(self, "コピー完了", f"~/map.yaml, ~/map.pgm にコピーしました。")
+        except Exception as e:
+            QMessageBox.critical(self, "エラー", f"コピーに失敗しました:\n{e}")
 
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+    window = MapViewer()
+    window.show()
+    sys.exit(app.exec())
