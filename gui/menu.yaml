@@ -109,6 +109,8 @@ categories:
             command: "ros2 launch susumu_robo nav2.launch.py"
           - name: "run nav2 (新規ウィンドウ)"
             command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
+          - name: "lifecycle状態確認 (新規ウィンドウ)"
+            command: "gnome-terminal -- bash -c 'ros2 lifecycle nodes | xargs -P 10 -I {} bash -c \"echo {}: \\$(ros2 lifecycle get {})\"; read -p \"Press Enter to close...\"'"
           - name: "kill nav2"
             command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; pkill -f 'nav2_amcl/amcl'; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'twist_stamper'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
       - name: "GLIM"
