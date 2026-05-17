@@ -1,4 +1,11 @@
 categories:
+  - name: "Quick Launch"
+    items:
+      - name: "robo (Indoor) (新規ウィンドウ)"
+        command: "gnome-terminal -- ros2 launch susumu_robo robo_indoor.launch.py"
+      - name: "run nav2 (新規ウィンドウ)"
+        command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
+
   - name: "Development"
     items:
       - name: "colcon build"
@@ -44,8 +51,6 @@ categories:
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"
             command: "ros2 launch susumu_robo botwheel_teleop.launch.py"
-          - name: "robo (Indoor) (別ターミナル)"
-            command: "gnome-terminal -- ros2 launch susumu_robo robo_indoor.launch.py"
           - name: "foxglove_bridge"
             command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
       - name: "LiDAR"
@@ -107,10 +112,6 @@ categories:
     subcategories:
       - name: "Nav2"
         items:
-          - name: "run nav2"
-            command: "ros2 launch susumu_robo nav2.launch.py"
-          - name: "run nav2 (新規ウィンドウ)"
-            command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
           - name: "lifecycle状態確認 (新規ウィンドウ)"
             command: "gnome-terminal -- bash -c 'ros2 lifecycle nodes | xargs -P 10 -I {} bash -c \"echo {}: \\$(ros2 lifecycle get {})\"; read -p \"Press Enter to close...\"'"
           - name: "kill nav2"
