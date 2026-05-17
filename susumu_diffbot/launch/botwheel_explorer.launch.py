@@ -125,12 +125,20 @@ def generate_launch_description():
         )
     )
 
+    relay_odom_node = Node(
+        package='topic_tools',
+        executable='relay',
+        name='odom_topic_relay',
+        arguments=['/botwheel_explorer/odom', '/odom'],
+    )
+
     nodes = [
         control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
         #delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
+        relay_odom_node,
     ]
 
     return LaunchDescription(declared_arguments + nodes)

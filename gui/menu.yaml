@@ -34,6 +34,8 @@ categories:
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/ros2_cleanup.sh"
           - name: "robo (LiDAR+GNSS+IMU)"
             command: "ros2 launch susumu_robo robo.launch.py"
+          - name: "bringup (diagnostic)"
+            command: "ros2 launch susumu_robo bringup_diagnostic.launch.py"
           - name: "bringup (Core System)"
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"

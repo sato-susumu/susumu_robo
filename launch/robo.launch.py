@@ -1,7 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -101,64 +100,6 @@ def generate_launch_description():
         ]
     )
 
-    # robo_doctor_node (starts after 10 second delay)
-    robo_doctor_node = TimerAction(
-        period=10.0,
-        actions=[
-            Node(
-                package='susumu_robo',
-                executable='robo_doctor_node',
-                name='robo_doctor_node',
-                output='screen',
-            )
-        ]
-    )
-
-    # diagnostic_aggregator (starts after 12 second delay)
-    diagnostic_aggregator_node = TimerAction(
-        period=12.0,
-        actions=[
-            Node(
-                package='diagnostic_aggregator',
-                executable='aggregator_node',
-                name='diagnostic_aggregator',
-                output='screen',
-                parameters=[
-                    os.path.join(package_share_dir, 'config', 'diagnostic_aggregator.yaml')
-                ]
-            )
-        ]
-    )
-
-    # rqt_robot_monitor (starts after 14 second delay)
-    rqt_robot_monitor_node = TimerAction(
-        period=14.0,
-        actions=[
-            Node(
-                package='rqt_robot_monitor',
-                executable='rqt_robot_monitor',
-                name='rqt_robot_monitor',
-                output='screen',
-            )
-        ]
-    )
-
-    # sensors_monitor from susumu_diagnostic (starts after 8 second delay)
-    sensors_monitor_launch = TimerAction(
-        period=8.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    os.path.join(
-                        get_package_share_directory('susumu_diagnostic'),
-                        'launch',
-                        'sensors_monitor.launch.py'
-                    )
-                ])
-            )
-        ]
-    )
-
     return LaunchDescription([
         ecef_to_enu_launch,  # Start immediately as it's a static transform
         mid360_launch,
@@ -168,8 +109,4 @@ def generate_launch_description():
         imu_launch,
         key_event_system_launch,
         tts_voicevox_launch,
-        sensors_monitor_launch,
-        robo_doctor_node,
-        diagnostic_aggregator_node,
-        rqt_robot_monitor_node,
     ])
