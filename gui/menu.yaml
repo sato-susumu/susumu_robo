@@ -50,7 +50,7 @@ categories:
           - name: "bringup (Core System)"
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"
-            command: "ros2 launch susumu_robo botwheel_teleop.launch.py"
+            command: "gnome-terminal -- ros2 launch susumu_robo botwheel_teleop.launch.py"
           - name: "foxglove_bridge"
             command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
       - name: "LiDAR"
