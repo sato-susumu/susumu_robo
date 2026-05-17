@@ -103,6 +103,14 @@ categories:
 
   - name: "SLAM"
     subcategories:
+      - name: "Nav2"
+        items:
+          - name: "run nav2"
+            command: "ros2 launch susumu_robo nav2.launch.py"
+          - name: "run nav2 (新規ウィンドウ)"
+            command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
+          - name: "kill nav2"
+            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; pkill -f 'nav2_amcl/amcl'; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'twist_stamper'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
       - name: "GLIM"
         items:
           - name: "run glim"
@@ -129,12 +137,6 @@ categories:
             command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
           - name: "kill slam_toolbox"
             command: "pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'"
-      - name: "Nav2"
-        items:
-          - name: "run nav2"
-            command: "ros2 launch susumu_robo nav2.launch.py"
-          - name: "kill nav2"
-            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; pkill -f 'nav2_amcl/amcl'; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'twist_stamper'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
 
   - name: "AutoWare"
     items:
