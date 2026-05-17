@@ -29,6 +29,14 @@ class RoboDoctorNode(Node):
         self.hardware_id = 'susumu_robo'
         self.battery_warning_threshold = 80
 
+        self.declare_parameter('enable_gnss_checks', True)
+        self.declare_parameter('enable_ptp_checks', True)
+        self.enable_gnss_checks = self.get_parameter('enable_gnss_checks').value
+        self.enable_ptp_checks = self.get_parameter('enable_ptp_checks').value
+
+        # Nodes that are only expected when GNSS is enabled (outdoor mode)
+        self.gnss_only_nodes = ['septentrio_gnss_driver_container']
+
         # Network targets
         self.lidar_ip = '192.168.1.145'
         self.gnss_ip = '192.168.3.1'
@@ -80,10 +88,12 @@ class RoboDoctorNode(Node):
 
         # PTP check targets
         self.ptp_slave_ip = '192.168.1.145'  # Livox LiDAR
-        self.ptp_master_ip = '192.168.1.156'  # Local host as PTP master
+        self.ptp_master_ip = '192.168.1.5'  # Local host as PTP master
 
         # Device checks
         self.imu_device = '/dev/imu_wt901'
+        self.joystick_device = '/dev/input/js0'
+        self.can_interface = 'can0'
 
         # Cache for check results (thread-safe)
         self._cache_lock = threading.Lock()
@@ -204,23 +214,40 @@ class RoboDoctorNode(Node):
     # Check Runners (update cache)
     # =========================================================================
 
+    def _disabled_status(self, name: str) -> DiagnosticStatus:
+        """Return a STALE status indicating the check is disabled."""
+        status = DiagnosticStatus()
+        status.name = name
+        status.hardware_id = self.hardware_id
+        status.level = DiagnosticStatus.OK
+        status.message = 'Disabled (indoor mode)'
+        return status
+
     def _run_light_checks(self):
         """Run light checks and update cache."""
-        statuses = [
-            self._check_battery(),
-            self._check_ptp_service(),
-            self._check_ptp_process(),
-        ]
+        statuses = [self._check_battery()]
+        if self.enable_ptp_checks:
+            statuses += [self._check_ptp_service(), self._check_ptp_process()]
+        else:
+            statuses += [
+                self._disabled_status('/robo_doctor/PTP/Service'),
+                self._disabled_status('/robo_doctor/PTP/Process'),
+            ]
         self._update_cache(statuses)
 
     def _run_medium_checks(self):
         """Run medium checks and update cache."""
         statuses = [
             self._check_network_lidar(),
-            self._check_network_gnss(),
             self._check_host_interface(),
             self._check_device_imu(),
+            self._check_device_joystick(),
+            self._check_device_can(),
         ]
+        if self.enable_gnss_checks:
+            statuses.append(self._check_network_gnss())
+        else:
+            statuses.append(self._disabled_status('/robo_doctor/Network/GNSS'))
         self._update_cache(statuses)
 
     def _run_heavy_checks(self):
@@ -230,9 +257,18 @@ class RoboDoctorNode(Node):
         statuses.extend(self._check_ros2_topics())
         statuses.extend(self._check_critical_data_flow())
         statuses.append(self._check_livox_config())
-        statuses.append(self._check_ptp_slave_status())
-        statuses.append(self._check_ptp_master_status())
-        statuses.append(self._check_ntrip_status())
+        if self.enable_ptp_checks:
+            statuses.append(self._check_ptp_slave_status())
+            statuses.append(self._check_ptp_master_status())
+        else:
+            statuses += [
+                self._disabled_status('/robo_doctor/PTP/Slave'),
+                self._disabled_status('/robo_doctor/PTP/Master'),
+            ]
+        if self.enable_gnss_checks:
+            statuses.append(self._check_ntrip_status())
+        else:
+            statuses.append(self._disabled_status('/robo_doctor/GNSS/NTRIP'))
         self._update_cache(statuses)
 
     # =========================================================================
@@ -429,6 +465,51 @@ class RoboDoctorNode(Node):
 
         return status
 
+    def _check_device_joystick(self) -> DiagnosticStatus:
+        """Check joystick device exists."""
+        status = DiagnosticStatus()
+        status.name = '/robo_doctor/Device/Joystick'
+        status.hardware_id = self.hardware_id
+        status.values.append(KeyValue(key='device_path', value=self.joystick_device))
+
+        if os.path.exists(self.joystick_device):
+            status.level = DiagnosticStatus.OK
+            status.message = f'Joystick device found ({self.joystick_device})'
+        else:
+            status.level = DiagnosticStatus.ERROR
+            status.message = f'Joystick device not found ({self.joystick_device})'
+
+        return status
+
+    def _check_device_can(self) -> DiagnosticStatus:
+        """Check CAN interface exists and is up."""
+        status = DiagnosticStatus()
+        status.name = '/robo_doctor/Device/CAN'
+        status.hardware_id = self.hardware_id
+        status.values.append(KeyValue(key='interface', value=self.can_interface))
+
+        try:
+            result = subprocess.run(
+                ['ip', 'link', 'show', self.can_interface],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode != 0:
+                status.level = DiagnosticStatus.ERROR
+                status.message = f'CAN interface not found ({self.can_interface})'
+            elif 'UP' in result.stdout:
+                status.level = DiagnosticStatus.OK
+                status.message = f'CAN interface up ({self.can_interface})'
+            else:
+                status.level = DiagnosticStatus.WARN
+                status.message = f'CAN interface down ({self.can_interface})'
+        except Exception as e:
+            status.level = DiagnosticStatus.ERROR
+            status.message = f'CAN check error: {str(e)}'
+
+        return status
+
     # =========================================================================
     # Heavy Checks
     # =========================================================================
@@ -463,6 +544,12 @@ class RoboDoctorNode(Node):
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
 
+                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
+                    status.level = DiagnosticStatus.OK
+                    status.message = 'Disabled (indoor mode)'
+                    statuses.append(status)
+                    continue
+
                 found = any(node_name in node for node in running_nodes)
                 if found:
                     status.level = DiagnosticStatus.OK
@@ -478,16 +565,24 @@ class RoboDoctorNode(Node):
                 status = DiagnosticStatus()
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
-                status.level = DiagnosticStatus.ERROR
-                status.message = 'Node list command timeout'
+                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
+                    status.level = DiagnosticStatus.OK
+                    status.message = 'Disabled (indoor mode)'
+                else:
+                    status.level = DiagnosticStatus.ERROR
+                    status.message = 'Node list command timeout'
                 statuses.append(status)
         except Exception as e:
             for node_name in self.expected_nodes:
                 status = DiagnosticStatus()
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
-                status.level = DiagnosticStatus.ERROR
-                status.message = f'Check error: {str(e)}'
+                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
+                    status.level = DiagnosticStatus.OK
+                    status.message = 'Disabled (indoor mode)'
+                else:
+                    status.level = DiagnosticStatus.ERROR
+                    status.message = f'Check error: {str(e)}'
                 statuses.append(status)
 
         return statuses

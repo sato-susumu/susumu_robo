@@ -3,6 +3,8 @@ categories:
     items:
       - name: "colcon build"
         command: "cd ~/ros2_ws && colcon build --symlink-install --continue-on-error && source install/setup.bash"
+      - name: "colcon build (susumu_robo)"
+        command: "cd ~/ros2_ws && colcon build --symlink-install --packages-select susumu_robo && source install/setup.bash"
       - name: "pycharm"
         command: "pycharm"
       - name: "foxglove-studio (local)"
@@ -34,8 +36,10 @@ categories:
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/ros2_cleanup.sh"
           - name: "robo (LiDAR+GNSS+IMU)"
             command: "ros2 launch susumu_robo robo.launch.py"
-          - name: "bringup (diagnostic)"
-            command: "ros2 launch susumu_robo bringup_diagnostic.launch.py"
+          - name: "bringup (diagnostic outdoor)"
+            command: "ros2 launch susumu_robo bringup_diagnostic_outdoor.launch.py"
+          - name: "bringup (diagnostic indoor)"
+            command: "ros2 launch susumu_robo bringup_diagnostic_indoor.launch.py"
           - name: "bringup (Core System)"
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"
@@ -127,12 +131,10 @@ categories:
             command: "pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'"
       - name: "Nav2"
         items:
-          - name: "nav2 (Navigation)"
+          - name: "run nav2"
             command: "ros2 launch susumu_robo nav2.launch.py"
-          - name: "nav2 with ダミーodom"
-            command: "ros2 launch susumu_robo nav2_dummy_odom.launch.py"
           - name: "kill nav2"
-            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
+            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; pkill -f 'nav2_amcl/amcl'; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'twist_stamper'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
 
   - name: "AutoWare"
     items:
