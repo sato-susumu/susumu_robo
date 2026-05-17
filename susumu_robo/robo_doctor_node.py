@@ -55,8 +55,6 @@ class RoboDoctorNode(Node):
             'ecef_to_enu_transform',
             'static_transform_publisher',
             'key_event_handler',
-            'voicevox_ros2',
-            'to_human_2_voicevox'
         ]
 
         self.expected_topics = [
@@ -68,8 +66,6 @@ class RoboDoctorNode(Node):
             '/imu',
             '/fix',
             '/key_event',
-            '/voicevox_ros2/speaker',
-            '/to_human'
         ]
 
         # Critical topics that must have data flowing

@@ -88,18 +88,6 @@ def generate_launch_description():
         ]
     )
 
-    # Include tts_voicevox.launch.py (starts after 7 second delay)
-    tts_voicevox_launch = TimerAction(
-        period=7.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    os.path.join(package_share_dir, 'launch', 'tts_voicevox.launch.py')
-                ])
-            )
-        ]
-    )
-
     return LaunchDescription([
         ecef_to_enu_launch,  # Start immediately as it's a static transform
         mid360_launch,
@@ -108,5 +96,4 @@ def generate_launch_description():
         dummy_navsatfix_launch,
         imu_launch,
         key_event_system_launch,
-        tts_voicevox_launch,
     ])
