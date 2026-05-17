@@ -44,6 +44,8 @@ categories:
             command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"
             command: "ros2 launch susumu_robo botwheel_teleop.launch.py"
+          - name: "robo (Indoor) (別ターミナル)"
+            command: "gnome-terminal -- ros2 launch susumu_robo robo_indoor.launch.py"
           - name: "foxglove_bridge"
             command: "ros2 launch susumu_robo foxglove_bridge.launch.py"
       - name: "LiDAR"
