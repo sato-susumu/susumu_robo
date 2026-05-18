@@ -79,7 +79,7 @@ The system uses a layered launch file structure:
 
 ### Hardware Components Integration
 
-- **Motors**: DDSM115 direct drive servos via RS485 (`ros2_ddsm115.launch.py`)
+- **Motors**: ODrive BotWheel Explorer via USB (`botwheel_teleop.launch.py`)
 - **LiDAR**: Livox Mid-360 for 3D mapping (`ros2_mid360.launch.py`)
 - **Camera**: RealSense D435i depth camera (`ros2_realsense.launch.py`)
 - **Audio**: Anker PowerConf S3 for speech I/O (TTS via `tts_voicevox.launch.py`)
@@ -119,13 +119,13 @@ cd /home/taro/ros2_ws/src/susumu_robo/launch
 # Control individual services
 sudo systemctl start ros2_bringup.service
 sudo systemctl status ros2_mid360.service
-sudo systemctl stop ros2_ddsm115.service
+sudo systemctl stop ros2_led.service
 
 # View service logs
 journalctl -u ros2_bringup.service -f
 ```
 
-Services include: ros2_bringup, ros2_mid360, ros2_ddsm115, ros2_realsense, ros2_led, ros2_nav2
+Services include: ros2_bringup, ros2_mid360, ros2_realsense, ros2_led, ros2_nav2
 
 ## GUI Interface
 

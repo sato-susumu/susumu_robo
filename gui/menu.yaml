@@ -85,8 +85,6 @@ categories:
             command: "ros2 run rqt_plot rqt_plot /livox/imu/linear_acceleration/x /livox/imu/linear_acceleration/y /livox/imu/linear_acceleration/z /livox/imu/angular_velocity/x /livox/imu/angular_velocity/y /livox/imu/angular_velocity/z"
       - name: "Motor & Control"
         items:
-          - name: "ddsm115 (Motors)"
-            command: "ros2 launch susumu_robo ddsm115.launch.py"
           - name: "base (Base Controllers)"
             command: "ros2 launch susumu_robo base.launch.py"
           - name: "teleop_twist_joy (Gamepad)"
@@ -166,15 +164,6 @@ categories:
 #        command: "ros2 launch nav2_bringup rviz_launch.py"
 #      - name: "teleop_twist_keyboard "
 #        command: "gnome-terminal -- ros2 run teleop_twist_keyboard teleop_twist_keyboard "
-
-  - name: "URDF"
-    items:
-      - name: "create diffbot.urdf"
-        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && xacro diffbot.urdf.xacro > diffbot.urdf"
-      - name: "check_urdf"
-        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && check_urdf <(xacro diffbot.urdf.xacro)"
-      - name: "urdf_to_graphiz"
-        command: "cd ~/ros2_ws/src/diffdrive_ddsm115/description/urdf && urdf_to_graphiz <(xacro diffbot.urdf.xacro) && evince diffdrive_robot.pdf"
 
   - name: "Launch"
     items:
