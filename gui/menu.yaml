@@ -112,36 +112,34 @@ categories:
     subcategories:
       - name: "Nav2"
         items:
-          - name: "lifecycle状態確認 (新規ウィンドウ)"
+          - name: "lifecycle状態確認"
             command: "gnome-terminal -- bash -c 'ros2 lifecycle nodes | xargs -P 10 -I {} bash -c \"echo {}: \\$(ros2 lifecycle get {})\"; read -p \"Press Enter to close...\"'"
-          - name: "kill nav2"
-            command: "pkill -f 'lifecycle_manager'; pkill -f 'controller_server'; pkill -f 'smoother_server'; pkill -f 'planner_server'; pkill -f 'behavior_server'; pkill -f 'bt_navigator'; pkill -f 'waypoint_follower'; pkill -f 'velocity_smoother'; pkill -f 'nav2_map_server/map_server'; pkill -f 'nav2_amcl/amcl'; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'twist_stamper'; sleep 1; echo 'Nav2関連プロセスをすべて終了しました'"
       - name: "GLIM"
         items:
           - name: "run glim"
-            command: "cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox"
+            command: "gnome-terminal -- bash -c 'cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox'"
           - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
-            command: 'cp -r /tmp/dump "$HOME/glim/$(date +%Y%m%d_%H%M%S)"'
+            command: "gnome-terminal -- bash -c 'cp -r /tmp/dump \"$HOME/glim/$(date +%Y%m%d_%H%M%S)\"; read -p \"Press Enter to close...\"'"
           - name: "run offline_viewer"
-            command: "cd ~/glim && ros2 run glim_ros offline_viewer"
+            command: "gnome-terminal -- bash -c 'cd ~/glim && ros2 run glim_ros offline_viewer'"
       - name: "FAST_LIO"
         items:
           - name: "run fast_lio"
-            command: "ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
+            command: "gnome-terminal -- ros2 launch fast_lio mapping.launch.py config_path:=/home/taro/ros2_ws/src/susumu_robo/config config_file:=fast_lio_mid360.yaml"
           - name: "save map (PCD) ※pcd_save_en:true required"
-            command: "ros2 service call /map_save std_srvs/srv/Trigger {}"
+            command: "gnome-terminal -- bash -c 'ros2 service call /map_save std_srvs/srv/Trigger {}; read -p \"Press Enter to close...\"'"
           - name: "kill fast_lio"
-            command: "pkill -f fastlio_mapping"
+            command: "gnome-terminal -- bash -c 'pkill -f fastlio_mapping; read -p \"Press Enter to close...\"'"
       - name: "slam_toolbox"
         items:
           - name: "run slam_toolbox + RViz2"
-            command: "ros2 launch susumu_robo slam_rviz.launch.py"
+            command: "gnome-terminal -- ros2 launch susumu_robo slam_rviz.launch.py"
           - name: "save map (with timestamp)"
-            command: "ros2 run nav2_map_server map_saver_cli -f ~/map_$(date +%Y%m%d_%H%M%S)"
+            command: "gnome-terminal -- bash -c 'ros2 run nav2_map_server map_saver_cli -f ~/map_$(date +%Y%m%d_%H%M%S); read -p \"Press Enter to close...\"'"
           - name: "show map (select file)"
             command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
           - name: "kill slam_toolbox"
-            command: "pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'"
+            command: "gnome-terminal -- bash -c \"pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'; read -p 'Press Enter to close...'\""
 
   - name: "AutoWare"
     items:

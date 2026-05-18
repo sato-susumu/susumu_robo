@@ -1,6 +1,7 @@
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -25,13 +26,39 @@ def generate_launch_description():
         ]
     )
 
-    bringup_launch = TimerAction(
+    # bringup.launch.py から teleop_twist_joy を除いた構成
+    # (botwheel_teleop.launch.py が joy_node と teleop_twist_joy_node を起動するため重複を避ける)
+    base_launch = TimerAction(
         period=4.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    os.path.join(pkg, 'launch', 'bringup.launch.py')
+                    os.path.join(pkg, 'launch', 'base.launch.py')
                 )
+            )
+        ]
+    )
+
+    collision_monitor_launch = TimerAction(
+        period=4.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'collision_monitor.launch.py')
+                )
+            )
+        ]
+    )
+
+    foxglove_bridge_pkg = get_package_share_directory('foxglove_bridge')
+    foxglove_bridge_launch = TimerAction(
+        period=4.0,
+        actions=[
+            IncludeLaunchDescription(
+                XMLLaunchDescriptionSource(
+                    os.path.join(foxglove_bridge_pkg, 'launch', 'foxglove_bridge_launch.xml')
+                ),
+                launch_arguments={"port": "8765"}.items(),
             )
         ]
     )
@@ -50,6 +77,8 @@ def generate_launch_description():
     return LaunchDescription([
         robo_launch,
         bringup_diagnostic_indoor_launch,
-        bringup_launch,
+        base_launch,
+        collision_monitor_launch,
+        foxglove_bridge_launch,
         botwheel_teleop_launch,
     ])
