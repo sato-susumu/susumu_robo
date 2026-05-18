@@ -9,10 +9,43 @@ import os
 def generate_launch_description():
     pkg = get_package_share_directory('susumu_robo')
 
-    robo_launch = IncludeLaunchDescription(
+    ecef_to_enu_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg, 'launch', 'robo.launch.py')
+            os.path.join(pkg, 'launch', 'ecef_to_enu.launch.py')
         )
+    )
+
+    mid360_launch = TimerAction(
+        period=1.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'mid360.launch.py')
+                )
+            )
+        ]
+    )
+
+    imu_launch = TimerAction(
+        period=5.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'imu_wt901.launch.py')
+                )
+            )
+        ]
+    )
+
+    key_event_system_launch = TimerAction(
+        period=6.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'key_event_system.launch.py')
+                )
+            )
+        ]
     )
 
     bringup_diagnostic_indoor_launch = TimerAction(
@@ -75,7 +108,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        robo_launch,
+        ecef_to_enu_launch,
+        mid360_launch,
+        imu_launch,
+        key_event_system_launch,
         bringup_diagnostic_indoor_launch,
         base_launch,
         collision_monitor_launch,
