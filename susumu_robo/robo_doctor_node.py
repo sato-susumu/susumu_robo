@@ -35,7 +35,10 @@ class RoboDoctorNode(Node):
         self.enable_ptp_checks = self.get_parameter('enable_ptp_checks').value
 
         # Nodes that are only expected when GNSS is enabled (outdoor mode)
-        self.gnss_only_nodes = ['septentrio_gnss_driver_container']
+        self.gnss_only_nodes = [
+            'septentrio_gnss_driver_container',
+            'ntrip_str2str_node',
+        ]
 
         # Network targets
         self.lidar_ip = '192.168.1.145'
@@ -49,13 +52,13 @@ class RoboDoctorNode(Node):
             'livox_to_pointcloud2_node',
             'pointcloud_to_laserscan',
             'livox_imu_converter',
-            'septentrio_gnss_driver_container',
-            'ntrip_str2str_node',
             'witmotion',
             'ecef_to_enu_transform',
             'static_transform_publisher',
             'key_event_handler',
         ]
+        if self.enable_gnss_checks:
+            self.expected_nodes += self.gnss_only_nodes
 
         self.expected_topics = [
             '/livox/lidar',
@@ -64,17 +67,19 @@ class RoboDoctorNode(Node):
             '/converted_pointcloud2',
             '/scan',
             '/imu',
-            '/fix',
             '/key_event',
         ]
+        if self.enable_gnss_checks:
+            self.expected_topics.append('/fix')
 
         # Critical topics that must have data flowing
         self.critical_data_topics = [
             ('/livox/lidar', 'LiDAR data'),
             ('/scan', 'LiDAR scan'),
             ('/imu', 'IMU data'),
-            ('/fix', 'GNSS position'),
         ]
+        if self.enable_gnss_checks:
+            self.critical_data_topics.append(('/fix', 'GNSS position'))
 
         # Livox config paths
         self.livox_config_paths = [
@@ -540,12 +545,6 @@ class RoboDoctorNode(Node):
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
 
-                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
-                    status.level = DiagnosticStatus.OK
-                    status.message = 'Disabled (indoor mode)'
-                    statuses.append(status)
-                    continue
-
                 found = any(node_name in node for node in running_nodes)
                 if found:
                     status.level = DiagnosticStatus.OK
@@ -561,24 +560,16 @@ class RoboDoctorNode(Node):
                 status = DiagnosticStatus()
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
-                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
-                    status.level = DiagnosticStatus.OK
-                    status.message = 'Disabled (indoor mode)'
-                else:
-                    status.level = DiagnosticStatus.ERROR
-                    status.message = 'Node list command timeout'
+                status.level = DiagnosticStatus.ERROR
+                status.message = 'Node list command timeout'
                 statuses.append(status)
         except Exception as e:
             for node_name in self.expected_nodes:
                 status = DiagnosticStatus()
                 status.name = f'/robo_doctor/Nodes/{node_name}'
                 status.hardware_id = self.hardware_id
-                if not self.enable_gnss_checks and node_name in self.gnss_only_nodes:
-                    status.level = DiagnosticStatus.OK
-                    status.message = 'Disabled (indoor mode)'
-                else:
-                    status.level = DiagnosticStatus.ERROR
-                    status.message = f'Check error: {str(e)}'
+                status.level = DiagnosticStatus.ERROR
+                status.message = f'Check error: {str(e)}'
                 statuses.append(status)
 
         return statuses
