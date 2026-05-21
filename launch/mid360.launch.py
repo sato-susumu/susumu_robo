@@ -83,7 +83,7 @@ def generate_launch_description():
         remappings=[('cloud_in', '/converted_pointcloud2'),
                     ('scan', '/scan')],
         parameters=[{
-            'target_frame': '',
+            'target_frame': 'base_link',
             'transform_tolerance': 0.01,
             'min_height': -0.2,  # -20cm
             'max_height': 0.2,   # 20cm
