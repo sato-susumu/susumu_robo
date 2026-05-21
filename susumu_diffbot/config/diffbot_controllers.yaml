@@ -13,7 +13,7 @@ botwheel_explorer:
     left_wheel_names: ["left_wheel_joint"]
     right_wheel_names: ["right_wheel_joint"]
 
-    wheel_separation: 0.134
+    wheel_separation: 0.255
     wheel_radius: 0.0855
 
     wheel_separation_multiplier: 1.0
