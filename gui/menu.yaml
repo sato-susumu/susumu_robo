@@ -5,6 +5,8 @@ categories:
         command: "gnome-terminal -- ros2 launch susumu_robo robo_indoor.launch.py"
       - name: "run nav2 (新規ウィンドウ)"
         command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
+      - name: "show map (select file)"
+        command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
 
   - name: "Development"
     items:
@@ -134,8 +136,6 @@ categories:
             command: "gnome-terminal -- ros2 launch susumu_robo slam_rviz.launch.py"
           - name: "save map (with timestamp)"
             command: "gnome-terminal -- bash -c 'ros2 run nav2_map_server map_saver_cli -f ~/map_$(date +%Y%m%d_%H%M%S); read -p \"Press Enter to close...\"'"
-          - name: "show map (select file)"
-            command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
           - name: "kill slam_toolbox"
             command: "gnome-terminal -- bash -c \"pkill -f async_slam_toolbox_node; pkill -f '/opt/ros/humble/lib/rviz2/rviz2'; pkill -f 'nav2_map_server/map_server'; pkill -f 'map_viewer.py'; sleep 1; echo 'slam_toolbox関連プロセスをすべて終了しました'; read -p 'Press Enter to close...'\""
 

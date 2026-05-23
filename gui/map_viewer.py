@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import subprocess
 import sys
 import re
 import shutil
@@ -37,6 +38,12 @@ class MapViewer(QMainWindow):
         copy_btn.setMinimumHeight(40)
         copy_btn.clicked.connect(self._copy_to_map_dir)
         left.addWidget(copy_btn)
+
+        edit_btn = QPushButton("地図を編集 (画像エディタで開く)")
+        edit_btn.setMinimumHeight(40)
+        edit_btn.clicked.connect(self._edit_map)
+        left.addWidget(edit_btn)
+
         layout.addLayout(left)
 
         # 右: 画像とYAML表示を縦に分割
@@ -129,6 +136,25 @@ class MapViewer(QMainWindow):
             self.image_label.setPixmap(
                 self._pixmap.scaled(self.scroll.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
             )
+
+    def _edit_map(self):
+        item = self.list_widget.currentItem()
+        if not item:
+            QMessageBox.warning(self, "警告", "地図ファイルを選択してください。")
+            return
+        yaml_path = item.data(Qt.UserRole)
+        pgm_path = os.path.splitext(yaml_path)[0] + ".pgm"
+        if not os.path.exists(pgm_path):
+            QMessageBox.warning(self, "警告", f".pgm が見つかりません:\n{pgm_path}")
+            return
+        QMessageBox.information(
+            self, "GIMP で編集",
+            f"GIMP で編集後、以下の手順で保存してください：\n\n"
+            f"　「ファイル」→「上書きエクスポート」（Ctrl+Shift+E）\n\n"
+            f"「エクスポート」ではなく「上書きエクスポート」を選ぶと\n"
+            f".pgm 形式のまま上書き保存されます。"
+        )
+        subprocess.Popen(["gimp", pgm_path])
 
     def _copy_to_map_dir(self):
         item = self.list_widget.currentItem()
