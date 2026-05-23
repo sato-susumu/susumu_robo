@@ -1,0 +1,24 @@
+scan_to_scan_filter_chain:
+  ros__parameters:
+    filter1:
+      name: rear_right_body_noise
+      type: laser_filters/LaserScanAngularBoundsFilterInPlace
+      params:
+        lower_angle: -3.1416
+        upper_angle: -2.3562
+        replace_with_nan: true
+    filter2:
+      name: rear_left_body_noise
+      type: laser_filters/LaserScanAngularBoundsFilterInPlace
+      params:
+        lower_angle: 2.8448
+        upper_angle: 3.1416
+        replace_with_nan: true
+    filter3:
+      name: speckle_filter
+      type: laser_filters/LaserScanSpeckleFilter
+      params:
+        filter_type: 1
+        max_range: 70.0
+        max_range_difference: 0.3
+        filter_window: 2

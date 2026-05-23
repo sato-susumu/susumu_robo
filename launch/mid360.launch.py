@@ -81,7 +81,7 @@ def generate_launch_description():
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
         remappings=[('cloud_in', '/converted_pointcloud2'),
-                    ('scan', '/scan')],
+                    ('scan', '/scan_raw')],
         parameters=[{
             'target_frame': 'base_link',
             'transform_tolerance': 0.01,

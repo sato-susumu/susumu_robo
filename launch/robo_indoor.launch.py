@@ -48,6 +48,17 @@ def generate_launch_description():
         ]
     )
 
+    laser_filter_launch = TimerAction(
+        period=2.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'laser_filter.launch.py')
+                )
+            )
+        ]
+    )
+
     bringup_diagnostic_indoor_launch = TimerAction(
         period=2.0,
         actions=[
@@ -112,6 +123,7 @@ def generate_launch_description():
         mid360_launch,
         imu_launch,
         key_event_system_launch,
+        laser_filter_launch,
         bringup_diagnostic_indoor_launch,
         base_launch,
         collision_monitor_launch,
