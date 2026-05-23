@@ -22,7 +22,7 @@ flowchart TD
     end
 
     subgraph laser_filter["laser_filter.launch.py (2秒後)"]
-        lf["scan_to_scan_filter_chain\n(laser_filters)\n\n後方右側ノイズ除去\n-180 〜 -155 deg → NaN"]
+        lf["scan_to_scan_filter_chain\n(laser_filters)\n\n後方右側: -180 〜 -135 deg → NaN\n後方左側: +163 〜 +180 deg → NaN"]
     end
 
     subgraph collision["collision_monitor.launch.py (4秒後)"]
@@ -107,14 +107,13 @@ flowchart TD
 
 `config/laser_filter.yaml` で定義。
 
-| パラメータ | 値 | 意味 |
-|-----------|-----|------|
-| フィルター種別 | `LaserScanAngularBoundsFilterInPlace` | 指定角度範囲内をNaN置換 |
-| `lower_angle` | -3.1416 rad（-180°） | フィルター開始角度 |
-| `upper_angle` | -2.7053 rad（-155°） | フィルター終了角度 |
-| `replace_with_nan` | true | NaNで置換（infではなく） |
+| フィルター | パラメータ | 値 | 意味 |
+|-----------|-----------|-----|------|
+| filter1（後方右） | `lower_angle` / `upper_angle` | -3.1416 / -2.3562 rad（-180° 〜 -135°） | 後方右側ボディノイズをNaN置換 |
+| filter2（後方左） | `lower_angle` / `upper_angle` | 2.8448 / 3.1416 rad（+163° 〜 +180°） | 後方左側ボディノイズをNaN置換 |
+| filter3（スペックル） | `filter_type` / `max_range_difference` / `filter_window` | 1 / 0.3 / 2 | 散発的な外れ値を除去 |
 
-ロボット後方右側（-180°〜-155°）に出るロボット本体由来の近接ノイズ（0.1〜0.2m）を除去する。
+ロボット後方両側に出るボディ由来の近接ノイズ（0.1〜0.2m）を除去する。
 
 ## 起動タイミング
 
