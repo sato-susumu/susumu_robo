@@ -9,12 +9,6 @@ import os
 def generate_launch_description():
     pkg = get_package_share_directory('susumu_robo')
 
-    ecef_to_enu_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg, 'launch', 'ecef_to_enu.launch.py')
-        )
-    )
-
     mid360_launch = TimerAction(
         period=1.0,
         actions=[
@@ -118,7 +112,6 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        ecef_to_enu_launch,
         mid360_launch,
         imu_launch,
         key_event_system_launch,

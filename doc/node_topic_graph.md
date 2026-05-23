@@ -6,57 +6,63 @@
 
 ```mermaid
 flowchart TD
+    classDef hw fill:#4a4a6a,stroke:#9090c0,color:#fff
+    classDef lidar fill:#1a4a1a,stroke:#50a050,color:#fff
+    classDef filter fill:#1a3a4a,stroke:#4090b0,color:#fff
+    classDef safety fill:#4a1a1a,stroke:#c05050,color:#fff
+    classDef drive fill:#3a2a1a,stroke:#c09050,color:#fff
+    classDef imu fill:#2a1a4a,stroke:#8050c0,color:#fff
+    classDef nav fill:#1a3a3a,stroke:#40a0a0,color:#fff
+
     subgraph HW["ハードウェア"]
-        LIDAR["Livox Mid-360"]
-        IMU_HW["IMU (WT901)"]
-        MOTOR_HW["BotWheel モーター"]
-        JOY_HW["PS5 DualSense"]
+        LIDAR["Livox Mid-360"]:::hw
+        IMU_HW["IMU (WT901)"]:::hw
+        MOTOR_HW["BotWheel モーター"]:::hw
+        JOY_HW["Logicool F710"]:::hw
     end
 
     subgraph mid360["mid360.launch.py (1秒後)"]
-        livox_driver["livox_lidar_publisher\n(livox_ros_driver2)"]
-        livox_conv["livox_to_pointcloud2_node"]
-        pc2scan["pointcloud_to_laserscan"]
-        tf_livox["static_transform_publisher\nlaser_frame → livox_frame"]
-        imu_conv["livox_imu_converter"]
+        livox_driver["livox_lidar_publisher\n(livox_ros_driver2)"]:::lidar
+        livox_conv["livox_to_pointcloud2_node"]:::lidar
+        pc2scan["pointcloud_to_laserscan"]:::lidar
+        imu_conv["livox_imu_converter"]:::imu
     end
 
     subgraph laser_filter["laser_filter.launch.py (2秒後)"]
-        lf["scan_to_scan_filter_chain\n(laser_filters)\n\n後方右側: -180 〜 -135 deg → NaN\n後方左側: +163 〜 +180 deg → NaN"]
+        lf["scan_to_scan_filter_chain\n(laser_filters)\n\n後方右側: -180 〜 -135 deg → NaN\n後方左側: +163 〜 +180 deg → NaN"]:::filter
     end
 
     subgraph collision["collision_monitor.launch.py (4秒後)"]
-        lsf["laserscan_filter_node\n障害物検出範囲判定"]
-        twf["twist_filter_node\n障害物時に前進停止"]
+        lsf["laserscan_filter_node\n障害物検出範囲判定"]:::safety
+        twf["twist_filter_node\n障害物時に前進停止"]:::safety
     end
 
     subgraph base["base.launch.py (4秒後)"]
-        ts1["twist_stamper\n(cmd_vel → diffbot_base_controller/cmd_vel)"]
+        ts1["twist_stamper\n(/input_twist → /diffbot_base_controller/cmd_vel)"]:::drive
     end
 
     subgraph botwheel["botwheel_teleop.launch.py (6秒後)"]
-        joy["joy_node"]
-        teleop["teleop_twist_joy_node"]
-        ts2["twist_stamper\n(cmd_vel → botwheel_explorer/cmd_vel)"]
-        botwheel_ctrl["botwheel_explorer\nモータードライバ"]
+        joy["joy_node"]:::drive
+        teleop["teleop_twist_joy_node"]:::drive
+        ts2["twist_stamper\n(/cmd_vel → /botwheel_explorer/cmd_vel)"]:::drive
+        botwheel_ctrl["botwheel_explorer\nモータードライバ"]:::drive
     end
 
     subgraph imu["imu_wt901.launch.py (5秒後)"]
-        imu_node["witmotion IMU node"]
+        imu_node["witmotion IMU node"]:::imu
     end
 
     subgraph key["key_event_system.launch.py (6秒後)"]
-        key_node["key_event_handler"]
+        key_node["key_event_handler"]:::drive
     end
 
-    subgraph ecef["ecef_to_enu.launch.py (即時)"]
-        ecef_node["ecef_to_enu_transform"]
-    end
+    nav2["Nav2"]:::nav
+    odom_relay["odom_topic_relay"]:::nav
 
     %% ハードウェア接続
     LIDAR -->|"USB/LAN"| livox_driver
     IMU_HW -->|"USB"| imu_node
-    JOY_HW -->|"Bluetooth"| joy
+    JOY_HW -->|"USB レシーバー"| joy
 
     %% LiDAR パイプライン
     livox_driver -->|"/livox/lidar\n(CustomMsg)"| livox_conv
@@ -69,21 +75,22 @@ flowchart TD
     lsf -->|"/scan_range_polygon\n(PolygonStamped)"| twf
 
     %% コマンド速度フロー
+    joy -->|"/joy"| teleop
     teleop -->|"/cmd_vel"| twf
-    twf -->|"/cmd_vel\n(障害物時ゼロ化)"| ts1
+    twf -->|"/input_twist\n(障害物時ゼロ化)"| ts1
     twf -->|"/cmd_vel"| ts2
 
     %% モーター制御
-    ts1 -->|"/diffbot_base_controller/cmd_vel\n(TwistStamped)"| MOTOR_HW
     ts2 -->|"/botwheel_explorer/cmd_vel\n(TwistStamped)"| botwheel_ctrl
     botwheel_ctrl -->|"RS485"| MOTOR_HW
 
-    joy -->|"/joy"| teleop
+    %% オドメトリ
+    botwheel_ctrl -->|"/botwheel_explorer/odom"| odom_relay
+    odom_relay -->|"/odom"| nav2
 
     %% IMU
-    imu_node -->|"/wit/imu\n(Imu)"| ecef_node
+    imu_node -->|"/imu\n(Imu)"| nav2
     livox_driver -->|"/livox/imu\n(Imu raw)"| imu_conv
-    imu_conv -->|"/livox/imu_corrected\n(Imu, m/s²変換済)"| ecef_node
 ```
 
 ## トピック一覧
@@ -93,15 +100,19 @@ flowchart TD
 | `/livox/lidar` | `CustomMsg` | livox_lidar_publisher | livox_to_pointcloud2_node | Livox独自形式 |
 | `/converted_pointcloud2` | `PointCloud2` | livox_to_pointcloud2_node | pointcloud_to_laserscan | |
 | `/scan_raw` | `LaserScan` | pointcloud_to_laserscan | scan_to_scan_filter_chain | フィルター前の生データ |
-| `/scan` | `LaserScan` | scan_to_scan_filter_chain | laserscan_filter_node, Nav2, amcl 等 | **フィルター済み**（後方右側ノイズ除去済み） |
+| `/scan` | `LaserScan` | scan_to_scan_filter_chain | laserscan_filter_node, amcl, costmap 等 | **フィルター済み** |
 | `/scan_in_range` | `Bool` | laserscan_filter_node | twist_filter_node | 障害物検出フラグ |
 | `/scan_range_polygon` | `PolygonStamped` | laserscan_filter_node | — | 検出範囲の可視化用 |
 | `/joy` | `Joy` | joy_node | teleop_twist_joy_node | |
-| `/cmd_vel` | `Twist` | teleop_twist_joy_node → twist_filter_node | twist_stamper × 2 | twist_filter_nodeで障害物時ゼロ化 |
-| `/diffbot_base_controller/cmd_vel` | `TwistStamped` | twist_stamper | diffbot コントローラー | |
-| `/botwheel_explorer/cmd_vel` | `TwistStamped` | twist_stamper | botwheel_explorer | |
+| `/cmd_vel` | `Twist` | teleop_twist_joy_node, twist_filter_node 他 | twist_stamper (ts2), twist_filter_node | |
+| `/input_twist` | `Twist` | twist_filter_node, laserscan_filter_node | twist_stamper (ts1) | 障害物時ゼロ化済み |
+| `/diffbot_base_controller/cmd_vel` | `TwistStamped` | twist_stamper (ts1) | — | 現在 subscriber なし |
+| `/botwheel_explorer/cmd_vel` | `TwistStamped` | twist_stamper (ts2), teleop_twist_joy_node | botwheel_explorer | |
+| `/botwheel_explorer/odom` | `Odometry` | botwheel_explorer | odom_topic_relay | |
+| `/odom` | `Odometry` | odom_topic_relay | controller_server, bt_navigator | |
+| `/imu` | `Imu` | witmotion | Nav2 | |
 | `/livox/imu` | `Imu` | livox_lidar_publisher | livox_imu_converter | G単位 |
-| `/livox/imu_corrected` | `Imu` | livox_imu_converter | — | m/s²変換済み |
+| `/livox/imu_ms2` | `Imu` | livox_imu_converter | — | m/s²変換済み（outdoor用） |
 
 ## laser_filter の設定
 
@@ -123,7 +134,6 @@ gantt
     dateFormat s
     axisFormat %Ss
 
-    ecef_to_enu         : 0, 1s
     mid360              : 1, 2s
     laser_filter        : 2, 3s
     bringup_diagnostic  : 2, 3s

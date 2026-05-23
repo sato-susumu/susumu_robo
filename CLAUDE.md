@@ -73,7 +73,7 @@ The system uses a layered launch file structure:
 
 - `ros2_bringup.launch.py` → `bringup.launch.py` (main system launcher)
   - `base.launch.py` (twist stamper for motor control)
-  - `teleop_twist_joy.launch.py` (PS5 DualSense gamepad control)
+  - `botwheel_teleop.launch.py` (Logicool F710 gamepad control)
   - `collision_monitor.launch.py` (obstacle avoidance)
   - Foxglove Bridge (visualization on port 8765)
 
