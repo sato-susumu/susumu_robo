@@ -70,8 +70,7 @@ def generate_launch_description():
         ]
     )
 
-    # bringup.launch.py から teleop_twist_joy を除いた構成
-    # (botwheel_teleop.launch.py が joy_node と teleop_twist_joy_node を起動するため重複を避ける)
+    # joy_node と teleop_twist_joy_node は botwheel_teleop.launch.py が起動する
     base_launch = TimerAction(
         period=4.0,
         actions=[

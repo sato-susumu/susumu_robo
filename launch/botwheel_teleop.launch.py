@@ -47,7 +47,7 @@ def generate_launch_description():
                     'scale_linear_turbo.x': 0.9,
                     'scale_angular.yaw': 1.0,
                     'scale_angular_turbo.yaw': 1.0,
-                    'enable_turbo_button': 5,
+                    'enable_turbo_button': -1,  # disabled (was: 5 = R1 shoulder button)
                 }
             ],
             remappings=[
