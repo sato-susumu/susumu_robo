@@ -1,0 +1,16 @@
+twist_mux:
+  ros__parameters:
+    use_stamped: true
+    topics:
+      joy:
+        topic   : /joy_cmd_vel
+        timeout : 2.0
+        priority: 10
+      nav:
+        topic   : /nav_cmd_vel
+        timeout : 2.0
+        priority: 5
+      llm:
+        topic   : /llm_cmd_vel
+        timeout : 2.0
+        priority: 3
