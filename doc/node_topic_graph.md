@@ -33,18 +33,16 @@ flowchart TD
     end
 
     subgraph collision["collision_monitor.launch.py (4秒後)"]
-        lsf["laserscan_filter_node\n障害物検出範囲判定"]:::safety
-        twf["twist_filter_node\n障害物時に前進停止"]:::safety
+        lsf["laserscan_filter_node\n障害物検出・速度フィルタ統合\n前方障害物→前進ブロック\n後方障害物→後退ブロック"]:::safety
     end
 
     subgraph base["base.launch.py (4秒後)"]
-        ts1["twist_stamper\n(/input_twist → /diffbot_base_controller/cmd_vel)"]:::drive
+        ts1["twist_stamper\n(/cmd_vel → /botwheel_explorer/cmd_vel)"]:::drive
     end
 
     subgraph botwheel["botwheel_teleop.launch.py (6秒後)"]
         joy["joy_node"]:::drive
-        teleop["teleop_twist_joy_node"]:::drive
-        ts2["twist_stamper\n(/cmd_vel → /botwheel_explorer/cmd_vel)"]:::drive
+        teleop["teleop_twist_joy_node\n(TwistStamped出力)"]:::drive
         botwheel_ctrl["botwheel_explorer\nモータードライバ"]:::drive
     end
 
@@ -71,17 +69,15 @@ flowchart TD
     lf -->|"/scan\n(LaserScan, フィルター済み)"| lsf
 
     %% 障害物検出
-    lsf -->|"/scan_in_range\n(Bool)"| twf
-    lsf -->|"/scan_range_polygon\n(PolygonStamped)"| twf
+    lsf -->|"/scan_in_range\n(Bool)"| lsf
+    lsf -->|"/scan_range_polygon\n(PolygonStamped)"| lsf
 
     %% コマンド速度フロー
     joy -->|"/joy"| teleop
-    teleop -->|"/cmd_vel"| twf
-    twf -->|"/input_twist\n(障害物時ゼロ化)"| ts1
-    twf -->|"/cmd_vel"| ts2
+    teleop -->|"/input_twist\n(TwistStamped)"| lsf
+    lsf -->|"/botwheel_explorer/cmd_vel\n(TwistStamped, 障害物時ゼロ化)"| botwheel_ctrl
 
     %% モーター制御
-    ts2 -->|"/botwheel_explorer/cmd_vel\n(TwistStamped)"| botwheel_ctrl
     botwheel_ctrl -->|"RS485"| MOTOR_HW
 
     %% オドメトリ
@@ -101,13 +97,11 @@ flowchart TD
 | `/converted_pointcloud2` | `PointCloud2` | livox_to_pointcloud2_node | pointcloud_to_laserscan | |
 | `/scan_raw` | `LaserScan` | pointcloud_to_laserscan | scan_to_scan_filter_chain | フィルター前の生データ |
 | `/scan` | `LaserScan` | scan_to_scan_filter_chain | laserscan_filter_node, amcl, costmap 等 | **フィルター済み** |
-| `/scan_in_range` | `Bool` | laserscan_filter_node | twist_filter_node | 障害物検出フラグ |
+| `/scan_in_range` | `Bool` | laserscan_filter_node | — | 障害物検出フラグ（内部状態管理に使用） |
 | `/scan_range_polygon` | `PolygonStamped` | laserscan_filter_node | — | 検出範囲の可視化用 |
 | `/joy` | `Joy` | joy_node | teleop_twist_joy_node | |
-| `/cmd_vel` | `Twist` | teleop_twist_joy_node, twist_filter_node 他 | twist_stamper (ts2), twist_filter_node | |
-| `/input_twist` | `Twist` | twist_filter_node, laserscan_filter_node | twist_stamper (ts1) | 障害物時ゼロ化済み |
-| `/diffbot_base_controller/cmd_vel` | `TwistStamped` | twist_stamper (ts1) | — | 現在 subscriber なし |
-| `/botwheel_explorer/cmd_vel` | `TwistStamped` | twist_stamper (ts2), teleop_twist_joy_node | botwheel_explorer | |
+| `/input_twist` | `TwistStamped` | teleop_twist_joy_node | laserscan_filter_node | ゲームパッド入力 |
+| `/botwheel_explorer/cmd_vel` | `TwistStamped` | laserscan_filter_node | botwheel_explorer | 障害物時に linear をゼロ化済み |
 | `/botwheel_explorer/odom` | `Odometry` | botwheel_explorer | odom_topic_relay | |
 | `/odom` | `Odometry` | odom_topic_relay | controller_server, bt_navigator | |
 | `/imu` | `Imu` | witmotion | Nav2 | |
