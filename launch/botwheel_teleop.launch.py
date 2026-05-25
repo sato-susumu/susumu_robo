@@ -51,7 +51,7 @@ def generate_launch_description():
                 }
             ],
             remappings=[
-                ('cmd_vel', '/input_twist'),
+                ('cmd_vel', '/joy_cmd_vel'),
             ],
         ),
     ])

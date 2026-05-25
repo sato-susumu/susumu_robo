@@ -64,18 +64,6 @@ def generate_launch_description():
         ]
     )
 
-    # joy_node と teleop_twist_joy_node は botwheel_teleop.launch.py が起動する
-    base_launch = TimerAction(
-        period=4.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(pkg, 'launch', 'base.launch.py')
-                )
-            )
-        ]
-    )
-
     collision_monitor_launch = TimerAction(
         period=4.0,
         actions=[
@@ -100,6 +88,17 @@ def generate_launch_description():
         ]
     )
 
+    twist_mux_launch = TimerAction(
+        period=4.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'twist_mux.launch.py')
+                )
+            )
+        ]
+    )
+
     botwheel_teleop_launch = TimerAction(
         period=6.0,
         actions=[
@@ -117,8 +116,8 @@ def generate_launch_description():
         key_event_system_launch,
         laser_filter_launch,
         bringup_diagnostic_indoor_launch,
-        base_launch,
         collision_monitor_launch,
+        twist_mux_launch,
         foxglove_bridge_launch,
         botwheel_teleop_launch,
     ])
