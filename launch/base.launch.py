@@ -11,7 +11,7 @@ def generate_launch_description():
             executable='twist_stamper',
             remappings=[
                 ('/cmd_vel_in','/cmd_vel'),
-                ('/cmd_vel_out','/diffbot_base_controller/cmd_vel')
+                ('/cmd_vel_out','/botwheel_explorer/cmd_vel')
             ],
             output='screen',
         ),

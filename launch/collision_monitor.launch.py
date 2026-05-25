@@ -10,31 +10,19 @@ def generate_launch_description():
             name='laserscan_filter_node',
             output='screen',
             parameters=[
-                {'forward.x_min': -0.15},
+                {'forward.x_min': 0.0},
                 {'forward.x_max': 0.25},
-                {'forward.y_min': -0.15},
-                {'forward.y_max': 0.15},
-                {'backward.x_min': -0.25},
-                {'backward.x_max': 0.15},
-                {'backward.y_min': -0.15},
-                {'backward.y_max': 0.15},
+                {'forward.y_min': -0.25},
+                {'forward.y_max': 0.25},
+                {'backward.x_min': -0.50},
+                {'backward.x_max': 0.0},
+                {'backward.y_min': -0.25},
+                {'backward.y_max': 0.25},
                 {'reference_link': 'livox_frame'},
             ],
             remappings=[
-                ('cmd_vel', 'input_twist'),
-            ]
-        ),
-        # twist_filter_nodeの起動
-        Node(
-            package='susumu_robo',
-            executable='twist_filter_node',
-            name='twist_filter_node',
-            output='screen',
-            parameters=[],
-            remappings=[
-                ('enable', 'scan_in_range'),
-                ('output_twist', 'cmd_vel'),
-            ]
+                ('cmd_vel', '/botwheel_explorer/cmd_vel'),
+            ],
         )
     ])
 
