@@ -40,6 +40,10 @@ flowchart TD
         ts1["twist_stamper\n(/cmd_vel → /botwheel_explorer/cmd_vel)"]:::drive
     end
 
+    subgraph twist_mux_sg["twist_mux.launch.py (4秒後)"]
+        tmux["twist_mux\n優先度制御マルチプレクサ\njoy(優先10) / nav(優先5) / llm(優先3)"]:::drive
+    end
+
     subgraph botwheel["botwheel_teleop.launch.py (6秒後)"]
         joy["joy_node"]:::drive
         teleop["teleop_twist_joy_node\n(TwistStamped出力)"]:::drive
@@ -74,7 +78,9 @@ flowchart TD
 
     %% コマンド速度フロー
     joy -->|"/joy"| teleop
-    teleop -->|"/input_twist\n(TwistStamped)"| lsf
+    teleop -->|"/joy_cmd_vel\n(TwistStamped)"| tmux
+    nav2 -->|"/nav_cmd_vel\n(TwistStamped)"| tmux
+    tmux -->|"/input_twist\n(TwistStamped, 優先度選択済み)"| lsf
     lsf -->|"/botwheel_explorer/cmd_vel\n(TwistStamped, 障害物時ゼロ化)"| botwheel_ctrl
 
     %% モーター制御
@@ -100,7 +106,10 @@ flowchart TD
 | `/scan_in_range` | `Bool` | laserscan_filter_node | — | 障害物検出フラグ（内部状態管理に使用） |
 | `/scan_range_polygon` | `PolygonStamped` | laserscan_filter_node | — | 検出範囲の可視化用 |
 | `/joy` | `Joy` | joy_node | teleop_twist_joy_node | |
-| `/input_twist` | `TwistStamped` | teleop_twist_joy_node | laserscan_filter_node | ゲームパッド入力 |
+| `/joy_cmd_vel` | `TwistStamped` | teleop_twist_joy_node | twist_mux | ゲームパッド入力（優先度10） |
+| `/nav_cmd_vel` | `TwistStamped` | Nav2 | twist_mux | Nav2自律走行入力（優先度5） |
+| `/llm_cmd_vel` | `TwistStamped` | LLM系ノード | twist_mux | LLM指令入力（優先度3） |
+| `/input_twist` | `TwistStamped` | twist_mux | laserscan_filter_node | 優先度選択済み速度指令 |
 | `/botwheel_explorer/cmd_vel` | `TwistStamped` | laserscan_filter_node | botwheel_explorer | 障害物時に linear をゼロ化済み |
 | `/botwheel_explorer/odom` | `Odometry` | botwheel_explorer | odom_topic_relay | |
 | `/odom` | `Odometry` | odom_topic_relay | controller_server, bt_navigator | |
