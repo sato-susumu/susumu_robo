@@ -14,7 +14,7 @@ import math
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Twist, PolygonStamped, Point32
+from geometry_msgs.msg import Twist, TwistStamped, PolygonStamped, Point32
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Bool
 
@@ -54,6 +54,8 @@ class LaserScanFilterNode(Node):
         # 変数初期化
         self.is_forward_ = True
         self.linear_x_ = 0.0
+        self.forward_in_range_ = False
+        self.backward_in_range_ = False
 
         # TFバッファとリスナーのセットアップ
         self.tf_buffer_ = tf2_ros.Buffer()
@@ -69,10 +71,10 @@ class LaserScanFilterNode(Node):
             self.laser_scan_callback,
             qos_profile
         )
-        self.velocity_subscriber_ = self.create_subscription(
-            Twist,
-            'cmd_vel',
-            self.velocity_callback,
+        self.twist_subscriber_ = self.create_subscription(
+            TwistStamped,
+            'input_twist',
+            self.twist_callback,
             qos_profile
         )
 
@@ -80,6 +82,11 @@ class LaserScanFilterNode(Node):
         self.bool_publisher_ = self.create_publisher(
             Bool,
             'scan_in_range',
+            qos_profile
+        )
+        self.twist_publisher_ = self.create_publisher(
+            TwistStamped,
+            'cmd_vel',
             qos_profile
         )
         self.detected_points_publisher_ = self.create_publisher(
@@ -96,34 +103,52 @@ class LaserScanFilterNode(Node):
         self.get_logger().info("Laser Scan Filter Node has been started.")
         self.get_logger().info(f"Reference link is set to: {self.reference_link_}")
 
-    def velocity_callback(self, msg: Twist):
+    def twist_callback(self, msg: TwistStamped):
         """
-        cmd_velの速度を受け取り、前進・後進のどちらかを判定する.
+        input_twistを受け取り、方向判定と障害物フィルタリングを行ってcmd_velに出力する.
         """
-        self.linear_x_ = msg.linear.x
+        self.linear_x_ = msg.twist.linear.x
         self.is_forward_ = (self.linear_x_ >= 0.0)
         self.get_logger().debug(f"Direction: {'Forward' if self.is_forward_ else 'Backward'}")
 
+        block_forward = self.forward_in_range_ and self.linear_x_ > 0.0
+        block_backward = self.backward_in_range_ and self.linear_x_ < 0.0
+
+        if block_forward or block_backward:
+            filtered = TwistStamped()
+            filtered.header = msg.header
+            filtered.twist.angular = msg.twist.angular
+            self.twist_publisher_.publish(filtered)
+            self.get_logger().debug("Obstacle detected: linear velocity zeroed.")
+        else:
+            self.twist_publisher_.publish(msg)
+
     def laser_scan_callback(self, msg: LaserScan):
         """
-        LaserScanを受け取り、指定領域内に点があるかどうかを判定する.
+        LaserScanを受け取り、前方・後方それぞれの領域内に点があるかどうかを判定する.
         """
-        in_range = False
+        forward_in_range = False
+        backward_in_range = False
 
-        # 進行方向に応じて範囲を切り替える
+        # 前方・後方それぞれの範囲（実際に前進/後退中のときのみ動的拡張）
+        fwd_speed = self.linear_x_ if self.linear_x_ > 0.0 else 0.0
+        bwd_speed = self.linear_x_ if self.linear_x_ < 0.0 else 0.0
+
+        fwd_x_min = self.forward_x_min_
+        fwd_x_max = self.forward_x_max_ + fwd_speed * 0.5
+        fwd_y_min = self.forward_y_min_
+        fwd_y_max = self.forward_y_max_
+
+        bwd_x_min = self.backward_x_min_ + bwd_speed * 0.5
+        bwd_x_max = self.backward_x_max_
+        bwd_y_min = self.backward_y_min_
+        bwd_y_max = self.backward_y_max_
+
+        # 可視化用にPolygonをPublish（進行方向の範囲を表示）
         if self.is_forward_:
-            x_min = self.forward_x_min_
-            x_max = self.forward_x_max_ + self.linear_x_ * 0.5
-            y_min = self.forward_y_min_
-            y_max = self.forward_y_max_
+            self.publish_polygon(fwd_x_min, fwd_x_max, fwd_y_min, fwd_y_max)
         else:
-            x_min = self.backward_x_min_ + self.linear_x_ * 0.5
-            x_max = self.backward_x_max_
-            y_min = self.backward_y_min_
-            y_max = self.backward_y_max_
-
-        # 可視化用にPolygonをPublish
-        self.publish_polygon(x_min, x_max, y_min, y_max)
+            self.publish_polygon(bwd_x_min, bwd_x_max, bwd_y_min, bwd_y_max)
 
         # TFを取得
         try:
@@ -174,19 +199,29 @@ class LaserScanFilterNode(Node):
             y_ref = transform_stamped.transform.translation.y + \
                     x_local * math.sin(yaw) + y_local * math.cos(yaw)
 
-            # 範囲内かどうか判定
-            if x_min <= x_ref <= x_max and y_min <= y_ref <= y_max:
-                in_range = True
+            # 前方・後方それぞれの範囲内かどうか判定
+            in_fwd = fwd_x_min <= x_ref <= fwd_x_max and fwd_y_min <= y_ref <= fwd_y_max
+            in_bwd = bwd_x_min <= x_ref <= bwd_x_max and bwd_y_min <= y_ref <= bwd_y_max
+            if in_fwd:
+                forward_in_range = True
+            if in_bwd:
+                backward_in_range = True
+            if in_fwd or in_bwd:
                 detected_points_msg.ranges.append(r)
                 if has_intensities:
                     detected_points_msg.intensities.append(msg.intensities[i])
                 else:
-                    detected_points_msg.intensities.append(0.0)  # デフォルト値を追加
+                    detected_points_msg.intensities.append(0.0)
             else:
                 detected_points_msg.ranges.append(float('nan'))
-                detected_points_msg.intensities.append(0.0)  # 常に0.0を追加
+                detected_points_msg.intensities.append(0.0)
 
-        # in_range情報をBoolでPublish
+        # 前方・後方のin_range状態を更新
+        self.forward_in_range_ = forward_in_range
+        self.backward_in_range_ = backward_in_range
+
+        # Bool（前方または後方に障害物）をPublish
+        in_range = forward_in_range or backward_in_range
         bool_msg = Bool()
         bool_msg.data = in_range
         self.bool_publisher_.publish(bool_msg)
@@ -194,7 +229,7 @@ class LaserScanFilterNode(Node):
         # 検出した点群をPublish
         self.detected_points_publisher_.publish(detected_points_msg)
 
-        self.get_logger().debug(f"Scan in range: {in_range}")
+        self.get_logger().debug(f"Forward in range: {forward_in_range}, Backward in range: {backward_in_range}")
 
     def get_yaw_from_quaternion(self, quaternion):
         """
