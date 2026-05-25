@@ -10,7 +10,7 @@ def generate_launch_description():
     rviz_config = os.path.join(
         get_package_share_directory('susumu_robo'),
         'config',
-        'livox_imu.rviz'
+        'livox_imu_ms2.rviz'
     )
 
     rviz_node = Node(

@@ -79,12 +79,16 @@ categories:
         items:
           - name: "imu_wt901 (IMU)"
             command: "ros2 launch susumu_robo imu_wt901.launch.py"
-          - name: "imu_rviz (IMU Visualization)"
+          - name: "imu_rviz (WT901 IMU Visualization)"
             command: "ros2 launch susumu_robo imu_rviz.launch.py"
-          - name: "imu_plot (/imu Graph)"
+          - name: "imu_plot (WT901 /imu Graph)"
             command: "ros2 run rqt_plot rqt_plot /imu/linear_acceleration/x /imu/linear_acceleration/y /imu/linear_acceleration/z /imu/angular_velocity/x /imu/angular_velocity/y /imu/angular_velocity/z"
+          - name: "livox_imu_ms2_rviz (/livox/imu_ms2 Visualization)"
+            command: "ros2 launch susumu_robo livox_imu_ms2_rviz.launch.py"
           - name: "livox_imu_plot (/livox/imu Graph)"
             command: "ros2 run rqt_plot rqt_plot /livox/imu/linear_acceleration/x /livox/imu/linear_acceleration/y /livox/imu/linear_acceleration/z /livox/imu/angular_velocity/x /livox/imu/angular_velocity/y /livox/imu/angular_velocity/z"
+          - name: "livox_imu_ms2_plot (/livox/imu_ms2 Graph)"
+            command: "ros2 run rqt_plot rqt_plot /livox/imu_ms2/linear_acceleration/x /livox/imu_ms2/linear_acceleration/y /livox/imu_ms2/linear_acceleration/z /livox/imu_ms2/angular_velocity/x /livox/imu_ms2/angular_velocity/y /livox/imu_ms2/angular_velocity/z"
       - name: "Motor & Control"
         items:
           - name: "base (Base Controllers)"

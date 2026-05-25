@@ -66,7 +66,6 @@ class RoboDoctorNode(Node):
             '/livox/imu_ms2',
             '/converted_pointcloud2',
             '/scan',
-            '/imu',
             '/key_event',
         ]
         if self.enable_gnss_checks:
@@ -76,7 +75,6 @@ class RoboDoctorNode(Node):
         self.critical_data_topics = [
             ('/livox/lidar', 'LiDAR data'),
             ('/scan', 'LiDAR scan'),
-            ('/imu', 'IMU data'),
         ]
         if self.enable_gnss_checks:
             self.critical_data_topics.append(('/fix', 'GNSS position'))

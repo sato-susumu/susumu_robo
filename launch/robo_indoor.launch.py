@@ -20,17 +20,6 @@ def generate_launch_description():
         ]
     )
 
-    imu_launch = TimerAction(
-        period=5.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(pkg, 'launch', 'imu_wt901.launch.py')
-                )
-            )
-        ]
-    )
-
     key_event_system_launch = TimerAction(
         period=6.0,
         actions=[
@@ -110,9 +99,19 @@ def generate_launch_description():
         ]
     )
 
+    d435i_launch = TimerAction(
+        period=3.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(pkg, 'launch', 'd435i.launch.py')
+                )
+            )
+        ]
+    )
+
     return LaunchDescription([
         mid360_launch,
-        imu_launch,
         key_event_system_launch,
         laser_filter_launch,
         bringup_diagnostic_indoor_launch,
@@ -120,4 +119,5 @@ def generate_launch_description():
         twist_mux_launch,
         foxglove_bridge_launch,
         botwheel_teleop_launch,
+        d435i_launch,
     ])
