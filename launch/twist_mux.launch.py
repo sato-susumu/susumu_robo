@@ -1,22 +1,26 @@
 import sys
-import os
 from launch import LaunchDescription, LaunchService
 from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    config = os.path.join(
-        get_package_share_directory('susumu_robo'),
-        'config', 'twist_mux_topics.yaml'
-    )
-
     return LaunchDescription([
         Node(
             package='twist_mux',
             executable='twist_mux',
             name='twist_mux',
             output='screen',
-            parameters=[config],
+            parameters=[{
+                'use_stamped': True,
+                'topics.joy.topic':    '/joy_cmd_vel',
+                'topics.joy.timeout':  2.0,
+                'topics.joy.priority': 10,
+                'topics.nav.topic':    '/nav_cmd_vel',
+                'topics.nav.timeout':  2.0,
+                'topics.nav.priority': 5,
+                'topics.llm.topic':    '/llm_cmd_vel',
+                'topics.llm.timeout':  2.0,
+                'topics.llm.priority': 3,
+            }],
             remappings=[
                 ('/cmd_vel_out', '/input_twist')
             ],
