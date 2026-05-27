@@ -10,6 +10,13 @@
 4. [tenkey_publisher.py](#tenkey_publisherpy) - テンキー入力制御
 5. [laser_scan_detect_test.py](#laser_scan_detect_testpy) - 物体検出テスト
 6. [laser_scan_test.py](#laser_scan_testpy) - LaserScan表示テスト
+7. [key_event_handler.py](#key_event_handlerpy) - キーイベント処理
+8. [livox_imu_converter.py](#livox_imu_converterpy) - IMU単位変換
+9. [ntrip_str2str_node.py](#ntrip_str2str_nodepy) - NTRIP補正データ配信
+10. [number_key_publisher.py](#number_key_publisherpy) - 数字キー入力配信
+11. [robo_doctor_node.py](#robo_doctor_nodepy) - システム診断
+12. [dummy_navsatfix_publisher.py](#dummy_navsatfix_publisherpy) - ダミーGNSS配信
+13. [imu_visualizer.py](#imu_visualizerpy) - IMUデータ可視化
 
 ---
 
@@ -30,12 +37,13 @@ LiDARからのスキャンデータをフィルタリングし、ロボットの
 | トピック名 | 型 | 説明 |
 |-----------|-----|------|
 | `/scan` | `sensor_msgs/LaserScan` | LiDARからのスキャンデータ |
-| `/cmd_vel` | `geometry_msgs/Twist` | 速度コマンド（移動方向判定用） |
+| `/input_twist` | `geometry_msgs/TwistStamped` | 速度コマンド（移動方向判定用） |
 
 #### 公開トピック
 | トピック名 | 型 | 説明 |
 |-----------|-----|------|
 | `/scan_in_range` | `std_msgs/Bool` | 指定範囲内に障害物があるかのフラグ |
+| `/cmd_vel` | `geometry_msgs/TwistStamped` | フィルタリング後の速度コマンド |
 | `/detected_points` | `sensor_msgs/LaserScan` | 検出された点群のみを含むLaserScan |
 | `/scan_range_polygon` | `geometry_msgs/PolygonStamped` | 検出範囲の可視化用ポリゴン |
 
@@ -357,8 +365,245 @@ graph TD
   - **解決**: `ls /dev/input/by-id/`でデバイスパスを確認
   - パラメータで正しいパスを設定
 
+## key_event_handler.py
+
+### 概要
+テンキー等からのキーイベントを受け取り、rosbag録画の開始/停止やシステム診断を実行するノードです。結果はTTSで音声通知されます。
+
+### 機能
+- キー1: rosbag録画のトグル（開始/停止）
+- キー2: システム診断の実行
+- 録画結果・診断結果のTTS通知
+
+### ROS2インターフェース
+
+#### 購読トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `key_event` | `std_msgs/String` | キーイベント（"1", "2"等） |
+
+#### 公開トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `to_human` | `std_msgs/String` | TTS音声合成用メッセージ |
+
+### パラメータ
+
+```yaml
+key_event_topic: 'key_event'
+robo_doctor_path: '/home/taro/ros2_ws/src/susumu_robo/launch/robo_doctor.py'
+rosbag_base_dir: '~/ros2_bags'
+```
+
+### 使用例
+```bash
+ros2 run susumu_robo key_event_handler
+```
+
+---
+
+## livox_imu_converter.py
+
+### 概要
+Livox Mid-360のIMUデータの加速度単位をG単位からm/s²に変換するノードです。
+
+### 機能
+- 加速度データのG単位 → m/s²変換（×9.81）
+- 角速度・姿勢データはそのままコピー
+
+### ROS2インターフェース
+
+#### 購読トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `/livox/imu` | `sensor_msgs/Imu` | Livox IMUデータ（G単位） |
+
+#### 公開トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `/livox/imu_ms2` | `sensor_msgs/Imu` | 変換後のIMUデータ（m/s²） |
+
+### 使用例
+```bash
+ros2 run susumu_robo livox_imu_converter
+```
+
+---
+
+## ntrip_str2str_node.py
+
+### 概要
+RTKLIBの`str2str`コマンドをROS2ノードとしてラップし、NTRIPサーバーからGNSS補正データを取得してGNSSレシーバーに転送するノードです。
+
+### 機能
+- str2strプロセスの起動・管理
+- 接続状態の監視（C=接続/W=待機/E=エラー）
+- ステータスのサービス公開
+
+### ROS2インターフェース
+
+#### サービス
+| サービス名 | 型 | 説明 |
+|-----------|-----|------|
+| `~/get_status` | `susumu_ros2_interfaces/NtripStatus` | NTRIP接続状態の取得 |
+
+### パラメータ
+
+```yaml
+ntrip_server: 'ntrip://ntrip1.bizstation.jp:2101/0C8BD4BE'
+output_dest: 'tcpcli://192.168.3.1:28785'
+```
+
+### 使用例
+```bash
+ros2 run susumu_robo ntrip_str2str_node
+```
+
+---
+
+## number_key_publisher.py
+
+### 概要
+USBキーボード（ゲーミングマウス等の追加ボタン）のテンキー入力を読み取り、キーイベントとして配信するノードです。`key_event_handler`と組み合わせて使用します。
+
+### 機能
+- evdevによるキーボードデバイスの読み取り
+- KP1〜KP4のキーをイベントとして配信
+
+### ROS2インターフェース
+
+#### 公開トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `key_event` | `std_msgs/String` | キーイベント（"1"〜"4"） |
+
+### パラメータ
+
+```yaml
+keyboard_device_path: '/dev/input/by-id/usb-INSTANT_USB_GAMING_MOUSE-if01-event-kbd'
+key_event_topic: 'key_event'
+```
+
+### キーマッピング
+
+| キー | 配信値 |
+|------|--------|
+| KP1 | "1" |
+| KP2 | "2" |
+| KP3 | "3" |
+| KP4 | "4" |
+
+### 使用例
+```bash
+ros2 run susumu_robo number_key_publisher
+```
+
+---
+
+## robo_doctor_node.py
+
+### 概要
+ロボットのシステム状態を定期的に診断し、`/diagnostics`トピックに結果を配信するノードです。バッテリー、ネットワーク、ROS2ノード/トピック、デバイス等を監視します。
+
+### 機能
+- バッテリー残量チェック
+- ネットワーク疎通確認（LiDAR、GNSS）
+- ROS2ノード・トピックの存在確認
+- デバイス存在確認（IMU、ジョイスティック、CAN）
+- PTP時刻同期状態確認
+- Livox設定ファイル検証
+
+### ROS2インターフェース
+
+#### 公開トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `/diagnostics` | `diagnostic_msgs/DiagnosticArray` | 診断結果（3秒毎に配信） |
+
+### パラメータ
+
+```yaml
+enable_gnss_checks: true   # GNSS関連チェックの有効/無効
+enable_ptp_checks: true    # PTP関連チェックの有効/無効
+```
+
+### 診断項目
+
+| カテゴリ | 項目 | 間隔 |
+|---------|------|------|
+| System | Battery | 60s |
+| PTP | Service, Process, Slave, Master | 60s |
+| Network | LiDAR, GNSS, HostInterface | 60s |
+| Device | IMU, Joystick, CAN | 60s |
+| Nodes | 各期待ノード | 60s |
+| Topics | 各期待トピック | 60s |
+| DataFlow | LiDAR, GNSS | 60s |
+| Config | Livox設定 | 60s |
+
+### 使用例
+```bash
+ros2 run susumu_robo robo_doctor_node
+```
+
+---
+
+## dummy_navsatfix_publisher.py
+
+### 概要
+GNSSノードが起動していない場合に、無効値（NaN）の`NavSatFix`メッセージを`/fix`トピックに配信するノードです。実際のGNSSノードが起動したら自動的に終了します。
+
+### 機能
+- 5秒毎にNaN座標のNavSatFixを配信
+- 他のNavSatFixパブリッシャー検出時に自動終了
+
+### ROS2インターフェース
+
+#### 公開トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `/fix` | `sensor_msgs/NavSatFix` | ダミーGNSS位置（NaN） |
+
+### 使用例
+```bash
+ros2 run susumu_robo dummy_navsatfix_publisher
+```
+
+---
+
+## imu_visualizer.py
+
+### 概要
+IMUデータをmatplotlibでリアルタイムにグラフ表示するデバッグツールです。1つまたは2つのIMUトピックを同時に表示できます。
+
+### 機能
+- 加速度（m/s²）のリアルタイムグラフ表示
+- 角速度（rad/s）のリアルタイムグラフ表示
+- 姿勢（Roll/Pitch/Yaw、度）のリアルタイムグラフ表示
+- 2トピックの同時比較表示（デュアルモード）
+
+### ROS2インターフェース
+
+#### 購読トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| TOPIC1（引数指定） | `sensor_msgs/Imu` | 1つ目のIMUデータ |
+| TOPIC2（引数指定） | `sensor_msgs/Imu` | 2つ目のIMUデータ（省略可） |
+
+### 使用例
+```bash
+# デフォルト（/imu と /livox/imu_ms2 を比較）
+python3 imu_visualizer.py
+
+# 単一トピック
+python3 imu_visualizer.py /my_imu
+
+# 2トピック比較
+python3 imu_visualizer.py /imu1 /imu2
+```
+
+---
+
 ## 関連ファイル
 
 - **設定ファイル**: `config/`ディレクトリ内のYAMLファイル
 - **起動ファイル**: `launch/`ディレクトリ内の各launch.pyファイル
-- **サービスファイル**: `launch/`ディレクトリ内のsystemdサービス関連ファイル
