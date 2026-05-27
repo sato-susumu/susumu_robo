@@ -25,8 +25,6 @@
 | ファイル | 機能 |
 |---|---|
 | `outdoor_option.launch.py` | 屋外GNSS関連起動 |
-| `bringup.launch.py` | 基本システム起動 |
-| `base.launch.py` | twist_stamper モーター基盤 |
 | `gnss.launch.py` | Septentrio GNSS |
 | `imu_wt901.launch.py` | WT901 IMU |
 | `ntrip_str2str.launch.py` | GNSS補正データ配信 |
@@ -58,7 +56,6 @@ graph TD
     %% ========== エントリポイント ==========
     robo_indoor["robo_indoor.launch.py\n(屋内メイン起動)"]
     robo["outdoor_option.launch.py\n(屋外/GNSS環境)"]
-    bringup["bringup.launch.py\n(基本システム)"]
     nav2["nav2.launch.py\n(自律ナビゲーション)"]
 
     %% ========== robo_indoor の依存 ==========
@@ -81,13 +78,6 @@ graph TD
     robo_indoor --> botwheel
     robo_indoor --> d435i
     robo_indoor --> key_event_sys
-
-    %% ========== bringup の依存 ==========
-    base["base.launch.py\n(twist_stamper)"]
-
-    bringup --> base
-    bringup --> collision
-    bringup --> foxglove_bridge_ext
 
     %% ========== outdoor_option の依存 ==========
     gnss["gnss.launch.py\n(Septentrio GNSS)"]
@@ -132,7 +122,7 @@ graph TD
     classDef external fill:#888,stroke:#555,color:#fff
     classDef composite fill:#f0a500,stroke:#b07800,color:#fff
 
-    class robo_indoor,robo,bringup,nav2 entry
+    class robo_indoor,robo,nav2 entry
     class mid360,laser_filter,collision,twist_mux,botwheel,d435i,base,gnss,dummy_navsatfix,ecef_to_enu,ntrip,tenkey,key_handler internal
     class foxglove_bridge_ext,nav2_bringup_ext,nav2_rviz_ext,sensors_mon_ext,botwheel_ext external
     class key_event_sys,bringup_diag_in composite

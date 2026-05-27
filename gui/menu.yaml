@@ -49,8 +49,6 @@ categories:
             command: "ros2 launch susumu_robo bringup_diagnostic_outdoor.launch.py"
           - name: "bringup (diagnostic indoor)"
             command: "ros2 launch susumu_robo bringup_diagnostic_indoor.launch.py"
-          - name: "bringup (Core System)"
-            command: "ros2 launch susumu_robo bringup.launch.py"
           - name: "botwheel_explorer"
             command: "gnome-terminal -- ros2 launch susumu_robo botwheel_teleop.launch.py"
           - name: "foxglove_bridge"
@@ -91,8 +89,6 @@ categories:
             command: "ros2 run rqt_plot rqt_plot /livox/imu_ms2/linear_acceleration/x /livox/imu_ms2/linear_acceleration/y /livox/imu_ms2/linear_acceleration/z /livox/imu_ms2/angular_velocity/x /livox/imu_ms2/angular_velocity/y /livox/imu_ms2/angular_velocity/z"
       - name: "Motor & Control"
         items:
-          - name: "base (Base Controllers)"
-            command: "ros2 launch susumu_robo base.launch.py"
           - name: "botwheel_teleop (Gamepad)"
             command: "ros2 launch susumu_robo botwheel_teleop.launch.py"
           - name: "collision_monitor (Safety)"

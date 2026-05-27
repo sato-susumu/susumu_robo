@@ -71,8 +71,7 @@ Linting is configured with:
 
 The system uses a layered launch file structure:
 
-- `bringup.launch.py` (main system launcher)
-  - `base.launch.py` (twist stamper for motor control)
+- `robo_indoor.launch.py` (main system launcher)
   - `collision_monitor.launch.py` (obstacle avoidance)
   - Foxglove Bridge (visualization on port 8765)
 - `botwheel_teleop.launch.py` (joystick control, started separately)
@@ -158,7 +157,7 @@ ros2 launch susumu_robo nav2.launch.py
 cd /home/taro/ros2_ws && colcon build && source install/setup.bash
 
 # Launch main system
-ros2 launch susumu_robo bringup.launch.py
+ros2 launch susumu_robo robo_indoor.launch.py
 
 # Launch navigation
 ros2 launch susumu_robo nav2.launch.py

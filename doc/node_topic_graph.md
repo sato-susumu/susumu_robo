@@ -35,10 +35,6 @@ flowchart TD
         lsf["laserscan_filter_node\n障害物検出・速度フィルタ統合\n前方障害物→前進ブロック\n後方障害物→後退ブロック"]:::safety
     end
 
-    subgraph base["base.launch.py (4秒後)"]
-        ts1["twist_stamper\n(/cmd_vel → /botwheel_explorer/cmd_vel)"]:::drive
-    end
-
     subgraph twist_mux_sg["twist_mux.launch.py (4秒後)"]
         tmux["twist_mux\n優先度制御マルチプレクサ\njoy(優先10) / nav(優先5) / llm(優先3)"]:::drive
     end
