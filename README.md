@@ -15,6 +15,7 @@ ROS2搭載でパワフルながら静かに動く小型移動ロボット。
 - [x] デプスカメラ（RealSense D435i）
 
 ### 一度開発したもののほったらかし
+- [x] FAST-LIO
 - [x] 音声合成（VoiceVox）
 - [x] GLIM
 - [x] GNSS
