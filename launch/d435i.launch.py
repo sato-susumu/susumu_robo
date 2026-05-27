@@ -19,6 +19,8 @@ def generate_launch_description():
             {'enable_accel': False},          # 加速度センサー無効
             {'enable_gyro': False},           # ジャイロセンサー無効
             {'pointcloud.enable': True},      # ポイントクラウド生成有効
+            {'pointcloud.stream_filter': 2},  # 点群の色情報をRGBカメラ(RS2_STREAM_COLOR=2)から取得
+            {'pointcloud.stream_index_filter': 0},  # カラーストリームのインデックス(0=デフォルト)
             {'align_depth.enable': True},     # 深度画像をカラー画像に整列
         ],
         remappings=[

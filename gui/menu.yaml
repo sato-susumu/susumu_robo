@@ -7,6 +7,8 @@ categories:
         command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
       - name: "show map (select file)"
         command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/map_viewer.py"
+      - name: "d435i filter (新規ウィンドウ)"
+        command: "gnome-terminal -- ros2 launch susumu_robo d435i_filter.launch.py"
 
   - name: "Development"
     items:

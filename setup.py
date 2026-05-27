@@ -46,6 +46,7 @@ setup(
             "livox_imu_converter = susumu_robo.livox_imu_converter:main",
             "ntrip_str2str_node = susumu_robo.ntrip_str2str_node:main",
             "robo_doctor_node = susumu_robo.robo_doctor_node:main",
+            "pointcloud_filter_node = susumu_robo.pointcloud_filter_node:main",
         ],
     },
 )
