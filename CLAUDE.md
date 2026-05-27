@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Susumu Robot is a compact, powerful mobile robot running ROS2. It features 3D LiDAR, depth camera, audio processing with wake word detection, speech recognition/synthesis, LED control, and navigation capabilities. The robot uses DDSM115 direct drive servo motors and is designed to be safe and easy to handle.
+Susumu Robot is a compact, powerful mobile robot running ROS2. It features 3D LiDAR, depth camera, audio processing with wake word detection, speech recognition/synthesis, LED control, and navigation capabilities. The robot is designed to be safe and easy to handle.
 
 ## Build System
 
@@ -75,7 +75,7 @@ The system uses a layered launch file structure:
   - `base.launch.py` (twist stamper for motor control)
   - `collision_monitor.launch.py` (obstacle avoidance)
   - Foxglove Bridge (visualization on port 8765)
-- `botwheel_teleop.launch.py` (Xbox config joystick control, started separately)
+- `botwheel_teleop.launch.py` (joystick control, started separately)
 
 ### Hardware Components Integration
 

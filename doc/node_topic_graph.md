@@ -16,7 +16,6 @@ flowchart TD
 
     subgraph HW["ハードウェア"]
         LIDAR["Livox Mid-360"]:::hw
-        IMU_HW["IMU (WT901)"]:::hw
         MOTOR_HW["BotWheel モーター"]:::hw
         JOY_HW["Logicool F710"]:::hw
     end
@@ -50,10 +49,6 @@ flowchart TD
         botwheel_ctrl["botwheel_explorer\nモータードライバ"]:::drive
     end
 
-    subgraph imu["imu_wt901.launch.py (5秒後)"]
-        imu_node["witmotion IMU node"]:::imu
-    end
-
     subgraph key["key_event_system.launch.py (6秒後)"]
         key_node["key_event_handler"]:::drive
     end
@@ -63,7 +58,6 @@ flowchart TD
 
     %% ハードウェア接続
     LIDAR -->|"USB/LAN"| livox_driver
-    IMU_HW -->|"USB"| imu_node
     JOY_HW -->|"USB レシーバー"| joy
 
     %% LiDAR パイプライン
@@ -91,7 +85,6 @@ flowchart TD
     odom_relay -->|"/odom"| nav2
 
     %% IMU
-    imu_node -->|"/imu\n(Imu)"| nav2
     livox_driver -->|"/livox/imu\n(Imu raw)"| imu_conv
 ```
 
@@ -113,7 +106,6 @@ flowchart TD
 | `/botwheel_explorer/cmd_vel` | `TwistStamped` | laserscan_filter_node | botwheel_explorer | 障害物時に linear をゼロ化済み |
 | `/botwheel_explorer/odom` | `Odometry` | botwheel_explorer | odom_topic_relay | |
 | `/odom` | `Odometry` | odom_topic_relay | controller_server, bt_navigator | |
-| `/imu` | `Imu` | witmotion | Nav2 | |
 | `/livox/imu` | `Imu` | livox_lidar_publisher | livox_imu_converter | G単位 |
 | `/livox/imu_ms2` | `Imu` | livox_imu_converter | — | m/s²変換済み（outdoor用） |
 
@@ -143,7 +135,6 @@ gantt
     base                : 4, 5s
     collision_monitor   : 4, 5s
     foxglove_bridge     : 4, 5s
-    imu_wt901           : 5, 6s
     botwheel_teleop     : 6, 7s
     key_event_system    : 6, 7s
 ```

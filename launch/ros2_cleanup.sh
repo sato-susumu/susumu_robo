@@ -6,7 +6,7 @@ echo "Cleaning up ROS2 processes..."
 ros2 daemon stop || true
 
 # Kill specific ROS2 launch processes first
-pkill -f "ros2 launch susumu_robo robo.launch.py" || true
+pkill -f "ros2 launch susumu_robo outdoor_option.launch.py" || true
 pkill -f "septentrio_gnss_driver" || true
 
 # Kill all ROS2 related processes

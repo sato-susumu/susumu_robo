@@ -9,18 +9,6 @@ def generate_launch_description():
     # Get package share directory
     package_share_dir = get_package_share_directory('susumu_robo')
 
-    # Include mid360.launch.py (starts after 1 second delay)
-    mid360_launch = TimerAction(
-        period=1.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    os.path.join(package_share_dir, 'launch', 'mid360.launch.py')
-                ])
-            )
-        ]
-    )
-
     # Include gnss.launch.py (starts after 2 second delay)
     gnss_launch = TimerAction(
         period=2.0,
@@ -76,24 +64,10 @@ def generate_launch_description():
         ])
     )
 
-    # Include key_event_system.launch.py (starts after 6 second delay)
-    key_event_system_launch = TimerAction(
-        period=6.0,
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    os.path.join(package_share_dir, 'launch', 'key_event_system.launch.py')
-                ])
-            )
-        ]
-    )
-
     return LaunchDescription([
         ecef_to_enu_launch,  # Start immediately as it's a static transform
-        mid360_launch,
         gnss_launch,
         ntrip_str2str_launch,
         dummy_navsatfix_launch,
         imu_launch,
-        key_event_system_launch,
     ])

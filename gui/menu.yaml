@@ -43,8 +43,8 @@ categories:
         items:
           - name: "ros2_cleanup (Kill ROS2 processes)"
             command: "/home/taro/ros2_ws/src/susumu_robo/launch/ros2_cleanup.sh"
-          - name: "robo (LiDAR+GNSS+IMU)"
-            command: "ros2 launch susumu_robo robo.launch.py"
+          - name: "outdoor_option (GNSS+IMU)"
+            command: "ros2 launch susumu_robo outdoor_option.launch.py"
           - name: "bringup (diagnostic outdoor)"
             command: "ros2 launch susumu_robo bringup_diagnostic_outdoor.launch.py"
           - name: "bringup (diagnostic indoor)"
