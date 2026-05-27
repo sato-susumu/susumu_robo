@@ -27,4 +27,9 @@ ROS2搭載でパワフルながら静かに動く小型移動ロボット。
 ### 問題あり
 - [x] ウェイクワード検出（Alexa, Hey Jarvis, Hey Mycroft）
 
+## ドキュメント
+
+- [Launchファイル一覧・依存関係図・トピックフロー](launch/README_launch.md)
+- [ノード・スクリプト仕様一覧](susumu_robo/README_scripts.md)
+
 

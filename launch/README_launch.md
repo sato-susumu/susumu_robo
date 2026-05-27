@@ -1,5 +1,20 @@
 # Launch ファイル一覧
 
+## 目次
+
+- [アクティブ](#アクティブ)
+- [非アクティブ](#非アクティブ)
+- [Launch ファイル相関図](#launch-ファイル相関図)
+  - [メインエントリポイント](#メインエントリポイント)
+  - [単独起動ファイル](#単独起動ファイル)
+  - [トピックフロー（LiDARパイプライン）](#トピックフローlidarパイプライン)
+  - [トピックフロー（スキャンデータ）](#トピックフロースキャンデータ)
+  - [トピックフロー（cmd_vel）](#トピックフローcmd_vel)
+  - [トピックフロー（障害物検知→LED）](#トピックフロー障害物検知led)
+  - [トピックフロー（IMU）](#トピックフローimu)
+
+---
+
 ## アクティブ
 
 `robo_indoor.launch.py` または `nav2.launch.py` から直接・間接に使用されているもの。
@@ -165,16 +180,105 @@ graph LR
     class openwakeword,silerovad,slam_ext external
 ```
 
+### トピックフロー（LiDARパイプライン）
+
+Livox Mid-360からLaserScanになるまでの変換フロー。
+
+```mermaid
+graph LR
+    hw(["Livox Mid-360\n(ハードウェア)"])
+    driver["livox_lidar_publisher\n(mid360.launch.py)"]
+    conv["livox_to_pointcloud2_node\n(mid360.launch.py)"]
+    pc2scan["pointcloud_to_laserscan\n(mid360.launch.py)"]
+    lf["laser_filter\n(laser_filter.launch.py)"]
+
+    hw -->|"Ethernet"| driver
+    driver -->|"/livox/lidar\n(CustomMsg)"| conv
+    conv -->|"/converted_pointcloud2\n(PointCloud2)"| pc2scan
+    pc2scan -->|"/scan_raw\n(LaserScan)"| lf
+    lf -->|"/scan\n(LaserScan, フィルタ済み)"| ...
+
+    classDef internal fill:#2a7a2a,stroke:#50b050,color:#fff
+    classDef external fill:#888,stroke:#555,color:#fff
+    class driver,conv,pc2scan,lf internal
+    class hw external
+```
+
 ### トピックフロー（スキャンデータ）
 
 ```mermaid
 graph LR
     mid360["mid360.launch.py\n(Livox Mid-360)"]
     laser_filter["laser_filter.launch.py\n(SpeckleFilter)"]
-    collision["collision_monitor.launch.py"]
-    laserscan_filter["laserscan_filter_node\n(bringup_diagnostic_indoor)"]
+    collision["collision_monitor.launch.py\n(laserscan_filter_node)"]
 
     mid360 -->|"/scan_raw"| laser_filter
     laser_filter -->|"/scan"| collision
-    laser_filter -->|"/scan"| laserscan_filter
+```
+
+### トピックフロー（cmd_vel）
+
+```mermaid
+graph LR
+    joy["joy_node\n(botwheel_teleop)"]
+    teleop["teleop_twist_joy_node\n(botwheel_teleop)"]
+    nav2(["Nav2\n(外部)"])
+    twist_stamper["twist_stamper\n(nav2.launch.py)"]
+    llm["LLMノード\n(別途起動)"]
+    twist_mux["twist_mux\n(twist_mux.launch.py)"]
+    laserscan_filter["laserscan_filter_node\n(collision_monitor)"]
+    botwheel(["botwheel_explorer\n(外部)"])
+
+    joy -->|"/joy"| teleop
+    teleop -->|"/joy_cmd_vel\n優先度:10"| twist_mux
+    nav2 -->|"/cmd_vel (Twist)"| twist_stamper
+    twist_stamper -->|"/nav_cmd_vel\n優先度:5"| twist_mux
+    llm -->|"/llm_cmd_vel\n優先度:3"| twist_mux
+    twist_mux -->|"/input_twist\n(TwistStamped)"| laserscan_filter
+    laserscan_filter -->|"/botwheel_explorer/cmd_vel\n(障害物時ゼロ化)"| botwheel
+
+    classDef internal fill:#2a7a2a,stroke:#50b050,color:#fff
+    classDef external fill:#888,stroke:#555,color:#fff
+    class joy,teleop,twist_stamper,twist_mux,laserscan_filter internal
+    class nav2,botwheel external
+```
+
+### トピックフロー（障害物検知→LED）
+
+障害物検知の結果がLED制御に伝わるフロー。
+
+```mermaid
+graph LR
+    laserscan_filter["laserscan_filter_node\n(collision_monitor)"]
+    led_ctrl["led_controller_node\n(led.launch.py)"]
+    blinkstick(["BlinkStick Strip\n(ハードウェア)"])
+
+    laserscan_filter -->|"/scan_in_range\n(Bool)"| led_ctrl
+    led_ctrl -->|"/led\n(LED msg)"| blinkstick
+
+    classDef internal fill:#2a7a2a,stroke:#50b050,color:#fff
+    classDef external fill:#888,stroke:#555,color:#fff
+    class laserscan_filter,led_ctrl internal
+    class blinkstick external
+```
+
+### トピックフロー（IMU）
+
+Livox IMUの単位変換フロー。
+
+```mermaid
+graph LR
+    hw(["Livox Mid-360\n(ハードウェア)"])
+    driver["livox_lidar_publisher\n(mid360.launch.py)"]
+    converter["livox_imu_converter\n(mid360.launch.py)"]
+    nav2(["Nav2\n(外部)"])
+
+    hw -->|"Ethernet"| driver
+    driver -->|"/livox/imu\n(Imu, G単位)"| converter
+    converter -->|"/livox/imu_ms2\n(Imu, m/s²)"| nav2
+
+    classDef internal fill:#2a7a2a,stroke:#50b050,color:#fff
+    classDef external fill:#888,stroke:#555,color:#fff
+    class driver,converter internal
+    class hw,nav2 external
 ```
