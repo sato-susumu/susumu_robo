@@ -71,27 +71,27 @@ Linting is configured with:
 
 The system uses a layered launch file structure:
 
-- `ros2_bringup.launch.py` → `bringup.launch.py` (main system launcher)
+- `bringup.launch.py` (main system launcher)
   - `base.launch.py` (twist stamper for motor control)
-  - `botwheel_teleop.launch.py` (Logicool F710 gamepad control)
   - `collision_monitor.launch.py` (obstacle avoidance)
   - Foxglove Bridge (visualization on port 8765)
+- `botwheel_teleop.launch.py` (Xbox config joystick control, started separately)
 
 ### Hardware Components Integration
 
 - **Motors**: ODrive BotWheel Explorer via USB (`botwheel_teleop.launch.py`)
-- **LiDAR**: Livox Mid-360 for 3D mapping (`ros2_mid360.launch.py`)
-- **Camera**: RealSense D435i depth camera (`ros2_realsense.launch.py`)
+- **LiDAR**: Livox Mid-360 for 3D mapping (`mid360.launch.py`)
+- **Camera**: RealSense D435i depth camera (`d435i.launch.py`)
 - **Audio**: Anker PowerConf S3 for speech I/O (TTS via `tts_voicevox.launch.py`)
-- **LEDs**: BlinkStick Strip via USB (`ros2_led.launch.py`)
-- **Navigation**: SLAM and Nav2 integration (`ros2_nav2.launch.py`)
+- **LEDs**: BlinkStick Strip via USB (`led.launch.py`)
+- **Navigation**: SLAM and Nav2 integration (`nav2.launch.py`)
 
 ### Key ROS2 Nodes
 
 - `twist_filter_node`: Safety filter that stops linear motion when obstacles detected
 - `laserscan_filter_node`: Processes LiDAR data for obstacle detection
 - `led_controller_node`: Controls LED patterns and colors based on obstacle detection
-- `tenkey_controller`: Interface for 10-key input device
+- `tenkey_publisher`: Interface for 10-key input device
 
 ### Audio Pipeline
 
@@ -103,29 +103,16 @@ The robot includes sophisticated audio processing:
 
 ## Service Management
 
-The robot uses systemd services for automatic startup. Service scripts are located in the `launch/` directory:
+ROS2ノードはlaunchファイルで直接起動する。systemdサービスは現在 `ptpd` のみ管理されている（`gui/systemd_dashboard.py` 参照）。
 
 ```bash
-# Start all core services
-cd /home/taro/ros2_ws/src/susumu_robo/launch
-./start_ros2_service.sh
+# ptpdサービス制御（時刻同期）
+sudo systemctl start ptpd
+sudo systemctl status ptpd
 
-# Check service status
-./status_ros2_service.sh
-
-# Stop all services
-./stop_ros2_service.sh
-
-# Control individual services
-sudo systemctl start ros2_bringup.service
-sudo systemctl status ros2_mid360.service
-sudo systemctl stop ros2_led.service
-
-# View service logs
-journalctl -u ros2_bringup.service -f
+# View logs
+journalctl -u ptpd -f
 ```
-
-Services include: ros2_bringup, ros2_mid360, ros2_realsense, ros2_led, ros2_nav2
 
 ## GUI Interface
 
@@ -161,7 +148,7 @@ cd /home/taro/ros2_ws/src/susumu_robo/script
 ./slam_save_map.sh
 
 # Launch navigation
-ros2 launch susumu_robo ros2_nav2.launch.py
+ros2 launch susumu_robo nav2.launch.py
 ```
 
 ## Common Commands
@@ -171,10 +158,10 @@ ros2 launch susumu_robo ros2_nav2.launch.py
 cd /home/taro/ros2_ws && colcon build && source install/setup.bash
 
 # Launch main system
-ros2 launch susumu_robo ros2_bringup.launch.py
+ros2 launch susumu_robo bringup.launch.py
 
 # Launch navigation
-ros2 launch susumu_robo ros2_nav2.launch.py
+ros2 launch susumu_robo nav2.launch.py
 
 # Launch TTS VoiceVox
 ros2 launch susumu_robo tts_voicevox.launch.py
@@ -206,8 +193,8 @@ ros2 topic bw /image_raw
 - Check dmesg for USB/network errors
 
 ### Motor Control Issues
-- DDSM115 motors use RS485 communication
-- Check USB-RS485 converter permissions: `ls -la /dev/ttyUSB*`
+- ODrive BotWheel Explorer motors use USB communication
+- Check USB device permissions: `ls -la /dev/ttyUSB*`
 - May need to add user to dialout group: `sudo usermod -a -G dialout $USER`
 - Verify motor power (12V from distribution terminal)
 
@@ -224,9 +211,6 @@ ros2 node list
 
 # Verify expected topics exist
 ros2 topic list | grep -E "(cmd_vel|scan|image)"
-
-# Check service health
-systemctl --user status ros2_*.service
 
 # Monitor CPU/memory usage
 htop
@@ -261,10 +245,6 @@ The system implements multiple safety layers:
 # Emergency stop
 ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0}, angular: {z: 0.0}}" --once
 
-# System startup sequence
-cd /home/taro/ros2_ws/src/susumu_robo/launch
-./start_ros2_service.sh
-
 # Quick diagnostics
 ros2 topic hz /scan  # Should be ~10Hz
 ros2 topic echo /scan_in_range  # Check obstacle detection
@@ -273,7 +253,6 @@ ros2 topic echo /scan_in_range  # Check obstacle detection
 ### Key File Locations
 - **Nodes**: `susumu_robo/` directory
 - **Launch files**: `launch/` directory
-- **Service scripts**: `launch/*_ros2_service.sh`
 - **GUI**: `gui/menu.py` and `gui/menu.yaml`
 - **SLAM scripts**: `script/slam_*.sh`
-- **Models**: `models/` (audio processing models)
+- **Models**: `launch/models/` (audio processing models)

@@ -7,7 +7,7 @@
 1. [laserscan_filter_node.py](#laserscan_filter_nodepy) - LiDARデータのフィルタリング
 2. [twist_filter_node.py](#twist_filter_nodepy) - 速度コマンドの安全フィルタ
 3. [led_controller_node.py](#led_controller_nodepy) - LED制御
-4. [tenkey_controller.py](#tenkey_controllerpy) - テンキー入力制御
+4. [tenkey_publisher.py](#tenkey_publisherpy) - テンキー入力制御
 5. [laser_scan_detect_test.py](#laser_scan_detect_testpy) - 物体検出テスト
 6. [laser_scan_test.py](#laser_scan_testpy) - LaserScan表示テスト
 
@@ -175,7 +175,7 @@ ros2 run susumu_robo led_controller_node
 
 ---
 
-## tenkey_controller.py
+## tenkey_publisher.py
 
 ### 概要
 USBテンキーパッドを使用してロボットを手動操作するためのコントローラです。矢印キーで前後左右の移動、5キーで停止が可能です。
@@ -220,7 +220,7 @@ sudo usermod -a -G input $USER
 
 ### 使用例
 ```bash
-ros2 run susumu_robo tenkey_controller
+ros2 run susumu_robo tenkey_publisher
 ```
 
 ---
@@ -320,7 +320,7 @@ graph TD
     subgraph Processing
         LF[laserscan_filter_node]
         TF[twist_filter_node]
-        TC[tenkey_controller]
+        TC[tenkey_publisher]
     end
     
     subgraph Output
@@ -352,7 +352,7 @@ graph TD
 - **問題**: LEDが点灯しない
   - **解決**: BlinkStickの接続とUSB権限を確認
 
-### tenkey_controller
+### tenkey_publisher
 - **問題**: デバイスが見つからない
   - **解決**: `ls /dev/input/by-id/`でデバイスパスを確認
   - パラメータで正しいパスを設定

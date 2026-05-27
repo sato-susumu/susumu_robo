@@ -93,8 +93,8 @@ categories:
         items:
           - name: "base (Base Controllers)"
             command: "ros2 launch susumu_robo base.launch.py"
-          - name: "teleop_twist_joy (Gamepad)"
-            command: "ros2 launch susumu_robo teleop_twist_joy.launch.py"
+          - name: "botwheel_teleop (Gamepad)"
+            command: "ros2 launch susumu_robo botwheel_teleop.launch.py"
           - name: "collision_monitor (Safety)"
             command: "ros2 launch susumu_robo collision_monitor.launch.py"
           - name: "twist_mux (Twist Multiplexer)"
@@ -109,8 +109,8 @@ categories:
             command: "ros2 launch susumu_robo asr_with_wake_word.launch.py"
           - name: "led (LED Control)"
             command: "ros2 launch susumu_robo led.launch.py"
-          - name: "tenkey_controller (10-key)"
-            command: "ros2 launch susumu_robo tenkey_controller.launch.py"
+          - name: "tenkey_publisher (10-key)"
+            command: "ros2 launch susumu_robo tenkey_publisher.launch.py"
 
   - name: "SLAM"
     subcategories:
@@ -121,7 +121,7 @@ categories:
       - name: "GLIM"
         items:
           - name: "run glim"
-            command: "gnome-terminal -- bash -c 'cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox'"
+            command: "gnome-terminal -- bash -c 'cd ~/glim && ros2 run glim_ros glim_rosnode --ros-args -p config_path:=/home/taro/ros2_ws/src/susumu_robo/mapping/config/livox_and_imu'"
           - name: "copy dump to ~/glim/YYYYMMDD_HHMMSS"
             command: "gnome-terminal -- bash -c 'cp -r /tmp/dump \"$HOME/glim/$(date +%Y%m%d_%H%M%S)\"; read -p \"Press Enter to close...\"'"
           - name: "run offline_viewer"
@@ -346,5 +346,5 @@ categories:
 
   - name: "systemd"
     items:
-      - name: "systemd dashborad"
-        command: "python systemd_dashboard.py"
+      - name: "systemd dashboard"
+        command: "python3 /home/taro/ros2_ws/src/susumu_robo/gui/systemd_dashboard.py"

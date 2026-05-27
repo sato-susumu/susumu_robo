@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
         process.setProcessChannelMode(QProcess.MergedChannels)
         process.readyReadStandardOutput.connect(lambda: self.display_selected_item_output(name))
         process.finished.connect(lambda: self.on_process_finished(name))
-        process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && {command}"])
+        process.start("/bin/bash", ["-c", f". /opt/ros/humble/setup.bash && . /home/taro/ros2_ws/install/setup.bash && {command}"])
 
         self.processes[name] = process
         self.item_buttons[name].setStyleSheet("background-color: lightgreen; text-align: left; padding-left: 5px;")
