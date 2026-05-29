@@ -13,6 +13,7 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>rclpy</depend>
+  <depend>speak_ros_interfaces</depend>
   <depend>std_msgs</depend>
   <depend>susumu_ros2_interfaces</depend>
   <depend>susumu_blinkstick_ros2</depend>
