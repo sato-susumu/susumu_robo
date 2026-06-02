@@ -25,6 +25,10 @@ categories:
     subcategories:
       - name: "STT"
         items:
+          - name: "livekit_wakeword_amivoice"
+            command: "gnome-terminal -- ros2 launch susumu_asr_ros livekit_wakeword_amivoice.launch.py"
+          - name: "livekit_wakeword_amivoice_debug"
+            command: "gnome-terminal -- ros2 launch susumu_asr_ros livekit_wakeword_amivoice_debug.launch.py"
           - name: "livekit_wakeword_google"
             command: "gnome-terminal -- ros2 launch susumu_asr_ros livekit_wakeword_google.launch.py"
           - name: "livekit_wakeword_google_debug"
