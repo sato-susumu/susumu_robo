@@ -15,6 +15,8 @@ categories:
         command: "gnome-terminal -- ros2 launch susumu_robo agent_option.launch.py"
       - name: "agent_option_debug (susumu_agent debug)"
         command: "gnome-terminal -- ros2 launch susumu_robo agent_option_debug.launch.py"
+      - name: "agent_gui (susumu_agent GUI)"
+        command: "gnome-terminal -- ros2 launch susumu_agent gui.launch.py"
       - name: "turtlesim (susumu_agent)"
         command: "gnome-terminal -- ros2 launch susumu_agent turtlesim.launch.py"
       - name: "turtlesim_debug (susumu_agent debug)"
