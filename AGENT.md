@@ -81,7 +81,7 @@ The system uses a layered launch file structure:
 - **Motors**: ODrive BotWheel Explorer via USB (`botwheel_teleop.launch.py`)
 - **LiDAR**: Livox Mid-360 for 3D mapping (`mid360.launch.py`)
 - **Camera**: RealSense D435i depth camera (`d435i.launch.py`)
-- **Audio**: Anker PowerConf S3 for speech I/O (TTS via `tts_voicevox.launch.py`)
+- **Audio**: TTS via `tts_option.launch.py`
 - **LEDs**: BlinkStick Strip via USB (`led.launch.py`)
 - **Navigation**: SLAM and Nav2 integration (`nav2.launch.py`)
 
@@ -162,8 +162,8 @@ ros2 launch susumu_robo robo_indoor.launch.py
 # Launch navigation
 ros2 launch susumu_robo nav2.launch.py
 
-# Launch TTS VoiceVox
-ros2 launch susumu_robo tts_voicevox.launch.py
+# Launch TTS (AivisSpeech + speak_ros)
+ros2 launch susumu_robo tts_option.launch.py
 
 # Monitor topics
 ros2 topic list
@@ -198,7 +198,6 @@ ros2 topic bw /image_raw
 - Verify motor power (12V from distribution terminal)
 
 ### Audio Device Issues
-- Anker PowerConf S3 must be set as default audio device
 - Check device list: `arecord -l` and `aplay -l`
 - Update `.asoundrc` if needed
 - Restart audio service after changes
