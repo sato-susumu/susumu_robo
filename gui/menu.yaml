@@ -7,6 +7,8 @@ categories:
         command: "gnome-terminal -- ros2 launch susumu_robo nav2.launch.py"
       - name: "audio_option_debug"
         command: "gnome-terminal -- ros2 launch susumu_robo audio_option_debug.launch.py"
+      - name: "audio_option"
+        command: "gnome-terminal -- ros2 launch susumu_robo audio_option.launch.py"
       - name: "tts_option (AivisSpeech + speak_ros)"
         command: "gnome-terminal -- ros2 launch susumu_robo tts_option.launch.py"
       - name: "stt_option (Google)"
