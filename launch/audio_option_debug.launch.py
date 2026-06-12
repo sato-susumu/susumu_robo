@@ -1,4 +1,4 @@
-"""tts_option + stt_option_debug + agent_gui + turtlesim_debug を一括起動する。"""
+"""stt_option_debug + agent_gui + turtlesim_debug + tts_option を一括起動する。"""
 import ctypes
 import subprocess
 import time
@@ -114,10 +114,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        LogInfo(msg="audio_option_debug: tts_option + stt_option_debug + agent_gui + turtlesim_debug を起動します..."),
-        OpaqueFunction(function=start_docker_and_wait),
-        tts,
+        LogInfo(msg="audio_option_debug: stt_option_debug + agent_gui + turtlesim_debug + tts_option を起動します..."),
         stt_debug,
         agent_gui,
         turtlesim_debug,
+        OpaqueFunction(function=start_docker_and_wait),
+        tts,
     ])
