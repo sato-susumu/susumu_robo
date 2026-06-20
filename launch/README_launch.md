@@ -47,8 +47,6 @@
 | `dummy_navsatfix.launch.py` | NavSatFixダミー配信 |
 | `t265.launch.py` | RealSense T265 |
 | `tts_voicevox.launch.py` | VoiceVox 音声合成 |
-| `asr_with_wake_word.launch.py` | ウェイクワード付き音声認識 |
-| `asr_with_vad.launch.py` | VAD付き音声認識 |
 | `number_key_publisher.launch.py` | 数字キー入力 |
 | `led.launch.py` | BlinkStick LED制御 |
 | `foxglove_bridge.launch.py` | Foxglove可視化ブリッジ |
@@ -150,8 +148,6 @@ graph TD
 ```mermaid
 graph LR
     subgraph "音声処理"
-        asr_wake["asr_with_wake_word.launch.py"] --> openwakeword(["openwakeword_google"])
-        asr_vad["asr_with_vad.launch.py"] --> silerovad(["silerovad_google"])
         tts["tts_voicevox.launch.py"]
     end
 

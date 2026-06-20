@@ -194,10 +194,6 @@ categories:
             command: "ros2 launch susumu_robo twist_mux.launch.py"
       - name: "Audio & UI"
         items:
-          - name: "asr_with_vad (ASR+VAD)"
-            command: "ros2 launch susumu_robo asr_with_vad.launch.py"
-          - name: "asr_with_wake_word (ASR+Wake)"
-            command: "ros2 launch susumu_robo asr_with_wake_word.launch.py"
           - name: "led (LED Control)"
             command: "ros2 launch susumu_robo led.launch.py"
           - name: "tenkey_publisher (10-key)"
