@@ -133,6 +133,8 @@ categories:
         command: "ros2 run rqt_robot_monitor rqt_robot_monitor"
       - name: "rqt_runtime_monitor"
         command: "ros2 run rqt_runtime_monitor rqt_runtime_monitor"
+      - name: "analyze_scan_raw (script)"
+        command: "gnome-terminal -- python3 /home/taro/ros2_ws/src/susumu_robo/script/analyze_scan_raw.py"
 
   - name: "ROS2 Launch"
     subcategories:
@@ -178,8 +180,10 @@ categories:
             command: "ros2 launch susumu_robo imu_rviz.launch.py"
           - name: "imu_plot (WT901 /imu Graph)"
             command: "ros2 run rqt_plot rqt_plot /imu/linear_acceleration/x /imu/linear_acceleration/y /imu/linear_acceleration/z /imu/angular_velocity/x /imu/angular_velocity/y /imu/angular_velocity/z"
-          - name: "livox_imu_ms2_rviz (/livox/imu_ms2 Visualization)"
-            command: "ros2 launch susumu_robo livox_imu_ms2_rviz.launch.py"
+          - name: "livox_imu_rviz (/livox/imu Visualization)"
+            command: "ros2 launch susumu_robo livox_imu_rviz.launch.py topic:=/livox/imu"
+          - name: "livox_imu_rviz (/livox/imu_ms2 Visualization)"
+            command: "ros2 launch susumu_robo livox_imu_rviz.launch.py topic:=/livox/imu_ms2"
           - name: "livox_imu_plot (/livox/imu Graph)"
             command: "ros2 run rqt_plot rqt_plot /livox/imu/linear_acceleration/x /livox/imu/linear_acceleration/y /livox/imu/linear_acceleration/z /livox/imu/angular_velocity/x /livox/imu/angular_velocity/y /livox/imu/angular_velocity/z"
           - name: "livox_imu_ms2_plot (/livox/imu_ms2 Graph)"
@@ -295,6 +299,8 @@ categories:
             command: "lspci"
           - name: "realsense-viewer"
             command: "realsense-viewer"
+          - name: "fix_touchscreen_rotation (script)"
+            command: "/home/taro/ros2_ws/src/susumu_robo/script/fix_touchscreen_rotation.sh"
 
   - name: "ROS2"
     subcategories:
@@ -328,6 +334,8 @@ categories:
             command: "ls -la /dev/input/js*"
           - name: "jstest-gtk"
             command: "jstest-gtk"
+          - name: "joystick_test (script)"
+            command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/joystick_test.sh"
       - name: "topic echo"
         items:
           - name: "/joy"
@@ -374,10 +382,22 @@ categories:
     items:
       - name: "rqt_tf_tree"
         command: "ros2 run rqt_tf_tree rqt_tf_tree"
+      - name: "rqt_tf_tree (script)"
+        command: "/home/taro/ros2_ws/src/susumu_robo/script/rqt_tf_tree.sh"
       - name: "tf2_tools"
         command: "ros2 run tf2_tools view_frames"
       - name: "tf2_monitor"
         command: "ros2 run tf2_ros tf2_monitor"
+      - name: "tf_monitor (script)"
+        command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/tf_monitor.sh"
+      - name: "tf2_echo (script, args: src dst)"
+        command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/tf2_echo.sh"
+      - name: "echo /tf"
+        command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/echo_tf.sh"
+      - name: "echo /tf_static"
+        command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/echo_tf_static.sh"
+      - name: "tf_save_pdf (script)"
+        command: "gnome-terminal -- /home/taro/ros2_ws/src/susumu_robo/script/tf_save_pdf.sh"
 
   - name: "Other"
     items:

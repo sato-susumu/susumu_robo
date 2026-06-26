@@ -98,7 +98,7 @@ The robot includes sophisticated audio processing:
 - Voice Activity Detection (VAD) using Silero model
 - Wake word detection with multiple models (Alexa, Hey Jarvis, Hey Mycroft)
 - Automatic Speech Recognition (ASR) integration
-- Text-to-Speech via VoiceVox
+- Text-to-Speech via AivisSpeech (`tts_option.launch.py`)
 
 ## Service Management
 

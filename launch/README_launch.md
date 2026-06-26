@@ -34,6 +34,13 @@
 | `tenkey_publisher.launch.py` | テンキー入力 |
 | `bringup_diagnostic_indoor.launch.py` | 屋内診断システム |
 | `slam_rviz.launch.py` | SLAM + RViz可視化 |
+| `tts_option.launch.py` | TTS（AivisSpeech + speak_ros + to_human_2_speak_ros） |
+| `stt_option.launch.py` | STT（Google Cloud ASR） |
+| `stt_option_debug.launch.py` | STT デバッグ起動（WAV ファイル入力対応） |
+| `audio_option.launch.py` | TTS + STT + agent をまとめて起動 |
+| `audio_option_debug.launch.py` | audio_option のデバッグ版 |
+| `agent_option.launch.py` | susumu_agent 連携起動 |
+| `agent_option_debug.launch.py` | agent_option のデバッグ版 |
 
 ## 非アクティブ
 
@@ -46,14 +53,11 @@
 | `ecef_to_enu.launch.py` | 座標系変換 (ECEF→ENU) |
 | `dummy_navsatfix.launch.py` | NavSatFixダミー配信 |
 | `t265.launch.py` | RealSense T265 |
-| `tts_voicevox.launch.py` | VoiceVox 音声合成 |
-| `number_key_publisher.launch.py` | 数字キー入力 |
 | `led.launch.py` | BlinkStick LED制御 |
 | `foxglove_bridge.launch.py` | Foxglove可視化ブリッジ |
 | `imu_rviz.launch.py` | IMU RViz可視化 |
-| `livox_imu_ms2_rviz.launch.py` | Livox IMU RViz可視化 |
+| `livox_imu_rviz.launch.py` | Livox IMU RViz可視化（`topic:=` 引数で対象トピック指定） |
 | `t265_rviz.launch.py` | T265 RViz可視化 |
-| `robo_doctor_node.launch.py` | システム診断 |
 | `bringup_diagnostic_outdoor.launch.py` | 屋外診断システム |
 
 ---
@@ -148,19 +152,20 @@ graph TD
 ```mermaid
 graph LR
     subgraph "音声処理"
-        tts["tts_voicevox.launch.py"]
+        tts["tts_option.launch.py\n(AivisSpeech + speak_ros)"]
+        stt["stt_option.launch.py\n(Google Cloud ASR)"]
+        audio["audio_option.launch.py\n(TTS+STT+agent)"]
+        agent["agent_option.launch.py\n(susumu_agent)"]
     end
 
     subgraph "可視化"
         slam_rviz["slam_rviz.launch.py"] --> slam_ext(["slam_toolbox\nonline_async_launch.py"])
         imu_rviz["imu_rviz.launch.py"]
-        livox_rviz["livox_imu_ms2_rviz.launch.py"]
+        livox_rviz["livox_imu_rviz.launch.py\n(topic:= 引数)"]
         t265_rviz["t265_rviz.launch.py"]
     end
 
     subgraph "デバッグ/診断"
-        robo_doctor["robo_doctor_node.launch.py"]
-        num_key["number_key_publisher.launch.py"]
         led["led.launch.py"]
         foxglove["foxglove_bridge.launch.py"]
     end
@@ -172,8 +177,8 @@ graph LR
     classDef internal fill:#2a7a2a,stroke:#50b050,color:#fff
     classDef external fill:#888,stroke:#555,color:#fff
 
-    class asr_wake,asr_vad,tts,slam_rviz,imu_rviz,livox_rviz,t265_rviz,robo_doctor,num_key,led,foxglove,t265 internal
-    class openwakeword,silerovad,slam_ext external
+    class tts,stt,audio,agent,slam_rviz,imu_rviz,livox_rviz,t265_rviz,led,foxglove,t265 internal
+    class slam_ext external
 ```
 
 ### トピックフロー（LiDARパイプライン）

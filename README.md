@@ -13,13 +13,13 @@ ROS2搭載でパワフルながら静かに動く小型移動ロボット。
 - [x] 衝突回避システム
 - [x] SLAM & ナビゲーション（slam_toolbox, Nav2）
 - [x] デプスカメラ（RealSense D435i）
+- [x] 音声合成（AivisSpeech + speak_ros）
+- [x] 音声認識（Google Cloud ASR）
 
 ### 一度開発したもののほったらかし
 - [x] FAST-LIO
-- [x] 音声合成（VoiceVox）
 - [x] GLIM
 - [x] GNSS
-- [x] 音声認識（ASR）
 - [x] 音声アクティビティ検出（Silero VAD）
 - [x] LED制御（BlinkStick Strip）
 - [x] Foxgloveによる可視化

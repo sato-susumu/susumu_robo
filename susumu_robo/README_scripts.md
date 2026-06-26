@@ -17,6 +17,7 @@
 11. [robo_doctor_node.py](#robo_doctor_nodepy) - システム診断
 12. [dummy_navsatfix_publisher.py](#dummy_navsatfix_publisherpy) - ダミーGNSS配信
 13. [imu_visualizer.py](#imu_visualizerpy) - IMUデータ可視化
+14. [to_human_2_speak_ros_node.py](#to_human_2_speak_ros_nodepy) - `/to_human` を speak_ros アクションへ橋渡し
 
 ---
 
@@ -599,6 +600,41 @@ python3 imu_visualizer.py /my_imu
 
 # 2トピック比較
 python3 imu_visualizer.py /imu1 /imu2
+```
+
+---
+
+## to_human_2_speak_ros_node.py
+
+### 概要
+`/to_human` トピックで届いたテキストを句読点で文ごとに分割し、`speak_ros` の `Speak` アクションへ順次送って音声合成（AivisSpeech）させるブリッジノードです。
+
+### 機能
+- `、。！？` を区切り文字とした文単位の分割
+- アクション完了を待ってから次の文を送るキュー処理
+- `speak_ros` のアクションサーバ起動を待ってからサブスクライブ開始
+
+### ROS2インターフェース
+
+#### 購読トピック
+| トピック名 | 型 | 説明 |
+|-----------|-----|------|
+| `/to_human` | `std_msgs/String` | 読み上げ対象テキスト |
+
+#### アクションクライアント
+| アクション名 | 型 | 説明 |
+|-----------|-----|------|
+| `/speak` | `speak_ros_interfaces/action/Speak` | 1 文ずつ送信して逐次発話 |
+
+### パラメータ
+
+```yaml
+input_topic: '/to_human'
+```
+
+### 使用例
+```bash
+ros2 run susumu_robo to_human_2_speak_ros
 ```
 
 ---
