@@ -15,6 +15,24 @@ ROS2搭載でパワフルながら静かに動く小型移動ロボット。
 - [x] デプスカメラ（RealSense D435i）
 - [x] 音声合成（AivisSpeech + speak_ros）
 - [x] 音声認識（Google Cloud ASR）
+- [x] Gazebo Classic シミュレーション（TurtleBot3 world 流用）
+
+## シミュレータ起動
+
+実機ハードウェアなしで全スタックを動かす場合:
+
+```bash
+# Gazebo + ロボット + 衝突回避 + twist_mux + foxglove + dummy GNSS
+ros2 launch susumu_robo robo_indoor_sim.launch.py
+
+# Nav2 (事前にマップが必要)
+ros2 launch susumu_robo slam_toolbox_sim.launch.py    # 1回目はSLAMでマップ作成
+ros2 run nav2_map_server map_saver_cli -f ~/sim_map
+ros2 launch susumu_robo nav2_sim.launch.py             # 以降はNav2で自律走行
+
+# オフライン音声 (ダミー speak + STT debug + agent)
+ros2 launch susumu_robo audio_option_sim.launch.py
+```
 
 ### 一度開発したもののほったらかし
 - [x] FAST-LIO

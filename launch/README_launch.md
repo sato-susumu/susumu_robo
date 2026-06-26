@@ -42,6 +42,20 @@
 | `agent_option.launch.py` | susumu_agent 連携起動 |
 | `agent_option_debug.launch.py` | agent_option のデバッグ版 |
 
+## シミュレータ用 (Gazebo Classic)
+
+実機ハードウェア無しで全スタックを動かすための sim 系 launch。
+
+| ファイル | 機能 |
+|---|---|
+| `sim_robot.launch.py` | Gazebo + URDF + DiffDriveController を起動 |
+| `robo_indoor_sim.launch.py` | sim_robot + collision_monitor_sim + twist_mux + foxglove + dummy GNSS + (任意) 音声 |
+| `nav2_sim.launch.py` | Nav2 (use_sim_time=true) |
+| `slam_toolbox_sim.launch.py` | slam_toolbox (use_sim_time=true) |
+| `audio_option_sim.launch.py` | ダミー speak + STT debug + agent debug でオフライン音声 |
+| `dummy_audio.launch.py` | dummy_speak_action_server + to_human_2_speak_ros |
+| `collision_monitor_sim.launch.py` | frame=laser_frame, 出力を /cmd_vel_stamped_filtered に送る sim 用版 |
+
 ## 非アクティブ
 
 | ファイル | 機能 |

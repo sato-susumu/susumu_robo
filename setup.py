@@ -47,6 +47,7 @@ setup(
             "ntrip_str2str_node = susumu_robo.ntrip_str2str_node:main",
             "robo_doctor_node = susumu_robo.robo_doctor_node:main",
             "to_human_2_speak_ros = susumu_robo.to_human_2_speak_ros_node:main",
+            "dummy_speak_action_server = susumu_robo.dummy_speak_action_server:main",
         ],
     },
 )

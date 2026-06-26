@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- D435i 相当のシミュレーション用カメラ (depth + color). 実機の `/depth_camera/...` トピックに揃える. -->
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.12 0 0.18" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.025 0.09 0.025"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.025 0.09 0.025"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_box mass="0.05" x="0.025" y="0.09" z="0.025">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_link_optical"/>
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+  </joint>
+
+  <link name="camera_link_optical"/>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/Black</material>
+
+    <sensor name="depth_camera" type="depth">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>15</update_rate>
+      <camera name="depth_cam">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>848</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+      <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace>depth_camera</namespace>
+          <remapping>depth_cam/image_raw:=color/image_rect_raw</remapping>
+          <remapping>depth_cam/camera_info:=color/camera_info</remapping>
+          <remapping>depth_cam/depth/image_raw:=aligned_depth_to_color/image_raw</remapping>
+          <remapping>depth_cam/depth/camera_info:=aligned_depth_to_color/camera_info</remapping>
+          <remapping>depth_cam/points:=depth/color/points</remapping>
+        </ros>
+        <camera_name>depth_cam</camera_name>
+        <frame_name>camera_link_optical</frame_name>
+        <hack_baseline>0.05</hack_baseline>
+        <min_depth>0.1</min_depth>
+        <max_depth>10.0</max_depth>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>

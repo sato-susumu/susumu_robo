@@ -76,6 +76,18 @@ The system uses a layered launch file structure:
   - Foxglove Bridge (visualization on port 8765)
 - `botwheel_teleop.launch.py` (joystick control, started separately)
 
+### Simulation (Gazebo Classic)
+
+実機 launch とは別系統で sim 用 launch が用意されている. URDF は `susumu_diffbot/urdf/diffbot.urdf.xacro` に `use_gazebo:=true` を渡すと Gazebo 用 plugin が有効になる.
+
+- `sim_robot.launch.py` — Gazebo + URDF + DiffDriveController. world 引数 (`turtlebot3_world.world` / `empty` / 絶対パス).
+- `robo_indoor_sim.launch.py` — `sim_robot` + collision_monitor_sim + twist_mux + foxglove + dummy_navsatfix + (任意) audio_option_sim.
+- `nav2_sim.launch.py` — Nav2 (use_sim_time=true).
+- `slam_toolbox_sim.launch.py` — slam_toolbox (use_sim_time=true).
+- `audio_option_sim.launch.py` — ダミー speak アクションサーバ + STT debug + agent debug でオフライン音声.
+- `dummy_audio.launch.py` — `dummy_speak_action_server` + `to_human_2_speak_ros` のみ.
+- `collision_monitor_sim.launch.py` — frame を `laser_frame` に切替えた sim 用 collision_monitor.
+
 ### Hardware Components Integration
 
 - **Motors**: ODrive BotWheel Explorer via USB (`botwheel_teleop.launch.py`)
